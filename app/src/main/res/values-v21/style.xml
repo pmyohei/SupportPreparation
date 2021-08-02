@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- やることセット生成時の「やること」スタイル -->
+    <style name="selectTaskForTaskSetAnimation">
+        <item name="android:stateListAnimator">@animator/select_task_for_task_set</item>
+    </style>
+</resources>

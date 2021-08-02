@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- やること選択前のデザイン（選択可） -->
+    <item android:state_enabled="true">
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <!-- 枠線 -->
+            <stroke android:width="2px"
+                android:color="@color/purple_200"/>
+
+            <!-- 角の曲がり具合 -->
+            <corners
+                android:radius="20px" />
+        </shape>
+    </item>
+
+    <!-- やること選択前のデザイン（選択不可） -->
+    <item android:state_enabled="false">
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <!-- 枠線 -->
+            <stroke android:width="2px"
+                android:color="@color/purple_200"/>
+
+            <!-- 背景色 -->
+            <solid  android:color="@color/purple_200"/>
+
+            <!-- 角の曲がり具合 -->
+            <corners
+                android:radius="20px" />
+        </shape>
+    </item>
+
+</selector>
