@@ -74,7 +74,7 @@ public class SetManageActivity extends AppCompatActivity implements AsyncSetTabl
         FragmentManager transaction = getSupportFragmentManager();
 
         //ダイアログを生成
-        DialogFragment dialog = new CreateSetDialog();
+        DialogFragment dialog = new CreateSetDialog((AsyncSetTableOperaion.SetOperationListener)SetManageActivity.this);
         dialog.setArguments(bundle);
         dialog.show(transaction, "CreateTask");
     }
@@ -202,18 +202,18 @@ public class SetManageActivity extends AppCompatActivity implements AsyncSetTabl
 
         //-- 「やることセット」の表示
         //レイアウトからリストビューを取得
-        RecyclerView rv  = (RecyclerView) findViewById(R.id.rv_setList);
+        RecyclerView rv_set  = (RecyclerView) findViewById(R.id.rv_setList);
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager l_manager = new LinearLayoutManager(this);
         l_manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        rv.setLayoutManager(l_manager);
+        rv_set.setLayoutManager(l_manager);
 
         Log.i("test", "onSuccessSetRead");
 
         //アダプタの生成・設定
         SetRecyclerAdapter adapter = new SetRecyclerAdapter(this, setList, tasksList);
-        rv.setAdapter(adapter);
+        rv_set.setAdapter(adapter);
     }
 
     @Override
@@ -274,7 +274,7 @@ public class SetManageActivity extends AppCompatActivity implements AsyncSetTabl
         rv.setLayoutManager(ll_manager);
 
         //アダプタの生成・設定
-        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(this, taskList);
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(this, R.layout.item_task_for_set, taskList);
         rv.setAdapter(adapter);
     }
 

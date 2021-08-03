@@ -3,8 +3,22 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_set.xml" value="0.203125" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_task.xml" value="0.31197916666666664" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.31197916666666664" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_main.xml" value="0.23867753623188406" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_set_manage.xml" value="0.28125" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_support.xml" value="0.2" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_task_manage.xml" value="0.1578125" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_dashboard.xml" value="0.2" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_home.xml" value="0.2857789855072464" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_notifications.xml" value="0.28125" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_set.xml" value="0.1578125" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task.xml" value="0.20364583333333333" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_for_set.xml" value="0.29583333333333334" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/list_set_manage.xml" value="0.28125" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/list_task_manage.xml" value="0.2708333333333333" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/bottom_nav_menu.xml" value="0.17447916666666666" />
       </map>
     </option>
   </component>

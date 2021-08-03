@@ -36,6 +36,7 @@ public class TaskManageActivity extends AppCompatActivity implements AsyncTaskTa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_manage);
 
@@ -160,7 +161,7 @@ public class TaskManageActivity extends AppCompatActivity implements AsyncTaskTa
         rv_task.setLayoutManager(new GridLayoutManager(this, 2));
 
         //アダプタの生成
-        this.taskAdapter = new TaskRecyclerAdapter(this, this.taskList);
+        this.taskAdapter = new TaskRecyclerAdapter(this, R.layout.item_task, this.taskList);
 
         //リスナー設定
         this.taskAdapter.setOnItemClickListener(new View.OnClickListener() {

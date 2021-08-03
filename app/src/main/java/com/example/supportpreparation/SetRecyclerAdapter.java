@@ -29,8 +29,8 @@ public class SetRecyclerAdapter extends RecyclerView.Adapter<SetRecyclerAdapter.
     class ViewHolder extends RecyclerView.ViewHolder {
 
         //レイアウト内のビュー
-        TextView tv_setName;
-        RecyclerView rv_tasks;
+        TextView        tv_setName;
+        RecyclerView    rv_tasks;
 
         /*
          * コンストラクタ
@@ -89,7 +89,7 @@ public class SetRecyclerAdapter extends RecyclerView.Adapter<SetRecyclerAdapter.
             Log.i("test", "set adapter onBindViewHolder");
 
             //アダプタの生成・設定
-            TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(this.mContext, this.mTasksList.get(i));
+            TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(this.mContext, R.layout.item_task, this.mTasksList.get(i));
             viewHolder.rv_tasks.setAdapter(adapter);
         }
 

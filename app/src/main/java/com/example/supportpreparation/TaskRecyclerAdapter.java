@@ -20,6 +20,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     private List<TaskTable>         mData;
     private Context                 mContext;
     private View.OnClickListener    clickListener;
+    private int                     mLayoutID;
     //private OnRecyclerListener mListener;
 
     /*
@@ -48,9 +49,10 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     /*
      * コンストラクタ
      */
-    public TaskRecyclerAdapter(Context context, List<TaskTable> data) {
-        this.mData    = data;
-        this.mContext = context;
+    public TaskRecyclerAdapter(Context context, int layoutID, List<TaskTable> data) {
+        this.mData     = data;
+        this.mContext  = context;
+        this.mLayoutID = layoutID;
     }
 
     /*
@@ -60,7 +62,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     public TaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(this.mContext);
-        View view = inflater.inflate(R.layout.item_task, viewGroup, false);
+        View view = inflater.inflate(this.mLayoutID, viewGroup, false);
 
         Log.i("test", "onCreateViewHolder i=" + i);
 

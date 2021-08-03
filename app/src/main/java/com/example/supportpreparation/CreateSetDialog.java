@@ -23,15 +23,19 @@ import androidx.fragment.app.DialogFragment;
  */
 public class CreateSetDialog extends DialogFragment {
 
-    private boolean updateFlg;          //更新フラグ
-    private String  preSet;             //更新前-「やることセット名」
+    private boolean mUpdateFlg;                         //更新フラグ
+    private String  mPreSet;                            //更新前-「やることセット名」
+                                                        //呼び出し元リスナー
+    private AsyncSetTableOperaion.SetOperationListener
+                    mListener;
 
     /*
      * コンストラクタ
      */
-    public CreateSetDialog() {
+    public CreateSetDialog(AsyncSetTableOperaion.SetOperationListener listener) {
+        this.mListener = listener;
         //初期値：非更新
-        this.updateFlg = false;
+        this.mUpdateFlg = false;
     }
 
     @Override
@@ -73,17 +77,17 @@ public class CreateSetDialog extends DialogFragment {
         //---- ビューの設定も本メソッドで行う必要あり（onCreateDialog()内だと落ちる）
 
         //呼び出し元から情報を取得
-        this.preSet = getArguments().getString("TaskSetName");
+        this.mPreSet = getArguments().getString("TaskSetName");
 
         //更新であれば
-        if( this.preSet != null ){
+        if( this.mPreSet != null ){
             //-- 入力済みデータの設定
             //「やることセット」
             EditText et_task = (EditText) dialog.findViewById(R.id.et_dialogTaskSet);
-            et_task.setText(this.preSet);
+            et_task.setText(this.mPreSet);
 
             //更新フラグを「更新」に
-            this.updateFlg = true;
+            this.mUpdateFlg = true;
         }
 
         //-- 「保存ボタン」のリスナー設定
@@ -93,10 +97,10 @@ public class CreateSetDialog extends DialogFragment {
             public void onClick(View v) {
 
                 //セット名を取得
-                String taskSet = ((EditText) dialog.findViewById(R.id.et_dialogTaskSet)).getText().toString();
+                String setName = ((EditText) dialog.findViewById(R.id.et_dialogTaskSet)).getText().toString();
 
                 //-- フォーマットチェック
-                if (taskSet == "") {
+                if (setName.isEmpty()) {
                     //未入力の場合、エラー表示
                     ((TextView) dialog.findViewById(R.id.tv_alert)).setText("未入力です");
 
@@ -109,14 +113,14 @@ public class CreateSetDialog extends DialogFragment {
                     AppDatabase db = AppDatabaseSingleton.getInstanceNotFirst();
 
                     //新規作成か更新か
-                    if (updateFlg) {
+                    if (mUpdateFlg) {
                         //更新
-                        new AsyncSetTableOperaion(db, (SetManageActivity) getActivity(), AsyncSetTableOperaion.DB_OPERATION.UPDATE, preSet, taskSet).execute();
+                        new AsyncSetTableOperaion(db, mListener, AsyncSetTableOperaion.DB_OPERATION.UPDATE, mPreSet, setName).execute();
 
                     } else {
                         Log.i("test", "save");
                         //新規生成
-                        new AsyncSetTableOperaion(db, (SetManageActivity) getActivity(), AsyncSetTableOperaion.DB_OPERATION.CREATE, taskSet).execute();
+                        new AsyncSetTableOperaion(db, mListener, AsyncSetTableOperaion.DB_OPERATION.CREATE, setName).execute();
                     }
 
                     //ダイアログ閉じる

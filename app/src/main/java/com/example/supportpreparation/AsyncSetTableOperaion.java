@@ -272,7 +272,7 @@ public class AsyncSetTableOperaion extends AsyncTask<Void, Void, Integer> {
     /*
      * 処理結果通知用のインターフェース
      */
-    interface SetOperationListener {
+    public interface SetOperationListener {
 
         /*
          * 取得完了時

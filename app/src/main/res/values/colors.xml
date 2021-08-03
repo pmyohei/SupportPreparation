@@ -7,4 +7,21 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="white_2">#f5f5f5</color>
+    <color name="white_3">#e2f3f5</color>
+
+    <color name="orange">#feb062</color>
+
+    <color name="red">#fc5c9c</color>
+    <color name="red_1">#fccde2</color>
+
+
+    <color name="bg_task">#fc5c9c</color>
+    <color name="tc_task">#fccde2</color>
+
+    <color name="bg_taskSet">#e2f3f5</color>
+    <color name="tc_taskSet">#FF018786</color>
+
+
 </resources>
