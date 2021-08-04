@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/purple_200">
+        android:background="@color/bg_diarog">
 
         <TextView
             android:id="@+id/tv_title"
@@ -20,7 +21,7 @@
             android:paddingLeft="10dp"
             android:text="やること"
             android:textSize="14sp"
-            android:textColor="@color/black"/>
+            android:textColor="@color/white"/>
 
         <Button
             android:id="@+id/bt_entryTask"
@@ -33,7 +34,9 @@
             android:background="@drawable/dialog_button"
             android:stateListAnimator="@null"
             android:text="保存"
-            android:textSize="12sp"/>
+            android:textColor="@color/bg_diarog"
+            android:textSize="12sp"
+            app:backgroundTint="@color/white"/>
 
     </LinearLayout>
 
@@ -49,7 +52,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp"
             android:text="やること"/>
 
@@ -60,7 +63,7 @@
             android:layout_weight="5"
             android:background="@drawable/dialog_edittext"
             android:paddingLeft="10dp"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp"/>
 
     </LinearLayout>
@@ -78,7 +81,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginTop="20dp"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp"
             android:text="時間" />
 
@@ -88,6 +91,7 @@
             android:layout_height="60sp"
             android:layout_weight="1"
             android:clipToPadding="false"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp" />
         <NumberPicker
             android:id="@+id/np_dialogTime10th"
@@ -95,6 +99,7 @@
             android:layout_height="60sp"
             android:layout_weight="1"
             android:layout_marginLeft="5dp"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp" />
         <NumberPicker
             android:id="@+id/np_dialogTime1th"
@@ -102,6 +107,7 @@
             android:layout_height="60sp"
             android:layout_weight="1"
             android:layout_marginLeft="5dp"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp" />
 
         <TextView
@@ -112,7 +118,7 @@
             android:layout_gravity="bottom"
             android:textSize="12sp"
             android:text="min"
-            android:textColor="@color/purple_200" />
+            android:textColor="@color/bg_diarog" />
 
     </LinearLayout>
 

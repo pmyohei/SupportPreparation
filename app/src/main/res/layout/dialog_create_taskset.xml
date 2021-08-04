@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/purple_200">
+        android:background="@color/bg_diarog">
 
         <TextView
             android:id="@+id/tv_title"
@@ -20,7 +21,7 @@
             android:paddingLeft="10dp"
             android:text="やることセット"
             android:textSize="14sp"
-            android:textColor="@color/black"/>
+            android:textColor="@color/white"/>
 
         <Button
             android:id="@+id/bt_entryTaskSet"
@@ -30,10 +31,11 @@
             android:layout_margin="4dp"
             android:layout_marginRight="16dp"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/dialog_button"
             android:stateListAnimator="@null"
             android:text="保存"
-            android:textSize="12sp"/>
+            android:textColor="@color/bg_diarog"
+            android:textSize="12sp"
+            app:backgroundTint="@color/white"/>
 
     </LinearLayout>
 
@@ -49,7 +51,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp"
             android:text="セット名"/>
 
@@ -60,7 +62,7 @@
             android:layout_weight="5"
             android:background="@drawable/dialog_edittext"
             android:paddingLeft="10dp"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/bg_diarog"
             android:textSize="12sp"/>
 
     </LinearLayout>
