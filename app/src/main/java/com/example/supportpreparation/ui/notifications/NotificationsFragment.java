@@ -43,26 +43,26 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
     private Context                 mContext;                   //コンテキスト（親アクティビティ）
     private AppDatabase             mDB;                        //DB
     private List<SetTable>          mSetList;                   //「やることセット」リスト
-    private List<List<TaskTable>>   mTasksList;                 //「やることセット」リスト
+    private List<List<TaskTable>>   mTasksList;                 //「やること」リスト
     private SetRecyclerAdapter      mSetAdapter;                //「やることセット」表示アダプタ
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         //自身のフラグメントを保持
-        this.mFragment = getParentFragmentManager().getFragments().get(0);
+        mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
-        this.mRootLayout = inflater.inflate(R.layout.fragment_notifications, container, false);
+        mRootLayout = inflater.inflate(R.layout.fragment_notifications, container, false);
         //親アクティビティのコンテキスト
-        this.mContext = this.mRootLayout.getContext();
+        mContext = mRootLayout.getContext();
         //DB操作インスタンスを取得
-        this.mDB = AppDatabaseSingleton.getInstance(this.mRootLayout.getContext());
+        mDB = AppDatabaseSingleton.getInstance(mRootLayout.getContext());
 
         //現在登録されている「やること」「やることセット」を表示
-        this.displayData();
+        displayData();
 
         // FloatingActionButton
-        FloatingActionButton fab = (FloatingActionButton) this.mRootLayout.findViewById(R.id.fab_addSet);
+        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,9 +105,9 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
 
         //-- 非同期スレッドにて、読み込み開始
         //「やること」
-        new AsyncTaskTableOperaion(this.mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
+        new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
         //「やることセット」
-        new AsyncSetTableOperaion(this.mDB, this, AsyncSetTableOperaion.DB_OPERATION.READ).execute();
+        new AsyncSetTableOperaion(mDB, this, AsyncSetTableOperaion.DB_OPERATION.READ).execute();
     }
 
     /*
@@ -156,7 +156,7 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
         tv_data.setText(task.getTaskTime() + " min");
 
         //「やること」データを表示先のビューに追加
-        this.ll_rootDisplay.addView( taskLayout );
+        ll_rootDisplay.addView( taskLayout );
         */
     }
 
@@ -177,8 +177,8 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
         Log.i("test", "start onSuccessSetRead");
 
         //「やることセット」「紐づいたやること」を保持
-        this.mSetList   = setList;
-        this.mTasksList = tasksList;
+        mSetList   = setList;
+        mTasksList = tasksList;
 
         //-- 「やることセット」の表示
         //レイアウトからリストビューを取得
@@ -192,8 +192,8 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
         Log.i("test", "onSuccessSetRead");
 
         //アダプタの生成・設定
-        this.mSetAdapter = new SetRecyclerAdapter(mContext, setList, tasksList);
-        rv_set.setAdapter(this.mSetAdapter);
+        mSetAdapter = new SetRecyclerAdapter(mContext, setList, tasksList);
+        rv_set.setAdapter(mSetAdapter);
     }
 
     @Override
@@ -224,11 +224,11 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
         }
 
         //生成された「やることセット」情報をリストに追加
-        this.mSetList.add( new SetTable(setName) );
-        this.mTasksList.add( new ArrayList<>() );
+        mSetList.add( new SetTable(setName) );
+        mTasksList.add( new ArrayList<>() );
 
         //アダプタに変更を通知
-        this.mSetAdapter.notifyDataSetChanged();
+        mSetAdapter.notifyDataSetChanged();
         Log.i("test", "notifyDataSetChanged");
     }
 

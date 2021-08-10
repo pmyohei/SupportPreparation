@@ -18,6 +18,7 @@
         android:layout_marginBottom="@dimen/fab_margin_bottom"
         android:layout_marginRight="@dimen/fab_margin_right"
         app:backgroundTint="@color/white_3"
-        app:srcCompat="@drawable/ic_action_add" />
+        app:tint="@color/teal_700"
+        app:srcCompat="@drawable/ic_action_check_32px" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

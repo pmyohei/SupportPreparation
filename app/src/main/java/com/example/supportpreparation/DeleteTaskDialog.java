@@ -30,8 +30,8 @@ public class DeleteTaskDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         //呼び出し元から情報を取得
-        String taskName = getArguments().getString("TaskName");
-        int taskTime    = getArguments().getInt("TaskTime");
+        String taskName     = getArguments().getString("TaskName");
+        int     taskTime    = getArguments().getInt("TaskTime");
 
         //表示内容の設定
         builder.setMessage("削除しますか？" + taskName + " " + taskTime + " min")

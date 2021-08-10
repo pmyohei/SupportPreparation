@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_taskset_red_32px"
         android:title="@string/title_group" />
 
+    <item
+        android:id="@+id/navigation_time"
+        android:icon="@drawable/ic_time_manage_32px"
+        android:title="@string/title_time" />
+
 </menu>

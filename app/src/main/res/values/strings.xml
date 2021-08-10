@@ -3,4 +3,13 @@
     <string name="title_support">Support</string>
     <string name="title_task">Task</string>
     <string name="title_group">Group</string>
+    <string name="title_time">Time</string>
+
+    <string name="limittime_no_input">--:--</string>
+    <string name="limitdate_no_input">--/--</string>
+
+    <string name="heading_remaining_time">Limit</string>
+
+    <string name="heading_next">Next</string>
+
 </resources>

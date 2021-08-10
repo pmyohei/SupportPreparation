@@ -97,7 +97,7 @@ public class TaskManageActivity extends AppCompatActivity implements AsyncTaskTa
         String taskName = ((TextView)view.findViewById(R.id.tv_taskName)).getText().toString();
         String taskTimeStr = ((TextView)view.findViewById(R.id.tv_taskTime)).getText().toString();
 
-        taskTimeStr = taskTimeStr.replace(" min", "");
+        //taskTimeStr = taskTimeStr.replace(" min", "");
         int taskTime = Integer.parseInt(taskTimeStr);
 
         //ダイアログへ渡すデータを設定

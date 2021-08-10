@@ -22,17 +22,51 @@
 
     <color name="gray_1">#716e77</color>
 
+    <!-- 候補 -->
+    <color name="a_blue_1">#8cbadb</color>
+    <color name="a_blue_2">#72bbe5</color>
+    <color name="a_green_1">#9fcc95</color>
+    <color name="a_green_2">#9dd3a8</color>
+    <color name="a_green_3">#96ceb4</color>
+    <color name="a_red_1">#e88992</color>
+    <color name="a_red_2">#d9534f</color>
+    <color name="a_gray_1">#c4c1be</color>
+    <color name="a_yellow_1">#fff1ac</color>
+    <color name="a_parple_1">#d5a4cf</color>
+    <color name="a_parple_2">#a696c8</color>
+    <color name="a_orange_1">#ff8a5c</color>
+    <color name="a_orange_2">#ffad60</color>
+
     <!-- -->
 
     <color name="bg_task">#ffb6b9</color>
-    <color name="tc_task">#f5f5f5</color>
+    <color name="tx_task">#f5f5f5</color>
+
+    <color name="bg_task_very_short">#8cbadb</color>
+    <color name="tx_task_very_short">#e2f3f5</color>
+    <color name="bg_task_short">#9fcc95</color>
+    <color name="tx_task_short">#e2f3f5</color>
+    <color name="bg_task_normal">#ff8a5c</color>
+    <color name="tx_task_normal">#e2f3f5</color>
+    <color name="bg_task_long">#e88992</color>
+    <color name="tx_task_long">#e2f3f5</color>
+    <color name="bg_task_very_long">#a696c8</color>
+    <color name="tx_task_very_long">#e2f3f5</color>
+
 
     <color name="bg_taskSet">#e2f3f5</color>
-    <color name="tc_taskSet">#FF018786</color>
+    <color name="tx_taskSet">#FF018786</color>
 
     <color name="bg_diarog">#8ac6d1</color>
 
     <color name="bg_bottom_navi_icon_true">#8ac6d1</color>
     <color name="bg_bottom_navi_icon_false">#716e77</color>
+
+    <color name="bg_limit">#716e77</color>
+    <color name="tx_limit">#716e77</color>
+
+
+
+
 
 </resources>

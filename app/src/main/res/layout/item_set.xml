@@ -23,7 +23,7 @@
             android:layout_gravity="center_horizontal"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/tc_taskSet"
+            android:textColor="@color/tx_taskSet"
             android:text="やること"/>
 
         <androidx.recyclerview.widget.RecyclerView

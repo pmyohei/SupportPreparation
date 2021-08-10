@@ -22,6 +22,7 @@ import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.CreateTaskDialog;
+import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
@@ -31,44 +32,46 @@ import java.util.List;
 
 public class DashboardFragment extends Fragment implements AsyncTaskTableOperaion.TaskOperationListener {
 
-    private final int           NOT_DELETE_WAITING = -1;    //「やること」削除待ちなし
+    private final int NOT_DELETE_WAITING = -1;    //「やること」削除待ちなし
 
-    private View                mRootLayout;                //本フラグメントに設定しているレイアウト
-    private Fragment            mFragment;                  //本フラグメント
-    private Context             mContext;                   //コンテキスト（親アクティビティ）
-    private AppDatabase         mDB;                        //DB
-    private List<TaskTable>     mTaskList;                  //「やること」リスト
-    private TaskRecyclerAdapter mTaskAdapter;               //「やること」表示アダプタ
-    private int                 _mDeletedTaskPos;           //削除対象のID
+    private MainActivity            mParentActivity;            //親アクティビティ
+    private View                    mRootLayout;                //本フラグメントに設定しているレイアウト
+    private Fragment                mFragment;                  //本フラグメント
+    private Context                 mContext;                   //コンテキスト（親アクティビティ）
+    private AppDatabase             mDB;                        //DB
+    private List<TaskTable>         mTaskList;                  //「やること」リスト
+    private TaskRecyclerAdapter     mTaskAdapter;               //「やること」表示アダプタ
+    private int                     _mDeletedTaskPos;           //削除対象のID
     private AsyncTaskTableOperaion.TaskOperationListener
-                                mTaskListener;              //「やること」操作リスナー
+            mTaskListener;              //「やること」操作リスナー
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-
         //自身のフラグメントを保持
-        this.mFragment = getParentFragmentManager().getFragments().get(0);
+        mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
-        this.mRootLayout = inflater.inflate(R.layout.fragment_dashboard, container, false);
+        mRootLayout = inflater.inflate(R.layout.fragment_dashboard, container, false);
         //親アクティビティのコンテキスト
-        this.mContext = this.mRootLayout.getContext();
+        mContext = mRootLayout.getContext();
         //DB操作インスタンスを取得
-        this.mDB = AppDatabaseSingleton.getInstance(this.mContext);
+        mDB = AppDatabaseSingleton.getInstance(mContext);
+        //親アクティビティ
+        mParentActivity = (MainActivity) getActivity();
         //「やること」操作リスナー
+        mTaskListener = (AsyncTaskTableOperaion.TaskOperationListener) mFragment;
 
-        Log.i("test", "pre taskListener = " + getParentFragmentManager().getFragments().get(0));
-        this.mTaskListener = (AsyncTaskTableOperaion.TaskOperationListener) this.mFragment;
-        Log.i("test", "taskListener");
         //削除待ちの「やること」-リストIndex
-        this._mDeletedTaskPos = NOT_DELETE_WAITING;
+        _mDeletedTaskPos = NOT_DELETE_WAITING;
 
         //現在登録されている「やること」を表示
-        this.displayTask();
+        //displayTask();
+        mTaskList = mParentActivity.getTaskData();
+        this.displayTaskData();
 
         // FloatingActionButton
-        FloatingActionButton fab = (FloatingActionButton) this.mRootLayout.findViewById(R.id.fab_addTask);
+        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addTask);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,15 +89,11 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
                 //FragmentManager生成
                 FragmentManager transaction = getParentFragmentManager();
 
-                Log.i("test", "getParentFragmentManager");
-
                 //ダイアログを生成
                 DialogFragment dialog = new CreateTaskDialog((AsyncTaskTableOperaion.TaskOperationListener) mFragment);
                 Log.i("test", "CreateTaskDialog");
                 dialog.setArguments(bundle);
-                Log.i("test", "setArguments");
                 dialog.show(transaction, "CreateTask");
-                Log.i("test", "show");
             }
         });
 
@@ -112,24 +111,24 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
      * 「やること」の表示
      *    登録済みの「やること」データを全て表示する。
      */
-    private void displayTask(){
+    private void displayTask() {
 
         //-- 非同期スレッドにて、読み込み
         //「やること」
-        new AsyncTaskTableOperaion(this.mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
+        new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
     }
 
 
     /*
      * 「やること」編集ダイアログの生成
      */
-    private void createUpdateTaskDialog(View view ) {
+    private void createUpdateTaskDialog(View view) {
 
         //「やること」情報
-        String taskName = ((TextView)view.findViewById(R.id.tv_taskName)).getText().toString();
-        String taskTimeStr = ((TextView)view.findViewById(R.id.tv_taskTime)).getText().toString();
+        String taskName = ((TextView) view.findViewById(R.id.tv_taskName)).getText().toString();
+        String taskTimeStr = ((TextView) view.findViewById(R.id.tv_taskTime)).getText().toString();
 
-        taskTimeStr = taskTimeStr.replace(" min", "");
+        //taskTimeStr = taskTimeStr.replace(" min", "");
         int taskTime = Integer.parseInt(taskTimeStr);
 
         //ダイアログへ渡すデータを設定
@@ -149,13 +148,13 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
     /*
      * 「やること」リスト検索
      */
-    private int getIdTaskList( String task, int taskTime ) {
+    private int getIdTaskList(String task, int taskTime) {
 
         int i = 0;
-        for( TaskTable taskInfo: this.mTaskList){
+        for (TaskTable taskInfo : mTaskList) {
 
             //「やること」「やること時間」が一致するデータを発見した場合
-            if( ( task == taskInfo.getTaskName() ) && (taskTime == taskInfo.getTaskTime()) ){
+            if ((task == taskInfo.getTaskName()) && (taskTime == taskInfo.getTaskTime())) {
                 return i;
             }
             i++;
@@ -165,30 +164,22 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         return -1;
     }
 
-    /* -------------------
-     * リスナークラス
+    /*
+     * 「やること」データを表示エリアにセット
      */
-
-
-    /* -------------------
-     * インターフェース：「やること」
-     *   「やること」の表示
-     */
-    @Override
-    public void onSuccessTaskRead(List<TaskTable> taskList) {
-
-        //「やること」を保持
-        this.mTaskList = taskList;
+    public void displayTaskData() {
 
         //レイアウトからリストビューを取得
-        RecyclerView rv_task  = (RecyclerView) this.mRootLayout.findViewById(R.id.rv_taskList);
+        RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
         //グリッド表示の設定
-        rv_task.setLayoutManager(new GridLayoutManager(this.mContext, 2));
+        rv_task.setLayoutManager(new GridLayoutManager(mContext, 2));
         //アダプタの生成
-        this.mTaskAdapter = new TaskRecyclerAdapter(this.mContext, R.layout.item_task, this.mTaskList);
+        Log.i("test", "dash  pre TaskRecyclerAdapter");
+        mTaskAdapter = new TaskRecyclerAdapter(mContext, R.layout.item_task, mTaskList);
+        Log.i("test", "dash TaskRecyclerAdapter");
 
         //リスナー設定
-        this.mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
+        mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createUpdateTaskDialog(view);
@@ -196,25 +187,25 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         });
 
         //アダプタの設定
-        rv_task.setAdapter(this.mTaskAdapter);
+        rv_task.setAdapter(mTaskAdapter);
 
         //ドラッグアンドドロップ、スワイプの設定
         ItemTouchHelper helper = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback( ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
                         ItemTouchHelper.LEFT ){
                     @Override
-                    public boolean onMove(@NonNull RecyclerView recyclerView,
+                    public boolean onMove(@NonNull RecyclerView            recyclerView,
                                           @NonNull RecyclerView.ViewHolder viewHolder,
                                           @NonNull RecyclerView.ViewHolder target) {
                         //並び替えは要検討
-                        /*
-                        //！getAdapterPosition()←非推奨
-                        final int fromPos = viewHolder.getAdapterPosition();
-                        final int toPos   = target.getAdapterPosition();
-                        //アイテム移動を通知
-                        taskAdapter.notifyItemMoved(fromPos, toPos);
-                        Log.i("test", "onMove " + fromPos + " " + toPos);
-                         */
+                    /*
+                    //！getAdapterPosition()←非推奨
+                    final int fromPos = viewHolder.getAdapterPosition();
+                    final int toPos   = target.getAdapterPosition();
+                    //アイテム移動を通知
+                    taskAdapter.notifyItemMoved(fromPos, toPos);
+                    Log.i("test", "onMove " + fromPos + " " + toPos);
+                     */
                         return true;
                     }
 
@@ -228,19 +219,108 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
 
                         //-- DBから削除
                         int i = viewHolder.getAdapterPosition();
-                        String taskName = taskList.get(i).getTaskName();
-                        int    taskTime = taskList.get(i).getTaskTime();
+                        String taskName = mTaskList.get(i).getTaskName();
+                        int    taskTime = mTaskList.get(i).getTaskTime();
 
                         new AsyncTaskTableOperaion(mDB, mTaskListener, AsyncTaskTableOperaion.DB_OPERATION.DELETE, taskName, taskTime).execute();
 
-                        //アイテム削除を通知
+                        //削除アイテムを保持
                         _mDeletedTaskPos = viewHolder.getAdapterPosition();
+
+                        //※アダプタへの削除通知は、DBの削除完了後、行う
                     }
                 }
         );
 
         //リサイクラービューをアタッチ
         helper.attachToRecyclerView(rv_task);
+
+    }
+
+
+
+
+
+    /* -------------------
+     * リスナークラス
+     */
+
+
+    /* -------------------
+     * インターフェース：「やること」
+     *   「やること」の表示
+     */
+    @Override
+    public void onSuccessTaskRead(List<TaskTable> taskList) {
+        /*
+        //「やること」を保持
+        mTaskList = taskList;
+
+        //レイアウトからリストビューを取得
+        RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+        //グリッド表示の設定
+        rv_task.setLayoutManager(new GridLayoutManager(mContext, 2));
+        //アダプタの生成
+        Log.i("test", "dash  pre TaskRecyclerAdapter");
+        mTaskAdapter = new TaskRecyclerAdapter(mContext, R.layout.item_task, mTaskList);
+        Log.i("test", "dash TaskRecyclerAdapter");
+
+        //リスナー設定
+        mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createUpdateTaskDialog(view);
+            }
+        });
+
+        //アダプタの設定
+        rv_task.setAdapter(mTaskAdapter);
+
+        //ドラッグアンドドロップ、スワイプの設定
+        ItemTouchHelper helper = new ItemTouchHelper(
+            new ItemTouchHelper.SimpleCallback( ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
+                    ItemTouchHelper.LEFT ){
+                @Override
+                public boolean onMove(@NonNull RecyclerView            recyclerView,
+                                      @NonNull RecyclerView.ViewHolder viewHolder,
+                                      @NonNull RecyclerView.ViewHolder target) {
+                    //並び替えは要検討
+                    //！getAdapterPosition()←非推奨
+                    //final int fromPos = viewHolder.getAdapterPosition();
+                    //final int toPos   = target.getAdapterPosition();
+                    ////アイテム移動を通知
+                    //taskAdapter.notifyItemMoved(fromPos, toPos);
+                    //Log.i("test", "onMove " + fromPos + " " + toPos);
+
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+                    if( _mDeletedTaskPos != NOT_DELETE_WAITING ){
+                        //削除待ちのものがあるなら、何もしない
+                        return;
+                    }
+
+                    //-- DBから削除
+                    int i = viewHolder.getAdapterPosition();
+                    String taskName = taskList.get(i).getTaskName();
+                    int    taskTime = taskList.get(i).getTaskTime();
+
+                    new AsyncTaskTableOperaion(mDB, mTaskListener, AsyncTaskTableOperaion.DB_OPERATION.DELETE, taskName, taskTime).execute();
+
+                    //削除アイテムを保持
+                    _mDeletedTaskPos = viewHolder.getAdapterPosition();
+
+                    //※アダプタへの削除通知は、DBの削除完了後、行う
+                }
+            }
+        );
+
+        //リサイクラービューをアタッチ
+        helper.attachToRecyclerView(rv_task);
+        */
     }
 
     @Override
@@ -261,7 +341,7 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         }
 
         //トーストの生成
-        Toast toast = new Toast(this.mContext);
+        Toast toast = new Toast(mContext);
         toast.setText(message);
         //toast.setGravity(Gravity.CENTER, 0, 0);   //E/Toast: setGravity() shouldn't be called on text toasts, the values won't be used
         toast.show();
@@ -272,23 +352,23 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         }
 
         //生成された「やること」をリストに追加
-        this.mTaskList.add( taskTable );
+        mTaskList.add( taskTable );
         //アダプタに変更を通知
-        this.mTaskAdapter.notifyDataSetChanged();
+        mTaskAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onSuccessTaskDelete(String task, int taskTime) {
 
         //リストから削除
-        this.mTaskList.remove(this._mDeletedTaskPos);
+        mTaskList.remove(_mDeletedTaskPos);
         //ビューにアイテム削除を通知
-        this.mTaskAdapter.notifyItemRemoved(_mDeletedTaskPos);
+        mTaskAdapter.notifyItemRemoved(_mDeletedTaskPos);
         //削除待ちなしに戻す
-        this._mDeletedTaskPos = NOT_DELETE_WAITING;
+        _mDeletedTaskPos = NOT_DELETE_WAITING;
 
         //トーストの生成
-        Toast toast = new Toast(this.mContext);
+        Toast toast = new Toast(mContext);
         toast.setText("削除しました");
         toast.show();
     }
@@ -300,7 +380,7 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
     @Override
     public void onSuccessTaskUpdate(String preTask, int preTaskTime, TaskTable updatedTask) {
         //更新されたリストのIndexを取得
-        int i = this.getIdTaskList(preTask, preTaskTime);
+        int i = getIdTaskList(preTask, preTaskTime);
 
         //フェールセーフ
         if( i == -1 ){
@@ -310,12 +390,12 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         }
 
         //リストを更新
-        this.mTaskList.set(i, updatedTask);
+        mTaskList.set(i, updatedTask);
         //アダプタに変更を通知
-        this.mTaskAdapter.notifyDataSetChanged();
+        mTaskAdapter.notifyDataSetChanged();
 
         //トーストの生成
-        Toast toast = new Toast(this.mContext);
+        Toast toast = new Toast(mContext);
         toast.setText("更新しました");
         toast.show();
     }

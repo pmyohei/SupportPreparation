@@ -22,4 +22,11 @@
         android:name="com.example.supportpreparation.ui.notifications.NotificationsFragment"
         android:label="@string/title_group"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_time"
+        android:name="com.example.supportpreparation.ui.time.TimeFragment"
+        android:label="@string/title_time"
+        tools:layout="@layout/fragment_time" />
+
 </navigation>

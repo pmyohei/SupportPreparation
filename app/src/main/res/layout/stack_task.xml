@@ -1,37 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/tv_drop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:textColor="@color/tc_taskSet"
-        android:text="drop"/>
+    <LinearLayout
+        android:id="@+id/ll_stackArea"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:orientation="vertical"
+        android:enabled="true"
+        android:gravity="bottom|center_horizontal"
+        android:foreground="?android:attr/selectableItemBackground">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_stackArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:gravity="bottom|center_horizontal"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_margin="5dp"
+        android:background="@color/bg_limit"/>
 
     <TextView
-        android:id="@+id/tv_drag"
+        android:id="@+id/tv_limitTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:textSize="40sp"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/tc_taskSet"
-        android:text="drag"/>
+        android:textColor="@color/tx_limit"
+        android:text="@string/limittime_no_input"/>
+
+    <TextView
+        android:id="@+id/tv_limitDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/tx_limit"
+        android:text="@string/limitdate_no_input"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_taskList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.5"
+        android:layout_weight="0.4"
         android:layout_marginTop="48dp"
         android:gravity="center_vertical"/>
 

@@ -20,7 +20,7 @@ public class TaskSelectListAdapter extends BaseAdapter {
     //private Context context;
 
     static class ViewHolder {
-        TextView task;
+        TextView taskName;
         TextView taskTime;
     }
 
@@ -56,7 +56,7 @@ public class TaskSelectListAdapter extends BaseAdapter {
 
             //
             holder          = new ViewHolder();
-            holder.task     = convertView.findViewById(R.id.tv_taskName);
+            holder.taskName = convertView.findViewById(R.id.tv_taskName);
             holder.taskTime = convertView.findViewById(R.id.tv_taskTime);
             convertView.setTag(holder);
 
@@ -66,8 +66,8 @@ public class TaskSelectListAdapter extends BaseAdapter {
         }
 
         //値を設定
-        holder.task.setText( this.tasks.get(position).getTaskName() );
-        holder.taskTime.setText(this.tasks.get(position).getTaskTime() + " min");
+        holder.taskName.setText( this.tasks.get(position).getTaskName() );
+        holder.taskTime.setText(this.tasks.get(position).getTaskTime());
 
         //表示するビューを返す
         return convertView;
