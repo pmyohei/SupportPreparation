@@ -42,15 +42,15 @@
     <color name="bg_task">#ffb6b9</color>
     <color name="tx_task">#f5f5f5</color>
 
-    <color name="bg_task_very_short">#8cbadb</color>
+    <color name="bg_task_very_short">#B4D2E7</color>
     <color name="tx_task_very_short">#e2f3f5</color>
-    <color name="bg_task_short">#9fcc95</color>
+    <color name="bg_task_short">#B5D8AE</color>
     <color name="tx_task_short">#e2f3f5</color>
-    <color name="bg_task_normal">#ff8a5c</color>
+    <color name="bg_task_normal">#FEA683</color>
     <color name="tx_task_normal">#e2f3f5</color>
-    <color name="bg_task_long">#e88992</color>
+    <color name="bg_task_long">#FFC0C0</color>
     <color name="tx_task_long">#e2f3f5</color>
-    <color name="bg_task_very_long">#a696c8</color>
+    <color name="bg_task_very_long">#C5AFCF</color>
     <color name="tx_task_very_long">#e2f3f5</color>
 
 

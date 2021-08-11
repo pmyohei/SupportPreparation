@@ -9,7 +9,10 @@
     <string name="limitdate_no_input">--/--</string>
 
     <string name="heading_remaining_time">Limit</string>
-
     <string name="heading_next">Next</string>
+    <string name="waiting">待機中...</string>
+    <string name="next_none">ー</string>
+
+
 
 </resources>

@@ -41,15 +41,15 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    private MainActivity mParentActivity;            //
-    private Fragment mFragment;                  //本フラグメント
-    private Context mContext;                   //コンテキスト（親アクティビティ）
-    private View mRootLayout;                //本フラグメントに設定しているレイアウト
-    private AppDatabase mDB;                        //DB
-    private LinearLayout mll_stackArea;              //「やること」積み上げ領域
-    private List<TaskTable> mStackTask;                 //積み上げ「やること」
-    private TaskRecyclerAdapter mStackAreaAdapter;          //積み上げ「やること」アダプタ
-    private FloatingActionButton mFab;                       //フローティングボタン
+    private MainActivity            mParentActivity;            //
+    private Fragment                mFragment;                  //本フラグメント
+    private Context                 mContext;                   //コンテキスト（親アクティビティ）
+    private View                    mRootLayout;                //本フラグメントに設定しているレイアウト
+    private AppDatabase             mDB;                        //DB
+    private LinearLayout            mll_stackArea;              //「やること」積み上げ領域
+    private List<TaskTable>         mStackTask;                 //積み上げ「やること」
+    private TaskRecyclerAdapter     mStackAreaAdapter;          //積み上げ「やること」アダプタ
+    private FloatingActionButton    mFab;                       //フローティングボタン
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,

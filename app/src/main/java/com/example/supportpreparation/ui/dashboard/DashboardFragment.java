@@ -175,7 +175,7 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         rv_task.setLayoutManager(new GridLayoutManager(mContext, 2));
         //アダプタの生成
         Log.i("test", "dash  pre TaskRecyclerAdapter");
-        mTaskAdapter = new TaskRecyclerAdapter(mContext, R.layout.item_task, mTaskList);
+        mTaskAdapter = new TaskRecyclerAdapter(mContext, -1, mTaskList);
         Log.i("test", "dash TaskRecyclerAdapter");
 
         //リスナー設定

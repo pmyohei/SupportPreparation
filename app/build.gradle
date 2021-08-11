@@ -29,6 +29,21 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    //-- layoutフォルダの階層分け
+    sourceSets {
+        main {
+            res.srcDirs =
+                [
+                    'src/main/res/layouts/taskManage',
+                    'src/main/res/layouts/groupManage',
+                    'src/main/res/layouts/stackTask',
+                    'src/main/res/layouts',
+                    'src/main/res'
+                ]
+        }
+    }
+
 }
 
 dependencies {

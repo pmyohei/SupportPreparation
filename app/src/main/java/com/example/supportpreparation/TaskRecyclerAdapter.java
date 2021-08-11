@@ -75,7 +75,10 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     public TaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
-        int id = getLayoutId(viewType);
+        int id = mLayoutID;
+        if( id == -1 ){
+            id = getLayoutId(viewType);
+        }
 
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(mContext);
