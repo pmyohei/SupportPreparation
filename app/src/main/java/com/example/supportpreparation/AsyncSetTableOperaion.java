@@ -141,7 +141,7 @@ public class AsyncSetTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             //セットに紐づいた「やること」pidを取得
             String tasksStr = setInfo.getTaskPidsStr();
-            List<Integer> pids = SetTable.getPidsIntArray(tasksStr);
+            List<Integer> pids = TaskTableManager.getPidsIntArray(tasksStr);
 
             //セットに紐づいた「やること」
             List<TaskTable> tasks = new ArrayList<>();
@@ -149,7 +149,6 @@ public class AsyncSetTableOperaion extends AsyncTask<Void, Void, Integer> {
             Log.i("test", "displaySetData tasksStr=" + tasksStr);
             //Pidあれば
             if( pids != null ) {
-                Log.i("test", "pids");
                 //pid分繰り返し
                 for( Integer pid: pids ){
                     Log.i("test", "displaySetData pid loop");
@@ -159,10 +158,8 @@ public class AsyncSetTableOperaion extends AsyncTask<Void, Void, Integer> {
                 }
             }
 
-            Log.i("test", "pre add");
             //「やること」を追加
             this.tasksList.add(tasks);
-            Log.i("test", "after add");
         }
     }
 
@@ -200,7 +197,7 @@ public class AsyncSetTableOperaion extends AsyncTask<Void, Void, Integer> {
         String taskPidsStr = dao.getTaskPidsStr(setPid);
 
         //「やること」Pidを文字列に追加
-        taskPidsStr = SetTable.addTaskPidsStr(taskPidsStr, this.selectedTaskPid);
+        taskPidsStr = TaskTableManager.addTaskPidsStr(taskPidsStr, this.selectedTaskPid);
         if( taskPidsStr == null ){
             //既に追加済みなら、何もせず終了
             return -1;
@@ -223,7 +220,7 @@ public class AsyncSetTableOperaion extends AsyncTask<Void, Void, Integer> {
         String taskPidsStr = dao.getTaskPidsStr(setPid);
 
         //「やること」Pidを文字列から削除
-        taskPidsStr = SetTable.deleteTaskPidInStr(taskPidsStr, this.selectedTaskPid);
+        taskPidsStr = TaskTableManager.deleteTaskPidInStr(taskPidsStr, this.selectedTaskPid);
 
         //選択済みの「やること」を更新
         dao.updateTaskPidsStrByPid(setPid, taskPidsStr);

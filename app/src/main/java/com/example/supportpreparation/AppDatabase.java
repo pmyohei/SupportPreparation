@@ -8,11 +8,14 @@ import androidx.room.RoomDatabase;
 @Database(
         entities = {
                 TaskTable.class,        //やることテーブル
-                SetTable.class          //やることセットテーブル
+                SetTable.class,         //やることセットテーブル
+                StackTaskTable.class    //積み上げやることテーブル
         },
         version = 1,
         exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
-    public abstract TaskTableDao    taskTableDao();            //DAO-やることテーブル
-    public abstract SetTableDao     setTableDao();         //DAO-やることセットテーブル
+    //DAO
+    public abstract TaskTableDao        taskTableDao();             //やることテーブル
+    public abstract SetTableDao         setTableDao();              //やることセットテーブル
+    public abstract StackTaskTableDao   stackTaskTableDao();        //積み上げやることテーブル
 }

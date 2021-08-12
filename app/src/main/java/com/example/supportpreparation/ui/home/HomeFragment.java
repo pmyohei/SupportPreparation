@@ -116,6 +116,14 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
+                //「積み上げやること」をDBに保存
+                mParentActivity.setStackTaskData( mStackTask );
+
+                //メッセージを表示
+                Toast toast = new Toast(mContext);
+                toast.setText("保存しました");
+                toast.show();
+
                 //-- サポート画面へ移る
                 /*
                 // フラグメントマネージャーの取得

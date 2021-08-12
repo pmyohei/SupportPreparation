@@ -18,15 +18,15 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         DELETE;         //削除
     }
 
-    private AppDatabase     db;
-    private DB_OPERATION    operation;
-    private String          preTask;
-    private int             preTaskTime;
-    private String          task;
-    private int             taskTime;
-    private TaskTable       taskTable;
-    private List<TaskTable> taskList;
-    private TaskOperationListener listener;
+    private AppDatabase             db;
+    private DB_OPERATION            operation;
+    private String                  preTask;
+    private int                     preTaskTime;
+    private String                  task;
+    private int                     taskTime;
+    private TaskTable               taskTable;
+    private List<TaskTable>         taskList;
+    private TaskOperationListener   listener;
 
     /*
      * コンストラクタ
