@@ -100,7 +100,6 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         List<Integer> pidList = new ArrayList<>();
         for( TaskTable task: mTaskList ){
             pidList.add(task.getId());
-            Log.i("test", "create task.getId()=" + task.getId());
         }
 
         //「積み上げやること」の文字列を生成
@@ -119,10 +118,9 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
     private Integer readStackData(){
 
         List<StackTaskTable> stackTaskList = mStackDao.getAll();
-        Log.i("test", "pre size stackTaskList=");
         if( stackTaskList.size() == 0 ){
             //ないなら、終了
-            Log.i("test", "size0 stackTaskList=");
+            Log.i("test", "size0 stackTaskList");
             return READ_NONE;
         }
 
@@ -130,14 +128,14 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         mReadStackTask = stackTaskList.get(0);
 
         //対象の「やること」を取得
-        String str = mReadStackTask.getTaskPidsStr();
-        if( str.isEmpty() ){
+        String taskPidsStr = mReadStackTask.getTaskPidsStr();
+        if( taskPidsStr.isEmpty() ){
             //ないなら、終了
-            Log.i("test", "str empty");
+            Log.i("test", "getTaskPidsStr empty");
             return READ_NONE;
         }
 
-        List<Integer> pids = TaskTableManager.getPidsIntArray(str);
+        List<Integer> pids = TaskTableManager.getPidsIntArray(taskPidsStr);
 
         //「やること」テーブル操作用DAO
         TaskTableDao taskTableDao = mDB.taskTableDao();

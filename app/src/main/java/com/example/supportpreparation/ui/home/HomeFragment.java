@@ -30,6 +30,7 @@ import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
+import com.example.supportpreparation.StackTaskRecyclerAdapter;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,19 +39,27 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
-    private MainActivity            mParentActivity;            //
-    private Fragment                mFragment;                  //本フラグメント
-    private Context                 mContext;                   //コンテキスト（親アクティビティ）
-    private View                    mRootLayout;                //本フラグメントに設定しているレイアウト
-    private AppDatabase             mDB;                        //DB
-    private LinearLayout            mll_stackArea;              //「やること」積み上げ領域
-    private List<TaskTable>         mStackTask;                 //積み上げ「やること」
-    private TaskRecyclerAdapter     mStackAreaAdapter;          //積み上げ「やること」アダプタ
-    private FloatingActionButton    mFab;                       //フローティングボタン
+    private MainActivity                mParentActivity;            //親アクティビティ
+    private Fragment                    mFragment;                  //本フラグメント
+    private Context                     mContext;                   //コンテキスト（親アクティビティ）
+    private View                        mRootLayout;                //本フラグメントに設定しているレイアウト
+    private AppDatabase                 mDB;                        //DB
+    private LinearLayout                mll_stackArea;              //「やること」積み上げ領域
+    private List<TaskTable>             mStackTask;                 //積み上げ「やること」
+    private StackTaskRecyclerAdapter    mStackAreaAdapter;          //積み上げ「やること」アダプタ
+    private FloatingActionButton        mFab;                       //フローティングボタン
+    private TextView                    mtv_limitDate;              //リミット日のビュー
+    private TextView                    mtv_limitTime;              //リミット時間のビュー
 
+
+    //-- 変更有無の確認用
+    //private List<TaskTable>         mInit_StackTask;            //開始時点-積み上げやること
+    //private String                  mInit_LimitDate;            //開始時点-リミット日
+    //private String                  mInit_LimitTime;            //開始時点-リミット時間
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -66,30 +75,16 @@ public class HomeFragment extends Fragment {
         //親アクティビティ
         mParentActivity = (MainActivity) getActivity();
 
-        //積み上げられた「やること」を取得
-        mStackTask = mParentActivity.getStackTaskData();
+        //ビューを保持
+        mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
+        mtv_limitDate = (TextView)mRootLayout.findViewById(R.id.tv_limitDate);
 
-        //「やること」積み上げエリア
-        this.setStackTaskArea();
         //「リミット日時」を設定
         this.setDisplayLimitDate();
+        //「やること」積み上げエリア
+        this.setStackTaskArea();
         //「やること」を表示
         this.setDisplayTaskData();
-
-        //-- リミット時間の設定
-        TextView tv_limit = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
-
-        //文字列の設定
-        String limitTime = mParentActivity.getLimitTime();
-        tv_limit.setText(limitTime);
-
-        tv_limit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //-- 時刻設定ダイアログの生成
-                createTimeDialog();
-            }
-        });
 
         // FloatingActionButton
         mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_startSupport);
@@ -97,9 +92,9 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                //時間未入力
+                //時間未入力チェック
                 String noInputStr = getString(R.string.limittime_no_input);
-                if (tv_limit.getText().toString().equals(noInputStr)) {
+                if (mtv_limitTime.getText().toString().equals(noInputStr)) {
                     //メッセージを表示
                     Toast toast = new Toast(mContext);
                     toast.setText("時間を設定してください");
@@ -116,12 +111,15 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
+                //アラームの設定
+
+
                 //「積み上げやること」をDBに保存
                 mParentActivity.setStackTaskData( mStackTask );
 
                 //メッセージを表示
                 Toast toast = new Toast(mContext);
-                toast.setText("保存しました");
+                toast.setText("アラームを設定しました");
                 toast.show();
 
                 //-- サポート画面へ移る
@@ -168,11 +166,13 @@ public class HomeFragment extends Fragment {
                         if( isAfterSetTime(hourOfDay, minute) ){
                             //入力時刻を設定
                             String limit = String.format("%02d:%02d", hourOfDay, minute);
-                            TextView tv_limit = mRootLayout.findViewById(R.id.tv_limitTime);
-                            tv_limit.setText(limit);
+                            mtv_limitTime.setText(limit);
 
                             //共通データとして保持
                             mParentActivity.setLimitTime(limit);
+
+                            //やること開始時間を変更させる
+                            mStackAreaAdapter.notifyDataSetChanged();
 
                         } else {
                             //メッセージを表示
@@ -205,12 +205,12 @@ public class HomeFragment extends Fragment {
 
                         //現在日よりも後かどうか
                         if( isAfterSetDate( year, month, dayOfMonth) ){
-                            //日付を取得して表示
-                            TextView tv_limitDate = mRootLayout.findViewById(R.id.tv_limitDate);
-                            tv_limitDate.setText(String.format("%02d/%02d", month + 1, dayOfMonth));
+                            String date = String.format(Locale.JAPANESE, "%04d/%02d/%02d", year, month + 1, dayOfMonth);
 
+                            //日付を取得して表示
+                            mtv_limitDate.setText(date);
                             //共通データとして保持
-                            mParentActivity.setLimitDate(String.format("%04d/%02d/%02d", year, month + 1, dayOfMonth));
+                            mParentActivity.setLimitDate(date);
 
                         } else {
                             //メッセージを表示
@@ -297,6 +297,9 @@ public class HomeFragment extends Fragment {
      */
     private void setStackTaskArea() {
 
+        //積み上げられた「やること」を取得
+        mStackTask = mParentActivity.getStackTaskData();
+
         //ドロップリスナーの設定
         DragListener listener = new DragListener();
         mll_stackArea = mRootLayout.findViewById(R.id.ll_stackArea);
@@ -304,12 +307,13 @@ public class HomeFragment extends Fragment {
 
         //レイアウトからリストビューを取得
         RecyclerView rv_stackArea = (RecyclerView) mRootLayout.findViewById(R.id.rv_stackArea);
+
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
         rv_stackArea.setLayoutManager(ll_manager);
+
         //アダプタの生成・設定
-        Log.i("test", "home pre TaskRecyclerAdapter");
-        mStackAreaAdapter = new TaskRecyclerAdapter(mContext, R.layout.item_task_for_stack, mStackTask);
+        mStackAreaAdapter = new StackTaskRecyclerAdapter(mContext, R.layout.item_task_for_stack, mStackTask, mtv_limitDate, mtv_limitTime);
         rv_stackArea.setAdapter(mStackAreaAdapter);
 
         //ドラッグアンドドロップ、スワイプの設定(リサイクラービュー)
@@ -326,7 +330,8 @@ public class HomeFragment extends Fragment {
                         final int toPos = target.getAdapterPosition();
                         //アイテム移動を通知
                         mStackAreaAdapter.notifyItemMoved(fromPos, toPos);
-                        Log.i("test", "onMove " + fromPos + " " + toPos);
+                        //各開始時間も変更になるため、通知
+                        mStackAreaAdapter.notifyDataSetChanged();
 
                         return true;
                     }
@@ -334,27 +339,14 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-                    /*
-                    if (_mDeletedTaskPos != NOT_DELETE_WAITING) {
-                        //削除待ちのものがあるなら、何もしない
-                        return;
-                    }
-                     */
-
                         //-- DBから削除
                         int i = viewHolder.getAdapterPosition();
-                        //String taskName = taskList.get(i).getTaskName();
-                        //int taskTime = taskList.get(i).getTaskTime();
-
-                        //new AsyncTaskTableOperaion(mDB, mTaskListener, AsyncTaskTableOperaion.DB_OPERATION.DELETE, taskName, taskTime).execute();
-
-                        //アイテム削除を通知
-                        //_mDeletedTaskPos = viewHolder.getAdapterPosition();
-
                         //リストから削除
                         mStackTask.remove(i);
                         //ビューにアイテム削除を通知
                         mStackAreaAdapter.notifyItemRemoved(i);
+                        //各開始時間も変更になるため、通知
+                        mStackAreaAdapter.notifyDataSetChanged();
                     }
                 }
         );
@@ -368,22 +360,37 @@ public class HomeFragment extends Fragment {
      */
     private void setDisplayLimitDate(){
 
+        //-- リミット時間の設定
+
+        //親アクティビティで文字しているデータを取得・設定
+        String limitTime = mParentActivity.getLimitTime();
+        mtv_limitTime.setText(limitTime);
+
+        //クリックリスナーの設定
+        mtv_limitTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //-- 時刻設定ダイアログの生成
+                createTimeDialog();
+            }
+        });
+
+        //-- リミット日の設定
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+
         //本日の日付を取得
         Date nowDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd");
         String today = sdf.format(nowDate);
 
         //日付を設定
-        TextView tv_limitDate = (TextView)mRootLayout.findViewById(R.id.tv_limitDate);
-        tv_limitDate.setText(today);
+        mtv_limitDate.setText(today);
 
         //共通データとして保持
-        sdf = new SimpleDateFormat("yyyy/MM/dd");
         String now = sdf.format(nowDate);
         mParentActivity.setLimitDate(now);
 
         //リスナーを設定
-        tv_limitDate.setOnClickListener(new View.OnClickListener() {
+        mtv_limitDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //-- カレンダーダイアログの生成
@@ -429,7 +436,6 @@ public class HomeFragment extends Fragment {
 
             rv_task.setAdapter(adapter);
         }
-
     }
 
 
@@ -472,13 +478,15 @@ public class HomeFragment extends Fragment {
 
                     //ドラッグしたビューからデータを取得
                     View dragView = (View)dragEvent.getLocalState();
+                    TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
                     TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
                     TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
 
                     Log.i("test", "drop task=" + tv_taskName.getText());
 
+                    int pid      = Integer.parseInt( tv_pid.getText().toString() );
                     int taskTime = Integer.parseInt( tv_taskTime.getText().toString() );
-                    mStackTask.add( 0, new TaskTable( tv_taskName.getText().toString(), taskTime ) );
+                    mStackTask.add( 0, new TaskTable( pid, tv_taskName.getText().toString(), taskTime ) );
 
                     //アダプタへ通知
                     mStackAreaAdapter.notifyDataSetChanged();

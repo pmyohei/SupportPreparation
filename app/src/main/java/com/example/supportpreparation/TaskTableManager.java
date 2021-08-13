@@ -56,15 +56,22 @@ public class TaskTableManager {
     }
 
     /*
-     * 「選択済みやること」リストを文字列として返す
+     * 「選択済みやること」リストを文字列として返す。
+     * 　※各値の区切りは、指定されたデリミタにて行う。
      */
     public static String getPidsStr( List<Integer> list) {
 
         String ret = "";
 
         for( Integer i: list ){
-            //数値を文字列として追加。デリミタ付き。
-            ret = ret + TaskTableManager.DELIMITER + Integer.toString(i);
+
+            if( ret.isEmpty() ){
+                //1つ目
+                ret = Integer.toString(i);
+            } else {
+                //2つ目は、デリミタ付き。
+                ret = ret + TaskTableManager.DELIMITER + Integer.toString(i);
+            }
         }
 
         return ret;

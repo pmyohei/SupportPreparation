@@ -4,8 +4,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.util.List;
-
 /*
  * エンティティ
  *   「積み上げやること」テーブル
@@ -36,10 +34,14 @@ public class StackTaskTable {
      * コンストラクタ
      */
     public StackTaskTable( String taskPidsStr, String date, String time ) {
-        taskPidsStr = taskPidsStr;
-        date = date;
-        time = time;
+        this.taskPidsStr = taskPidsStr;
+        this.date = date;
+        this.time = time;
     }
+
+    /*
+     * getter and setter
+     */
 
     public void setId(int id) {
         this.id = id;

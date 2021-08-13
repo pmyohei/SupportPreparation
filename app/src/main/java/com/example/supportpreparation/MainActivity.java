@@ -8,7 +8,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
@@ -35,34 +34,13 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //-- レイアウトの設定は、データ取得後に行う
-
-        //※レイアウトの設定は、データ取得後に行う
-
-        //初期値は未入力文字列
-        mLimitTime = getString(R.string.limittime_no_input);
-
         //DB操作インスタンスを取得
         mDB = AppDatabaseSingleton.getInstance(this);
 
         //-- 非同期スレッドにて、読み込み開始
-        //「やること」
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
-        /*
-        //-- レイアウトの設定は、データ取得後に行う
-        setContentView(R.layout.activity_main);
-
-        //下部ナビゲーション設定
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications, R.id.navigation_time)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(navView, navController);
-        */
         Log.i("test", "main onSuccessTaskRead");
-
     }
 
     /*
@@ -198,10 +176,14 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
         if( code == AsyncStackTaskTableOperaion.READ_NORMAL ){
             //DBから取得した「積み上げやること」データを保持
             mStackTaskList = taskList;
-            mLimitDate = stack.getDate();
-            mLimitTime = stack.getTime();
+            mLimitDate     = stack.getDate();
+            mLimitTime     = stack.getTime();
 
             Log.i("test", "onSuccessStackRead");
+
+        } else {
+            //データなければ、未入力文字列
+            mLimitTime = getString(R.string.limittime_no_input);
         }
 
         //-- レイアウトの設定は、データ取得後に行う

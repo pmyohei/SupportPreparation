@@ -24,6 +24,15 @@ public class TaskTable {
     /*
      * コンストラクタ
      */
+    public TaskTable(int pid, String taskName, int taskTime) {
+        this.id       = pid;
+        this.taskName = taskName;
+        this.taskTime = taskTime;
+    }
+
+    /*
+     * コンストラクタ
+     */
     public TaskTable(String taskName, int taskTime) {
         this.taskName = taskName;
         this.taskTime = taskTime;

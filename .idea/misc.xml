@@ -5,7 +5,6 @@
       <map>
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_set.xml" value="0.203125" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_task.xml" value="0.31197916666666664" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_task_very_short.xml" value="0.19166666666666668" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.31197916666666664" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_main.xml" value="0.23867753623188406" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_set_manage.xml" value="0.28125" />
@@ -14,20 +13,31 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_dashboard.xml" value="0.2" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_home.xml" value="0.2857789855072464" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_notifications.xml" value="0.28125" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_time.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_set.xml" value="0.1578125" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task.xml" value="0.20364583333333333" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_contents.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_for_set.xml" value="0.29583333333333334" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_for_stack.xml" value="0.209375" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_long.xml" value="0.16510416666666666" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_normal.xml" value="0.16510416666666666" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_short.xml" value="0.16510416666666666" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_test.xml" value="0.16510416666666666" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/list_set_manage.xml" value="0.28125" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/list_task_manage.xml" value="0.2708333333333333" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/stack_task.xml" value="0.29739583333333336" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/bottom_nav_menu.xml" value="0.17447916666666666" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_button.xml" value="0.259375" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_edittext.xml" value="0.259375" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_frame.xml" value="0.3390625" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_main.xml" value="0.20425724637681159" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_set_manage.xml" value="0.264" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_test.xml" value="0.13541666666666666" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/dialog_create_task.xml" value="0.2151268115942029" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/dialog_create_taskset.xml" value="0.2151268115942029" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_home.xml" value="0.20425724637681159" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_notifications.xml" value="0.264" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_set.xml" value="0.20425724637681159" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task.xml" value="0.20425724637681159" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_contents.xml" value="0.27291666666666664" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_for_set.xml" value="0.20425724637681159" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_for_stack.xml" value="0.27291666666666664" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_very_short.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/list_set_manage.xml" value="0.2869791666666667" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/stack_task.xml" value="0.264" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/bottom_nav_menu.xml" value="0.278125" />
       </map>
     </option>
   </component>

@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:layout_margin="5dp"
-        android:background="@color/bg_limit"/>
+        android:background="@color/bg_limit_line"/>
 
     <TextView
         android:id="@+id/tv_limitTime"
@@ -39,7 +39,7 @@
         android:layout_gravity="center_horizontal"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/tx_limit"
+        android:textColor="@color/tx_limit_line"
         android:text="@string/limittime_no_input"/>
 
     <TextView
@@ -47,9 +47,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/tx_limit"
+        android:textColor="@color/tx_limit_line"
         android:text="@string/limitdate_no_input"/>
 
     <androidx.recyclerview.widget.RecyclerView

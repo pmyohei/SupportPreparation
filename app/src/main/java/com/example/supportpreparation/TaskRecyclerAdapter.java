@@ -22,30 +22,26 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     private View.OnClickListener        clickListener;
     private View.OnLongClickListener    longListener;
     private int                         mLayoutID;
-    //private OnRecyclerListener mListener;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
      * (固有のためインナークラスで定義)
      */
     class TaskViewHolder extends RecyclerView.ViewHolder {
-        //Pid
-        private TextView taskPid;
-        //表示内容
-        private TextView taskName;
-        private TextView taskTime;
 
-        //リスナー設定ビュー
-        private LinearLayout ll_taskInfo ;
+        private TextView tv_pid;            //Pid
+        private TextView tv_taskName;       //表示内容
+        private TextView tv_taskTime;
+        private LinearLayout ll_taskInfo ;  //リスナー設定ビュー
 
         /*
          * コンストラクタ
          */
         public TaskViewHolder(View itemView) {
             super(itemView);
-            taskPid  = (TextView) itemView.findViewById(R.id.tv_pid);
-            taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
-            taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
+            tv_pid      = (TextView) itemView.findViewById(R.id.tv_pid);
+            tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
+            tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
             ll_taskInfo = (LinearLayout)itemView.findViewById(R.id.ll_taskInfo);
         }
     }
@@ -99,9 +95,9 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         String timeStr = Integer.toString( mData.get(i).getTaskTime() );
 
         //データ設定
-        viewHolder.taskPid.setText(pidStr);
-        viewHolder.taskTime.setText(timeStr);
-        viewHolder.taskTime.setText(timeStr);
+        viewHolder.tv_pid.setText(pidStr);
+        viewHolder.tv_taskName.setText(mData.get(i).getTaskName());
+        viewHolder.tv_taskTime.setText(timeStr);
 
         //クリック処理
         viewHolder.ll_taskInfo.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +123,6 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     @Override
     public int getItemCount() {
         //表示データ数を返す
-        Log.i("test", "getItemCount =" + mData.size());
         return mData.size();
     }
 
