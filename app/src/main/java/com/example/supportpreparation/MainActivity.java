@@ -192,15 +192,17 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
      * 「積み上げやること」
      */
     @Override
-    public void onSuccessStackRead( StackTaskTable stack, List<TaskTable> taskList ) {
+    public void onSuccessStackRead( Integer code, StackTaskTable stack, List<TaskTable> taskList ) {
 
-        //DBから取得した「積み上げやること」データを保持
-        mStackTaskList = taskList;
-        mLimitDate = stack.getDate();
-        mLimitTime = stack.getTime();
+        //DBからデータを取れれば
+        if( code == AsyncStackTaskTableOperaion.READ_NORMAL ){
+            //DBから取得した「積み上げやること」データを保持
+            mStackTaskList = taskList;
+            mLimitDate = stack.getDate();
+            mLimitTime = stack.getTime();
 
-        Log.i("test", "mReadStackTask");
-
+            Log.i("test", "onSuccessStackRead");
+        }
 
         //-- レイアウトの設定は、データ取得後に行う
         setContentView(R.layout.activity_main);
@@ -209,8 +211,6 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
         BottomNavigationView navView = findViewById(R.id.nav_view);
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(navView, navController);
-
-
     }
 
     @Override

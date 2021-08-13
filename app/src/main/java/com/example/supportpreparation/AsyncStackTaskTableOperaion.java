@@ -18,6 +18,10 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         DELETE,         //削除
     }
 
+    public final static int                    READ_NONE   = -1;
+    public final static int                    READ_NORMAL = 0;
+
+
     private AppDatabase                 mDB;
     private StackTaskTableDao           mStackDao;
     private DB_OPERATION                mOperation;
@@ -71,7 +75,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
 
         } else if(mOperation == DB_OPERATION.READ ){
             //読込
-            readStackData();
+            ret = readStackData();
 
         } else if(mOperation == DB_OPERATION.DELETE ){
             //削除
@@ -96,10 +100,12 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         List<Integer> pidList = new ArrayList<>();
         for( TaskTable task: mTaskList ){
             pidList.add(task.getId());
+            Log.i("test", "create task.getId()=" + task.getId());
         }
 
         //「積み上げやること」の文字列を生成
         String taskPidsStr = TaskTableManager.getPidsStr(pidList);
+        Log.i("test", "create taskPidsStr=" + taskPidsStr);
 
         //DBに追加
         mStackDao.insert( new StackTaskTable( taskPidsStr, mDate, mTime ) );
@@ -110,14 +116,14 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
     /*
      * 「積み上げやること」の読込処理
      */
-    private void readStackData(){
+    private Integer readStackData(){
 
         List<StackTaskTable> stackTaskList = mStackDao.getAll();
         Log.i("test", "pre size stackTaskList=");
         if( stackTaskList.size() == 0 ){
             //ないなら、終了
             Log.i("test", "size0 stackTaskList=");
-            return;
+            return READ_NONE;
         }
 
         //登録中の「積み上げやること」
@@ -125,6 +131,12 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
 
         //対象の「やること」を取得
         String str = mReadStackTask.getTaskPidsStr();
+        if( str.isEmpty() ){
+            //ないなら、終了
+            Log.i("test", "str empty");
+            return READ_NONE;
+        }
+
         List<Integer> pids = TaskTableManager.getPidsIntArray(str);
 
         //「やること」テーブル操作用DAO
@@ -136,7 +148,12 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
             //pidに対応する「やること」を取得し、リストに追加
             TaskTable task = taskTableDao.getRecord(pid);
             mReadTaskList.add(task);
+
+            Log.i("test", "pid=" + pid);
         }
+
+        //正常終了
+        return READ_NORMAL;
     }
 
     /*
@@ -159,7 +176,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
 
             if( mOperation == DB_OPERATION.READ ){
                 //処理終了：読み込み
-                mListener.onSuccessStackRead(mReadStackTask, mReadTaskList);
+                mListener.onSuccessStackRead(code, mReadStackTask, mReadTaskList);
 
             } else if( mOperation == DB_OPERATION.CREATE ){
                 //処理終了：新規作成
@@ -196,7 +213,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         /*
          * 取得完了時
          */
-        void onSuccessStackRead( StackTaskTable stack, List<TaskTable> taskList );
+        void onSuccessStackRead( Integer code, StackTaskTable stack, List<TaskTable> taskList );
 
         /*
          * 削除完了時

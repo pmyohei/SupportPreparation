@@ -1,8 +1,5 @@
 package com.example.supportpreparation;
 
-import static com.example.supportpreparation.R.color.a_blue_1;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +15,7 @@ import java.util.List;
 /*
  * RecyclerViewアダプター：「やること」用
  */
-public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.ViewHolder> {
+public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.TaskViewHolder> {
 
     private List<TaskTable>             mData;
     private Context                     mContext;
@@ -31,7 +28,9 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
      * (固有のためインナークラスで定義)
      */
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class TaskViewHolder extends RecyclerView.ViewHolder {
+        //Pid
+        private TextView taskPid;
         //表示内容
         private TextView taskName;
         private TextView taskTime;
@@ -42,8 +41,9 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         /*
          * コンストラクタ
          */
-        public ViewHolder(View itemView) {
+        public TaskViewHolder(View itemView) {
             super(itemView);
+            taskPid  = (TextView) itemView.findViewById(R.id.tv_pid);
             taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
             ll_taskInfo = (LinearLayout)itemView.findViewById(R.id.ll_taskInfo);
@@ -72,7 +72,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      *　ViewHolderの生成
      */
     @Override
-    public TaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public TaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
         int id = mLayoutID;
@@ -84,7 +84,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(id, viewGroup, false);
 
-        return new ViewHolder(view);
+        return new TaskViewHolder(view);
     }
 
 
@@ -92,13 +92,15 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      * ViewHolderの設定
      */
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(TaskViewHolder viewHolder, final int i) {
 
-        //やること時間を文字列に変換
+        //文字列変換
+        String pidStr  = Integer.toString( mData.get(i).getId() );
         String timeStr = Integer.toString( mData.get(i).getTaskTime() );
 
-        //データ表示
-        viewHolder.taskName.setText(mData.get(i).getTaskName());
+        //データ設定
+        viewHolder.taskPid.setText(pidStr);
+        viewHolder.taskTime.setText(timeStr);
         viewHolder.taskTime.setText(timeStr);
 
         //クリック処理
