@@ -175,7 +175,7 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
         rv_task.setLayoutManager(new GridLayoutManager(mContext, 2));
         //アダプタの生成
         Log.i("test", "dash  pre TaskRecyclerAdapter");
-        mTaskAdapter = new TaskRecyclerAdapter(mContext, -1, mTaskList);
+        mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.CREATE);
         Log.i("test", "dash TaskRecyclerAdapter");
 
         //リスナー設定
@@ -198,14 +198,14 @@ public class DashboardFragment extends Fragment implements AsyncTaskTableOperaio
                                           @NonNull RecyclerView.ViewHolder viewHolder,
                                           @NonNull RecyclerView.ViewHolder target) {
                         //並び替えは要検討
-                    /*
-                    //！getAdapterPosition()←非推奨
-                    final int fromPos = viewHolder.getAdapterPosition();
-                    final int toPos   = target.getAdapterPosition();
-                    //アイテム移動を通知
-                    taskAdapter.notifyItemMoved(fromPos, toPos);
-                    Log.i("test", "onMove " + fromPos + " " + toPos);
-                     */
+
+                        //！getAdapterPosition()←非推奨
+                        final int fromPos = viewHolder.getAdapterPosition();
+                        final int toPos   = target.getAdapterPosition();
+                        //アイテム移動を通知
+                        mTaskAdapter.notifyItemMoved(fromPos, toPos);
+                        Log.i("test", "onMove " + fromPos + " " + toPos);
+
                         return true;
                     }
 

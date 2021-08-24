@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 枠線
+    <stroke android:width="2px"
+             android:color="@color/titleListTextBackground"/>
+    -->
+    <!-- 背景色 -->
+    <solid  android:color="@color/bg_limit_date"/>
+
+    <!-- 角の曲がり具合 -->
+    <corners
+        android:radius="20dp"
+        />
+</shape>

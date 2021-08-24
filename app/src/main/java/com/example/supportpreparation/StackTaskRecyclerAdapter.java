@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +30,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
     private TextView                    mtv_limitDate;          //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
     private TextView                    mtv_limitTime;          //リミット時間のTextView：ユーザー設定変更の内容反映のために保持する
+
+    private List<Calendar>              mAlarmList;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -62,6 +66,9 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         mLayoutID     = layoutID;
         mtv_limitDate = limitDate;
         mtv_limitTime = limitTime;
+
+        //アラーム時間リスト
+        mAlarmList = new ArrayList<>();
     }
 
     /*
@@ -69,7 +76,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     @Override
     public int getItemViewType(int position) {
-        //Log.i("test", "getItemViewType id=" + mData.get(position).getId());
+        Log.i("test", "stack getItemViewType id=" + mData.get(position).getId());
         return mData.get(position).getTaskTime();
     }
 
@@ -149,14 +156,15 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         calendar.setTime(finalLimit);
         calendar.add(Calendar.MINUTE, -totalTaskMin);
 
-        //開始時間の取得
-        Date startDate = calendar.getTime();
+        //アラーム時間として追加
+        mAlarmList.add(calendar);
 
-        //文字列に変換
+        //開始時間を取得し、文字列に変換
+        Date startDate = calendar.getTime();
         sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
         String startTimeStr = sdf.format(startDate);
 
-        //「開始時間」に設定
+        //「開始時間」として設定
         viewHolder.tv_taskStartTime.setText(startTimeStr);
     }
 
@@ -166,7 +174,24 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     @Override
     public int getItemCount() {
         //表示データ数を返す
+        Log.i("test", "stack getItemCount");
         return mData.size();
+    }
+
+    /*
+     * アラーム時間リストクリア
+     */
+    public void clearAlarmList() {
+        //アラームリストをクリア
+        mAlarmList.clear();
+    }
+
+    /*
+     * アラーム時間リスト取得
+     */
+    public List<Calendar> getAlarmList() {
+        //アラームリストを取得
+        return mAlarmList;
     }
 
     /*

@@ -259,7 +259,7 @@ public class NotificationsFragment extends Fragment  implements AsyncSetTableOpe
         rv_task.setLayoutManager(ll_manager);
 
         //アダプタの生成・設定
-        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, R.layout.item_task_for_set, taskList);
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskList, TaskRecyclerAdapter.SETTING.SELECT);
         rv_task.setAdapter(adapter);
     }
 

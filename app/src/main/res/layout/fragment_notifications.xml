@@ -8,7 +8,7 @@
     android:background="@color/white"
     tools:context=".ui.notifications.NotificationsFragment">
 
-    <include layout="@layout/list_set_manage" />
+    <include layout="@layout/manage_list_group" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_addSet"

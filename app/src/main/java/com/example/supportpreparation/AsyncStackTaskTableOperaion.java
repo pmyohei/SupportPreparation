@@ -125,6 +125,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         }
 
         //登録中の「積み上げやること」
+        //※1件しか登録されないようにしているため、リスト先頭のみ取得
         mReadStackTask = stackTaskList.get(0);
 
         //対象の「やること」を取得
@@ -145,9 +146,18 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         for( Integer pid: pids ){
             //pidに対応する「やること」を取得し、リストに追加
             TaskTable task = taskTableDao.getRecord(pid);
-            mReadTaskList.add(task);
+            if( task != null ){
+                //フェールセーフ
+                mReadTaskList.add(task);
+            }
 
-            Log.i("test", "pid=" + pid);
+            Log.i("test", "mReadTaskList pid=" + pid);
+        }
+
+        if( mReadTaskList.size() == 0){
+            //「やること」取得エラーの場合、終了
+            Log.i("test", "mReadTaskList add error");
+            return READ_NONE;
         }
 
         //正常終了

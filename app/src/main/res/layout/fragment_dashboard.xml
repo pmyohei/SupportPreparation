@@ -8,7 +8,7 @@
     android:background="@color/white_2"
     tools:context=".ui.dashboard.DashboardFragment">
 
-    <include layout="@layout/list_task_manage" />
+    <include layout="@layout/manage_list_task" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_addTask"

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".TaskManageActivity">
 
-    <include layout="@layout/list_task_manage" />
+    <include layout="@layout/manage_list_task" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_addTask"

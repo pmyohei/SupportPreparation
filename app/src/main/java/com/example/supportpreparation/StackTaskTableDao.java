@@ -41,7 +41,7 @@ public interface StackTaskTableDao {
     void deleteAll();
 
     @Insert
-    void insert(StackTaskTable setTable);
+    void insert(StackTaskTable stackTaskTable);
 
     @Delete
     void delete(StackTaskTable stackTaskTable);

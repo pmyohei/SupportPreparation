@@ -116,6 +116,12 @@ public class TimeFragment extends Fragment {
         Calendar nowCalendar = Calendar.getInstance();
         nowCalendar.setTime(nowTime);
 
+        //最終時刻が既に過ぎていた場合
+        if( nowTime.after(finalTime) ){
+            //カウントダウンはせず、終了
+            return mRootLayout;
+        }
+
         //-- 最初の開始時間
         Calendar beginCalendar = Calendar.getInstance();
         beginCalendar.setTime(finalTime);
@@ -282,7 +288,7 @@ public class TimeFragment extends Fragment {
     }
 
     /*
-     * タイマーセット
+     * タイマーセット(直近のやることまでのタイマー)
      */
     public void setNextTimer(long count){
 
@@ -291,6 +297,8 @@ public class TimeFragment extends Fragment {
         //カウントダウンインスタンスを生成し、タイマー開始
         NextCountDown countDownProgress = new NextCountDown(mtv_progressTime, count, INTERVAL_PROGRESS);
         countDownProgress.start();
+
+        Log.i("test", "setNextTimer started");
     }
 
     /*
@@ -308,7 +316,7 @@ public class TimeFragment extends Fragment {
         @Override
         public void onFinish() {
             // 完了
-            tv_time.setText(sdfProgressTime.format(0));
+            //tv_time.setText(sdfProgressTime.format(0));
 
             //-- 次のやることのタイマーを設定
 

@@ -62,11 +62,12 @@
     <color name="bg_bottom_navi_icon_true">#8ac6d1</color>
     <color name="bg_bottom_navi_icon_false">#716e77</color>
 
-    <color name="bg_limit_line">#716e77</color>
+    <color name="bg_limit_line">#c4c1be</color>
     <color name="tx_limit_line">#716e77</color>
 
     <color name="bg_task_time_line">#B4D2E7</color>
 
+    <color name="bg_limit_date">#B4DEE6</color>
 
 
 </resources>

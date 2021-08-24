@@ -8,7 +8,7 @@
     android:background="@color/white"
     tools:context=".ui.home.HomeFragment">
 
-    <include layout="@layout/stack_task" />
+    <include layout="@layout/manage_stack_task" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_startSupport"
@@ -19,6 +19,6 @@
         android:layout_marginRight="@dimen/fab_margin_right"
         app:backgroundTint="@color/white_3"
         app:tint="@color/teal_700"
-        app:srcCompat="@drawable/ic_action_check_32px" />
+        app:srcCompat="@drawable/ic_action_bell_32px" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -161,7 +161,7 @@ public class TaskManageActivity extends AppCompatActivity implements AsyncTaskTa
         rv_task.setLayoutManager(new GridLayoutManager(this, 2));
 
         //アダプタの生成
-        this.taskAdapter = new TaskRecyclerAdapter(this, R.layout.item_task, this.taskList);
+        this.taskAdapter = new TaskRecyclerAdapter(this, this.taskList, TaskRecyclerAdapter.SETTING.CREATE);
 
         //リスナー設定
         this.taskAdapter.setOnItemClickListener(new View.OnClickListener() {

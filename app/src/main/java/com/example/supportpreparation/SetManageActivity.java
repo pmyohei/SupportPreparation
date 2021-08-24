@@ -274,7 +274,7 @@ public class SetManageActivity extends AppCompatActivity implements AsyncSetTabl
         rv.setLayoutManager(ll_manager);
 
         //アダプタの生成・設定
-        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(this, R.layout.item_task_for_set, taskList);
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(this, taskList, TaskRecyclerAdapter.SETTING.SELECT);
         rv.setAdapter(adapter);
     }
 

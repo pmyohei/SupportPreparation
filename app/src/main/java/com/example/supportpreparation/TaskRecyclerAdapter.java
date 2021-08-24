@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,11 +18,18 @@ import java.util.List;
  */
 public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.TaskViewHolder> {
 
+    //-- アダプタ設定対象
+    public enum SETTING {
+        CREATE,            //「やること」生成エリア
+        SELECT,            //「やること」選択エリア
+    }
+
     private List<TaskTable>             mData;
     private Context                     mContext;
     private View.OnClickListener        clickListener;
     private View.OnLongClickListener    longListener;
-    private int                         mLayoutID;
+    private SETTING                     mSetting;
+    private int                         mItemWidth;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -49,10 +57,23 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     /*
      * コンストラクタ
      */
-    public TaskRecyclerAdapter(Context context, int layoutID, List<TaskTable> data) {
+    public TaskRecyclerAdapter(Context context, List<TaskTable> data, SETTING setting) {
         mData     = data;
         mContext  = context;
-        mLayoutID = layoutID;
+        mSetting  = setting;
+
+        //設定メソッドがコールされるまで、０とする
+        mItemWidth = 0;
+    }
+
+    /*
+     * コンストラクタ
+     */
+    public TaskRecyclerAdapter(Context context, List<TaskTable> data, SETTING setting, int width) {
+        mData     = data;
+        mContext  = context;
+        mSetting  = setting;
+        mItemWidth = width;
     }
 
     /*
@@ -71,14 +92,23 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     public TaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
-        int id = mLayoutID;
-        if( id == -1 ){
-            id = getLayoutId(viewType);
-        }
+        int id = getLayoutId(viewType);
 
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(id, viewGroup, false);
+
+        //
+        if( mItemWidth != 0 ){
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+
+            Log.i("test", "layoutParams height=" + layoutParams.height);
+
+            layoutParams.width = mItemWidth;
+            view.setLayoutParams(layoutParams);
+        }
+
+        Log.i("test", "layoutParams root=");
 
         return new TaskViewHolder(view);
     }
@@ -100,21 +130,25 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         viewHolder.tv_taskTime.setText(timeStr);
 
         //クリック処理
-        viewHolder.ll_taskInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clickListener.onClick(view);
-            }
-        });
+        if( clickListener != null ){
+            viewHolder.ll_taskInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    clickListener.onClick(view);
+                }
+            });
+        }
 
         //ドラッグ処理
-        viewHolder.ll_taskInfo.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                longListener.onLongClick(view);
-                return true;
-            }
-        });
+        if( longListener != null ){
+            viewHolder.ll_taskInfo.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    longListener.onLongClick(view);
+                    return true;
+                }
+            });
+        }
     }
 
     /*
@@ -124,6 +158,13 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     public int getItemCount() {
         //表示データ数を返す
         return mData.size();
+    }
+
+    /*
+     * アイテム毎のドラッグリスナー
+     */
+    public void setItemWidth(int width) {
+        mItemWidth = width;
     }
 
     /*
@@ -145,6 +186,22 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      */
     private int getLayoutId(int time){
 
+        //指定なしなら
+        int id;
+        if( mSetting == SETTING.CREATE ){
+            id = getLayoutIdForCreate(time);
+        } else {
+            id = getLayoutIdForSelect(time);
+        }
+
+        return id;
+    }
+
+    /*
+     * カラーIDの取得(「やること」生成エリア用)
+     */
+    private int getLayoutIdForCreate(int time){
+
         int id;
 
         if( time < 5 ){
@@ -161,5 +218,25 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         return id;
     }
 
+    /*
+     * カラーIDの取得(「やること」選択エリア用)
+     */
+    private int getLayoutIdForSelect(int time){
+
+        int id;
+
+        if( time < 5 ){
+            id = R.layout.item_task_for_select_very_short;
+        } else if( time < 10 ){
+            id = R.layout.item_task_for_select_short;
+        } else if( time < 30 ){
+            id = R.layout.item_task_for_select_normal;
+        } else if( time < 60 ){
+            id = R.layout.item_task_for_select_long;
+        } else {
+            id = R.layout.item_task_for_select_very_long;
+        }
+        return id;
+    }
 }
 
