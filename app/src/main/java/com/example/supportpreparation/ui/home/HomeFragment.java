@@ -154,7 +154,6 @@ public class HomeFragment extends Fragment {
                 //各「やること」のアラームを設定
                 int size = alarmList.size();
                 for( ; idx < size; idx++ ){
-
                     //アラームの設定
                     PendingIntent pending = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), requestCode, mAlarmReceiverIntent, 0);
                     am.setExact(AlarmManager.RTC_WAKEUP, alarmList.get(idx).getTimeInMillis(), pending);
@@ -162,7 +161,6 @@ public class HomeFragment extends Fragment {
                     //リクエストコードを更新
                     requestCode++;
                 }
-
 
                 //「積み上げやること」をDBに保存
                 mParentActivity.setStackTaskData( mStackTask );

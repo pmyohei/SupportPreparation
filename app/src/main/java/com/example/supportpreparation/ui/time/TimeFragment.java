@@ -104,7 +104,7 @@ public class TimeFragment extends Fragment {
 
             //エラーメッセージを表示
             Toast toast = new Toast(mContext);
-            toast.setText("エラーが発生しました。再度設定してください");
+            toast.setText("時間を設定してください");
             toast.show();
 
             //例外発生時は、終了

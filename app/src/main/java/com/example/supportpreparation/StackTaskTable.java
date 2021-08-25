@@ -22,7 +22,7 @@ public class StackTaskTable {
     @ColumnInfo(name = "task_pids_string")
     private String taskPidsStr = "";
 
-    //リミット日時："yyyy/MM/dd"
+    //リミット日："yyyy/MM/dd"
     @ColumnInfo(name = "date")
     private String date = "";
 
