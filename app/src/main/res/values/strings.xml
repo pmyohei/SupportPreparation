@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">SupportPreparation</string>
-    <string name="title_support">Support</string>
+    <string name="title_stack">Stack</string>
     <string name="title_task">Task</string>
     <string name="title_group">Group</string>
     <string name="title_time">Time</string>
+
+    <string name="task_name_hint">やることを入力してください</string>
+    <string name="group_name_hint">グループ名を入力してください</string>
+    <string name="dialog_create_btn">保存</string>
+
+
 
     <string name="limittime_no_input">--:--</string>
     <string name="limitdate_no_input">--/--</string>

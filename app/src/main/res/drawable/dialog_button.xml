@@ -3,10 +3,10 @@
     <!-- 枠線 -->
     <stroke
         android:width="2px"
-        android:color="@color/bg_diarog"/>
+        android:color="@color/bg_dialog"/>
 
     <solid
-        android:color="@color/bg_diarog" />
+        android:color="@color/bg_dialog" />
 
     <corners
         android:radius="5dp" />

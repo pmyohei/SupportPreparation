@@ -18,6 +18,6 @@
         android:right="30dp"/>
 
     <corners
-        android:radius="10px" />
+        android:radius="@dimen/task_corner_radius" />
 
 </shape>

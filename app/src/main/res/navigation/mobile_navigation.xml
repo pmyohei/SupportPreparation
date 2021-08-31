@@ -7,21 +7,21 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.supportpreparation.ui.home.HomeFragment"
-        android:label="@string/title_support"
-        tools:layout="@layout/fragment_home" />
+        android:name="com.example.supportpreparation.ui.stackManager.StackManagerFragment"
+        android:label="@string/title_stack"
+        tools:layout="@layout/fragment_stack_manager" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.supportpreparation.ui.dashboard.DashboardFragment"
+        android:name="com.example.supportpreparation.ui.taskManager.TaskManagerFragment"
         android:label="@string/title_task"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_task_manager" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.supportpreparation.ui.notifications.NotificationsFragment"
+        android:name="com.example.supportpreparation.ui.groupManager.GroupManagerFragment"
         android:label="@string/title_group"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_group_manager" />
 
     <fragment
         android:id="@+id/navigation_time"

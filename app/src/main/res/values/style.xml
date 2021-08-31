@@ -6,4 +6,16 @@
         <item name="android:windowExitAnimation">@anim/dialog_close</item>
     </style>
 
+    <!-- TimePickerDialog テーマ -->
+    <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/bg_timepicker</item>
+        <item name="android:textColorPrimary">@color/bg_timepicker</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/TimePickerTheme_Button</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/TimePickerTheme_Button</item>
+    </style>
+
+    <style name="TimePickerTheme_Button" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/bg_timepicker</item>
+    </style>
+
 </resources>

@@ -4,21 +4,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.notifications.NotificationsFragment">
+    tools:context=".ui.groupManager.GroupManagerFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_setList"
+        android:id="@+id/rv_groupList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.8"
         android:paddingTop="20dp"/>
+
+    <View
+        android:id="@+id/v_underLine"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@color/bg_limit_line" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_taskList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.5"
-        android:layout_marginTop="48dp"
         android:gravity="center_vertical"/>
 
 </LinearLayout>

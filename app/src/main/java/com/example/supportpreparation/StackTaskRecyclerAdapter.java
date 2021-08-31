@@ -5,9 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +24,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
     private List<TaskTable>             mData;
     private Context                     mContext;
-    private int                         mLayoutID;
 
     private TextView                    mtv_limitDate;          //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
     private TextView                    mtv_limitTime;          //リミット時間のTextView：ユーザー設定変更の内容反映のために保持する
@@ -60,10 +57,9 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     /*
      * コンストラクタ
      */
-    public StackTaskRecyclerAdapter(Context context, int layoutID, List<TaskTable> data, TextView limitDate, TextView limitTime) {
+    public StackTaskRecyclerAdapter(Context context, List<TaskTable> data, TextView limitDate, TextView limitTime) {
         mData         = data;
         mContext      = context;
-        mLayoutID     = layoutID;
         mtv_limitDate = limitDate;
         mtv_limitTime = limitTime;
 
@@ -87,10 +83,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     public StackTaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
-        int id = mLayoutID;
-        if( id == -1 ){
-            id = getLayoutId(viewType);
-        }
+        int id = getLayoutId(viewType);
 
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -219,16 +212,16 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
         int id;
 
-        if( time < 5 ){
-            id = R.layout.item_task_very_short;
-        } else if( time < 10 ){
-            id = R.layout.item_task_short;
-        } else if( time < 30 ){
-            id = R.layout.item_task_normal;
-        } else if( time < 60 ){
-            id = R.layout.item_task_long;
+        if( time <= 5 ){
+            id = R.layout.outer_task_for_stack_very_short;
+        } else if( time <= 10 ){
+            id = R.layout.outer_task_for_stack_short;
+        } else if( time <= 30 ){
+            id = R.layout.outer_task_for_stack_normal;
+        } else if( time <= 60 ){
+            id = R.layout.outer_task_for_stack_long;
         } else {
-            id = R.layout.item_task_very_long;
+            id = R.layout.outer_task_for_stack_very_long;
         }
         return id;
     }

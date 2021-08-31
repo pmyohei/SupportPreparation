@@ -1,8 +1,6 @@
 package com.example.supportpreparation;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,11 +12,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
 
 
 /*
@@ -72,6 +70,7 @@ public class CreateTaskDialog extends DialogFragment {
         //レイアウトパラメータの取得
         WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
         lp.width   = metrics.widthPixels;                   //横幅=画面サイズ
+        lp.height  = metrics.heightPixels * 2 / 5;                   //横幅=画面サイズ
         lp.gravity = Gravity.BOTTOM;                        //位置=画面下部
         //ダイアログのデザインとして設定
         dialog.getWindow().setAttributes(lp);
@@ -91,8 +90,8 @@ public class CreateTaskDialog extends DialogFragment {
         np1th.setMinValue(0);
 
         //呼び出し元から情報を取得
-        this.preTask        = getArguments().getString("TaskName");
-        this.preTaskTime    = getArguments().getInt("TaskTime");
+        this.preTask     = getArguments().getString("TaskName");
+        this.preTaskTime = getArguments().getInt("TaskTime");
 
         //更新であれば
         if( this.preTask != null ){
@@ -111,8 +110,8 @@ public class CreateTaskDialog extends DialogFragment {
         }
 
         //-- 「保存ボタン」のリスナー設定
-        Button btEntry = (Button)dialog.findViewById(R.id.bt_entryTask);
-        btEntry.setOnClickListener(new View.OnClickListener() {
+        Button ib_entry = (Button)dialog.findViewById(R.id.bt_entryTask);
+        ib_entry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

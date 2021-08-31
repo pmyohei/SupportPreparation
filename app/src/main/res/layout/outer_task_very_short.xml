@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_taskInfo"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:layout_margin="10dp"
+    android:padding="10dp"
+    android:elevation="@dimen/task_evelation"
+    android:background="@drawable/frame_item_task_very_short"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:enabled="true">
+
+    <include layout="@layout/element_task" />
+
+</LinearLayout>

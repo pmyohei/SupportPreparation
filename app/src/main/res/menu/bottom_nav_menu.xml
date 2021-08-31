@@ -4,16 +4,16 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_support_red_32px"
-        android:title="@string/title_support" />
+        android:title="@string/title_stack" />
 
     <item
         android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/ic_task_red_32px"
+        android:icon="@drawable/ic_navi_task"
         android:title="@string/title_task" />
 
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_taskset_red_32px"
+        android:icon="@drawable/ic_navi_group"
         android:title="@string/title_group" />
 
     <item

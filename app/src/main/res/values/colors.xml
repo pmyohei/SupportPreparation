@@ -46,7 +46,7 @@
     <color name="tx_task_very_short">#e2f3f5</color>
     <color name="bg_task_short">#B5D8AE</color>
     <color name="tx_task_short">#e2f3f5</color>
-    <color name="bg_task_normal">#FEA683</color>
+    <color name="bg_task_normal">#F5C6AA</color>
     <color name="tx_task_normal">#e2f3f5</color>
     <color name="bg_task_long">#FFC0C0</color>
     <color name="tx_task_long">#e2f3f5</color>
@@ -54,10 +54,14 @@
     <color name="tx_task_very_long">#e2f3f5</color>
 
 
-    <color name="bg_taskSet">#e2f3f5</color>
-    <color name="tx_taskSet">#FF018786</color>
+    <color name="bg_taskGroup">#F2F2F2</color>
+    <color name="tx_groupName">#D5070707</color>
 
-    <color name="bg_diarog">#8ac6d1</color>
+    <color name="bg_dialog">#8ac6d1</color>
+    <color name="tx_diarog_alart">#d9534f</color>
+    <color name="bg_timepicker">#8ac6d1</color>
+
+
 
     <color name="bg_bottom_navi_icon_true">#8ac6d1</color>
     <color name="bg_bottom_navi_icon_false">#716e77</color>

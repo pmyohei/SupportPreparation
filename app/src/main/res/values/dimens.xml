@@ -4,4 +4,11 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- やることデザインの四隅のカーブ -->
+    <dimen name="task_corner_radius">40px</dimen>
+
+    <!-- やることの高さ(3次元)-->
+    <dimen name="task_evelation">8px</dimen>
+
 </resources>

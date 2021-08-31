@@ -13,22 +13,20 @@ import androidx.navigation.ui.NavigationUI;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements  AsyncSetTableOperaion.SetOperationListener,
+public class MainActivity extends AppCompatActivity implements AsyncGroupTableOperaion.GroupOperationListener,
                                                                 AsyncTaskTableOperaion.TaskOperationListener,
                                                                 AsyncStackTaskTableOperaion.StackTaskOperationListener {
 
-    private AppDatabase         mDB;                        //DB
+    private AppDatabase             mDB;                                //DB
 
     //-- フラグメント間共通データ
-    private List<TaskTable>     mTaskList;                  //「やること」リスト
-                                                            //「積み上げやること」リスト
+    private List<TaskTable>         mTaskList;                          //「やること」リスト
+    private List<GroupTable>        mGroupList;                         //「やることグループ」リスト
+    private List<List<TaskTable>>   mTaskListInGroup;                   //「やることグループ」に割り当てられた「やること」リスト
+                                                                        //「積み上げやること」リスト
     private List<TaskTable>     mStackTaskList = new ArrayList<>();
-    private String              mLimitDate;                 //リミット-日（"yyyy/MM/dd"）
-    private String              mLimitTime;                 //リミット-時（"hh:mm"）
-
-    private Boolean             mReadTask;                  //DB読み込みフラグ-やること
-    private Boolean             mReadTaskSet;               //DB読み込みフラグ-やることセット
-    private Boolean             mReadStackTask;             //DB読み込みフラグ-積み上げやること
+    private String              mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
+    private String              mLimitTime;                             //リミット-時（"hh:mm"）
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +49,21 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
     }
 
     /*
-     * 「積み上げやること」データを取得する
+     * 「やることグループ」データを取得
+     */
+    public List<GroupTable> getGroupData() {
+        return mGroupList;
+    }
+
+    /*
+     * 「やることグループ」に割り当てられた「やること」リストを取得
+     */
+    public List<List<TaskTable>> getTaskListInGroup() {
+        return mTaskListInGroup;
+    }
+
+    /*
+     * 「積み上げやること」データを取得
      */
     public List<TaskTable> getStackTaskData() {
         return mStackTaskList;
@@ -116,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
         mTaskList = taskList;
 
         //「やることセット」
-        new AsyncSetTableOperaion(mDB, this, AsyncSetTableOperaion.DB_OPERATION.READ).execute();
+        new AsyncGroupTableOperaion(mDB, this, AsyncGroupTableOperaion.DB_OPERATION.READ).execute();
     }
 
     @Override
@@ -128,42 +140,34 @@ public class MainActivity extends AppCompatActivity implements  AsyncSetTableOpe
         //do nothing
     }
     @Override
-    public void onSuccessTaskUpdate(String preTask, int preTaskTime, TaskTable updatedTask) {
+    public void onSuccessEditTask(String preTask, int preTaskTime, TaskTable updatedTask) {
         //do nothing
     }
 
     /* --------------------------------------
-     * 「やることセット」
+     * 「やることグループ」
      */
-
     @Override
-    public void onSuccessSetRead(List<SetTable> setList, List<List<TaskTable>> tasksList) {
-        mReadTaskSet = false;
+    public void onSuccessReadGroup(List<GroupTable> groupList, List<List<TaskTable>> taskListInGroup) {
+
+        //DBから取得したデータを保持
+        mGroupList       = groupList;
+        mTaskListInGroup = taskListInGroup;
 
         //「積み上げやること」
         new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.READ).execute();
-
-        /*
-        //-- レイアウトの設定は、データ取得後に行う
-        setContentView(R.layout.activity_main);
-
-        //下部ナビゲーション設定
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(navView, navController);
-         */
     }
 
     @Override
-    public void onSuccessSetCreate(Integer code, String setName) {
+    public void onSuccessCreateGroup(Integer code, GroupTable group) {
     }
 
     @Override
-    public void onSuccessSetDelete(String task) {
+    public void onSuccessDeleteGroup(String task) {
     }
 
     @Override
-    public void onSuccessSetUpdate(String preTask, String task) {
+    public void onSuccessEditGroup(String preTask, String groupName) {
     }
 
     /* --------------------------------------

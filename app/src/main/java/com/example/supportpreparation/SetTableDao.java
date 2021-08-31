@@ -13,10 +13,10 @@ import java.util.List;
  */
 @Dao
 public interface SetTableDao {
-    @Query("SELECT * FROM setTable")
+    @Query("SELECT * FROM SetTable")
     List<SetTable> getAll();
 
-    @Query("SELECT * FROM setTable WHERE id IN (:ids)")
+    @Query("SELECT * FROM SetTable WHERE id IN (:ids)")
     List<SetTable> loadAllByIds(int[] ids);
 
     /*
@@ -24,33 +24,33 @@ public interface SetTableDao {
      *   ※未登録の場合、プライマリーキーは「0」が返される（実証）
      *     ＝プライマリーキーは「１」から割り当てられる
      */
-    @Query("SELECT id FROM setTable WHERE set_name=(:setName)")
+    @Query("SELECT id FROM SetTable WHERE set_name=(:setName)")
     int getPid(String setName);
 
     /*
      * 取得：選択済み「やること」文字列
      */
-    @Query("SELECT task_pids_string FROM setTable WHERE id=(:pid)")
+    @Query("SELECT task_pids_string FROM SetTable WHERE id=(:pid)")
     String getTaskPidsStr(int pid);
 
     /*
      * 更新：セット名
      *   指定されたプライマリーキーのレコードを更新
      */
-    @Query("UPDATE setTable set set_name=(:setName) WHERE id=(:pid)")
+    @Query("UPDATE SetTable set set_name=(:setName) WHERE id=(:pid)")
     int updateSetNameByPid(int pid, String setName);
 
     /*
      * 更新：選択済み「やること」
      *   指定されたプライマリーキーのレコードを更新
      */
-    @Query("UPDATE setTable set task_pids_string=(:taskPidsStr) WHERE id=(:pid)")
+    @Query("UPDATE SetTable set task_pids_string=(:taskPidsStr) WHERE id=(:pid)")
     int updateTaskPidsStrByPid(int pid, String taskPidsStr);
 
     /*
      * 削除：プライマリーキー指定
      */
-    @Query("DELETE FROM setTable WHERE id=(:pid)")
+    @Query("DELETE FROM SetTable WHERE id=(:pid)")
     void deleteByPid(int pid);
 
     @Insert

@@ -14,7 +14,7 @@ public class TaskTableManager {
 
     /*
      * 「やること」追加
-     *   文字列指定あり
+     *   指定された文字列に追加する
      */
     public static String addTaskPidsStr(String toStr, int pid) {
 
@@ -31,6 +31,21 @@ public class TaskTableManager {
 
         return toStr;
     }
+
+    /*
+     * 「やること」追加（重複許容）
+     *   指定された文字列に追加する
+     */
+    public static String addTaskPidsStrDuplicate(String toStr, int pid) {
+
+        //区切り文字として空白を入れて追加
+        // ！最後に空白が入った状態で問題なし
+        // ！split()で分割しても、最後の要素が空にはならない
+        toStr += pid + DELIMITER;
+
+        return toStr;
+    }
+
 
     /*
      * PID有無判定
@@ -107,6 +122,7 @@ public class TaskTableManager {
 
     /*
      * 「やること」削除
+     *   指定されたPIDのやることを削除する
      */
     public static String deleteTaskPidInStr(String str, int pid) {
 
@@ -125,6 +141,33 @@ public class TaskTableManager {
 
             //文字列へ追加
             newStr += pid + DELIMITER;
+        }
+
+        return newStr;
+    }
+
+    /*
+     * 「やること」削除
+     *   指定された位置のやることを削除する
+     */
+    public static String deleteTaskPosInStr(String str, int pos) {
+
+        //半角スペースで分割
+        String[] pidsStr = str.split(DELIMITER);
+
+        //新文字列
+        String newStr = "";
+
+        //PID分ループ
+        for( int i = 0; i < pidsStr.length; i++  ){
+
+            //指定位置のPIDは、文字列に追加しない
+            if( i == pos ){
+                continue;
+            }
+
+            //文字列へ追加
+            newStr += pidsStr[i] + DELIMITER;
         }
 
         return newStr;
