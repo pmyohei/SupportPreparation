@@ -325,7 +325,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         int i = 0;
         for( GroupTable group: mGroupList ){
-            if( group.getGroupName() == groupName ){
+            if( group.getGroupName().equals( groupName ) ){
                 return i;
             }
             i++;
@@ -371,6 +371,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         mGroupList.add( group );
         mTaskListInGroup.add( new ArrayList<>() );
 
+        //対応するアダプタを生成してリストに追加
         int last = mTaskListInGroup.size() - 1;
         List<TaskTable> taskList = mTaskListInGroup.get( last );
         mTaskInGroupAdapter.add(

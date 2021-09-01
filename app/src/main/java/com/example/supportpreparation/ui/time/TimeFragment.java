@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,6 +79,8 @@ public class TimeFragment extends Fragment {
         mtv_progressTask = mRootLayout.findViewById(R.id.tv_plainProgressTask);
         mtv_nextTask = mRootLayout.findViewById(R.id.tv_nextTask);
 
+        //mtv_progressTask.setTextColor(R.color.orange);
+
         //タイムフォーマットのタイムゾーンをUTCに設定
         TimeZone tz = TimeZone.getTimeZone("UTC");
         sdfFinalTime.setTimeZone(tz);
@@ -117,7 +120,7 @@ public class TimeFragment extends Fragment {
         nowCalendar.setTime(nowTime);
 
         //最終時刻が既に過ぎていた場合
-        if( nowTime.after(finalTime) ){
+        if (nowTime.after(finalTime)) {
             //カウントダウンはせず、終了
             return mRootLayout;
         }
@@ -211,12 +214,12 @@ public class TimeFragment extends Fragment {
     /*
      * 進行中「やること」の残り時間を取得（カウンタ値の算出）
      */
-    public long getRemainCount(Date now, Date finalLimit){
+    public long getRemainCount(Date now, Date finalLimit) {
 
         int remainMinute = 0;
 
         int size = mStackTask.size();
-        for( int i = mTaskRefIdx; i < size; i++ ){
+        for (int i = mTaskRefIdx; i < size; i++) {
             //進行中タスク以降の「やること時間」を累計
             remainMinute += mStackTask.get(i).getTaskTime();
         }
@@ -231,7 +234,7 @@ public class TimeFragment extends Fragment {
         long diff = now.getTime() - progressStartTime.getTime();
 
         //進行中やることの時間
-        long taskTime = (long)mStackTask.get(mTaskRefIdx).getTaskTime() * CONV_MIN_TO_MSEC;
+        long taskTime = (long) mStackTask.get(mTaskRefIdx).getTaskTime() * CONV_MIN_TO_MSEC;
 
         //残りのやること時間を返す
         return (taskTime - diff);
@@ -240,7 +243,7 @@ public class TimeFragment extends Fragment {
     /*
      * 「やること」（進行中／次）の表示処理
      */
-    public void setDisplayTaskName(){
+    public void setDisplayTaskName() {
 
         //設定文字列
         String progressTask;
@@ -248,9 +251,12 @@ public class TimeFragment extends Fragment {
 
         //固定文字列の取得
         String waitingStr = getString(R.string.waiting);
-        String noneStr    = getString(R.string.next_none);
+        String noneStr = getString(R.string.next_none);
 
-        if( mTaskRefIdx == REF_WAITING ){
+        //カラーID
+        int colorId = R.color.tx_time_not_reached;
+
+        if (mTaskRefIdx == REF_WAITING) {
             //-- まだ、初めの「やること」の開始時間に至っていない場合
 
             //進行中の「やること」
@@ -258,7 +264,7 @@ public class TimeFragment extends Fragment {
             //次の「やること」
             nextTask = mStackTask.get(0).getTaskName();
 
-        } else if( mTaskRefIdx >= mStackTask.size() ){
+        } else if (mTaskRefIdx >= mStackTask.size()) {
             //-- 「やること」全て完了
 
             //進行中の「やること」
@@ -273,18 +279,54 @@ public class TimeFragment extends Fragment {
             progressTask = mStackTask.get(mTaskRefIdx).getTaskName();
 
             //次の「やること」
-            if( (mTaskRefIdx + 1) < mStackTask.size() ){
+            if ((mTaskRefIdx + 1) < mStackTask.size()) {
                 //まだ次の「やること」あり
                 nextTask = mStackTask.get(mTaskRefIdx + 1).getTaskName();
             } else {
                 //次の「やること」なし
                 nextTask = noneStr;
             }
+
+            //テキストに設定する色を取得
+            colorId = getColorId(mStackTask.get(mTaskRefIdx).getTaskTime());
         }
 
         //「やること」（進行中／次）の表示設定
         mtv_progressTask.setText(progressTask);
         mtv_nextTask.setText(nextTask);
+
+        //テキストカラーの変更
+        for (int i = 0; i < ((ViewGroup)mRootLayout).getChildCount(); i++) {
+            //子ビューを取得
+            View v = ((ViewGroup)mRootLayout).getChildAt(i);
+            //テキストビューのみ対象
+            if( v instanceof TextView ){
+                TextView tv = (TextView)v;
+                tv.setTextColor( getResources().getColor(colorId) );
+            }
+        }
+    }
+
+    /*
+     * やること時間に対応する色を取得
+     */
+    public int getColorId(int taskTime){
+
+        int id;
+
+        if (taskTime <= 5) {
+            id = R.color.bg_task_very_short;
+        } else if (taskTime <= 10) {
+            id = R.color.bg_task_short;
+        } else if (taskTime <= 30) {
+            id = R.color.bg_task_normal;
+        } else if (taskTime <= 60) {
+            id = R.color.bg_task_long;
+        } else {
+            id = R.color.bg_task_very_long;
+        }
+
+        return id;
     }
 
     /*
