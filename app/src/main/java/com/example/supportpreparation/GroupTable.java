@@ -2,8 +2,10 @@ package com.example.supportpreparation;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -26,21 +28,20 @@ public class GroupTable {
     @ColumnInfo(name = "task_pids_string")
     private String taskPidsStr = "";
 
-    //「セットに追加されたやること」の区切文字
-    private final static String DELIMITER = " ";
+    /*
+     * フィールド
+     */
+    private final static String DELIMITER = " ";    //「セットに追加されたやること」の区切文字
+
+    @Ignore
+    private List<TaskTable> mTaskInGroupList;       //グループ内の「やること」
 
     /*
      * コンストラクタ
      */
     public GroupTable(String groupName) {
-        this.groupName = groupName;
-    }
-
-    /*
-     * コンストラクタ
-     */
-    public GroupTable(String groupName, List<Integer> taskPids) {
-        this.groupName = groupName;
+        this.groupName          = groupName;
+        mTaskInGroupList   = new ArrayList<>();
     }
 
     public void setId(int id) {
@@ -67,4 +68,11 @@ public class GroupTable {
         this.taskPidsStr = taskPidsStr;
     }
 
+    public List<TaskTable> getTaskInGroupList() {
+        return mTaskInGroupList;
+    }
+
+    public void setTaskInGroupList(List<TaskTable> mTaskInGroupList) {
+        this.mTaskInGroupList = mTaskInGroupList;
+    }
 }

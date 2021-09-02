@@ -63,6 +63,18 @@
         android:textSize="12sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/tv_selecySwitchLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:text="@string/select_switch_label_task"
+        android:textColor="@color/tx_limit_line"
+        android:textSize="14sp"
+        android:textStyle="bold"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_taskList"
         android:layout_width="match_parent"
@@ -71,5 +83,16 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="24dp"
         android:gravity="center_vertical"/>
+
+    <!-- 画面表示時は非表示。クリックにより「やること」リストと切り替え -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_groupList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.6"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical"
+        android:visibility="gone"/>
 
 </LinearLayout>

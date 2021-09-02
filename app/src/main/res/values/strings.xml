@@ -13,6 +13,8 @@
 
     <string name="limittime_no_input">--:--</string>
     <string name="limitdate_no_input">--/--</string>
+    <string name="select_switch_label_task">やること</string>
+    <string name="select_switch_label_group">グループ</string>
 
     <string name="heading_remaining_time">Limit</string>
     <string name="heading_next">Next</string>

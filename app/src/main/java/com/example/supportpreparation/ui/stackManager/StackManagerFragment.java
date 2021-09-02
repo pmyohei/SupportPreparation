@@ -35,11 +35,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
+import com.example.supportpreparation.GroupSelectRecyclerAdapter;
+import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.StackTaskRecyclerAdapter;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
+import com.example.supportpreparation.TaskTableManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
@@ -50,20 +53,21 @@ import java.util.Locale;
 
 public class StackManagerFragment extends Fragment {
 
-    private final int                   MAX_ALARM_CANCEL_NUM = 256; //アラームキャンセル最大数
+    private final int MAX_ALARM_CANCEL_NUM = 256; //アラームキャンセル最大数
 
-    private MainActivity                mParentActivity;            //親アクティビティ
-    private Fragment                    mFragment;                  //本フラグメント
-    private Context                     mContext;                   //コンテキスト（親アクティビティ）
-    private View                        mRootLayout;                //本フラグメントに設定しているレイアウト
-    private AppDatabase                 mDB;                        //DB
-    private LinearLayout                mll_stackArea;              //「やること」積み上げ領域
-    private List<TaskTable>             mStackTask;                 //積み上げ「やること」
-    private StackTaskRecyclerAdapter    mStackAreaAdapter;          //積み上げ「やること」アダプタ
-    private FloatingActionButton        mFab;                       //フローティングボタン
-    private TextView                    mtv_limitDate;              //リミット日のビュー
-    private TextView                    mtv_limitTime;              //リミット時間のビュー
-    private Intent                      mAlarmReceiverIntent;       //アラーム受信クラスのIntent
+    private MainActivity                mParentActivity;        //親アクティビティ
+    private Fragment                    mFragment;              //本フラグメント
+    private Context                     mContext;               //コンテキスト（親アクティビティ）
+    private View                        mRootLayout;            //本フラグメントに設定しているレイアウト
+    private AppDatabase                 mDB;                    //DB
+    private LinearLayout                mll_stackArea;          //「やること」積み上げ領域
+    private List<TaskTable>             mStackTask;             //積み上げ「やること」
+    private List<TaskTable>             mTaskList;              //「やること」
+    private StackTaskRecyclerAdapter    mStackAreaAdapter;      //積み上げ「やること」アダプタ
+    //private FloatingActionButton mFab;                        //フローティングボタン
+    private TextView                    mtv_limitDate;          //リミット日のビュー
+    private TextView                    mtv_limitTime;          //リミット時間のビュー
+    private Intent                      mAlarmReceiverIntent;   //アラーム受信クラスのIntent
 
 
     //-- 変更有無の確認用
@@ -85,23 +89,55 @@ public class StackManagerFragment extends Fragment {
         //親アクティビティ
         mParentActivity = (MainActivity) getActivity();
 
+        //やることリストを取得
+        mTaskList = mParentActivity.getTaskData();
+
         //ビューを保持
         mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
-        mtv_limitDate = (TextView)mRootLayout.findViewById(R.id.tv_limitDate);
+        mtv_limitDate = (TextView) mRootLayout.findViewById(R.id.tv_limitDate);
 
         //アラーム受信クラスのIntent
         mAlarmReceiverIntent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
 
-        //「リミット日時」を設定
-        this.setDisplayLimitDate();
-        //「やること」積み上げエリア
-        this.setStackTaskArea();
-        //「やること」を表示
-        this.setDisplayTaskData();
+        //「リミット日時」の設定
+        setDisplayLimitDate();
+        //「やること」積み上げエリアの設定
+        setStackTaskArea();
+        //選択エリアの設定
+        setTaskSelectionArea();
+        setGroupSelectionArea();
 
-        // FloatingActionButton
-        mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_startSupport);
-        mFab.setOnClickListener(new View.OnClickListener() {
+        //選択エリアの切り替え
+        TextView tv_selecySwitchLabel = (TextView)mRootLayout.findViewById(R.id.tv_selecySwitchLabel);
+        tv_selecySwitchLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //リサイクラービュー取得
+                RecyclerView rv_task = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+                RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+
+                int taskVisibility = rv_task.getVisibility();
+                if( taskVisibility == View.VISIBLE ){
+                    //表示切り替え：やること → グループ
+                    rv_task.setVisibility( View.GONE );
+                    rv_group.setVisibility( View.VISIBLE );
+
+                    ((TextView)view).setText( R.string.select_switch_label_group);
+
+                } else {
+                    //表示切り替え：グループ → やること
+                    rv_task.setVisibility( View.VISIBLE );
+                    rv_group.setVisibility( View.GONE );
+
+                    ((TextView)view).setText( R.string.select_switch_label_task);
+                }
+            }
+        });
+
+        // アラーム開始ボタンの設定
+        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_startSupport);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -120,7 +156,7 @@ public class StackManagerFragment extends Fragment {
                 List<Calendar> alarmList = mStackAreaAdapter.getAlarmList();
 
                 //「やること」未選択の場合
-                if (mStackTask.size() == 0 || alarmList == null ) {
+                if (mStackTask.size() == 0 || alarmList == null) {
                     //メッセージを表示
                     toast.setText("やることを選択してください");
                     toast.show();
@@ -129,7 +165,7 @@ public class StackManagerFragment extends Fragment {
 
                 //AlarmManagerの取得
                 AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-                if(am == null) {
+                if (am == null) {
                     //メッセージを表示
                     toast.setText("エラーが発生しました。再度、ボタンを押してください");
                     toast.show();
@@ -143,7 +179,7 @@ public class StackManagerFragment extends Fragment {
 
                 //初めに設定するアラームindexを取得
                 int idx = getStartAlarmIdx(alarmList);
-                if( idx == -1 ){
+                if (idx == -1) {
                     //エラーの場合は、現在時刻よりも後が設定されている
                     //※過去のアラームに対して、再度アラームを設定しようとした場合のガード処理
                     toast.setText("現在時刻よりも後に設定してください");
@@ -153,7 +189,7 @@ public class StackManagerFragment extends Fragment {
 
                 //各「やること」のアラームを設定
                 int size = alarmList.size();
-                for( ; idx < size; idx++ ){
+                for (; idx < size; idx++) {
                     //アラームの設定
                     PendingIntent pending = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), requestCode, mAlarmReceiverIntent, 0);
                     am.setExact(AlarmManager.RTC_WAKEUP, alarmList.get(idx).getTimeInMillis(), pending);
@@ -163,7 +199,7 @@ public class StackManagerFragment extends Fragment {
                 }
 
                 //「積み上げやること」をDBに保存
-                mParentActivity.setStackTaskData( mStackTask );
+                mParentActivity.setStackTaskData(mStackTask);
 
                 //メッセージを表示
                 toast.setText("アラームを設定しました");
@@ -206,25 +242,25 @@ public class StackManagerFragment extends Fragment {
         //AlarmManagerの取得
         AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
 
-        for( int i =0; i < MAX_ALARM_CANCEL_NUM; i++ ){
+        for (int i = 0; i < MAX_ALARM_CANCEL_NUM; i++) {
             //PendingIntentを取得
             //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
             PendingIntent pendingIntent = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), i, mAlarmReceiverIntent, PendingIntent.FLAG_NO_CREATE);
-            if( pendingIntent == null ){
+            if (pendingIntent == null) {
                 //未生成ならキャンセル処理終了
                 break;
             }
 
             //アラームキャンセル
             pendingIntent.cancel();
-            am.cancel( pendingIntent );
+            am.cancel(pendingIntent);
         }
     }
 
     /*
      * アラームリストに関して、初めに設定するアラームのIndexを取得する
      */
-    private int getStartAlarmIdx( List<Calendar> alarmList ) {
+    private int getStartAlarmIdx(List<Calendar> alarmList) {
         //-- 現在時刻
         Date nowTime = new Date();
 
@@ -236,7 +272,7 @@ public class StackManagerFragment extends Fragment {
         */
 
         int i = 0;
-        for( Calendar calendar: alarmList ){
+        for (Calendar calendar : alarmList) {
 
             //アラーム時刻を取得
             Date alarmDate = calendar.getTime();
@@ -250,7 +286,7 @@ public class StackManagerFragment extends Fragment {
             */
 
             //アラーム時刻は現在時刻よりも後か
-            if( alarmDate.after(nowTime) ){
+            if (alarmDate.after(nowTime)) {
                 return i;
             }
 
@@ -278,7 +314,7 @@ public class StackManagerFragment extends Fragment {
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
                         //現在時刻よりも後かどうか
-                        if( isAfterSetTime(hourOfDay, minute) ){
+                        if (isAfterSetTime(hourOfDay, minute)) {
                             //入力時刻を設定
                             String limit = String.format("%02d:%02d", hourOfDay, minute);
                             mtv_limitTime.setText(limit);
@@ -321,7 +357,7 @@ public class StackManagerFragment extends Fragment {
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
                         //現在日よりも後かどうか
-                        if( isAfterSetDate( year, month, dayOfMonth) ){
+                        if (isAfterSetDate(year, month, dayOfMonth)) {
                             //日付を取得して表示
                             String date = String.format(Locale.JAPANESE, "%04d/%02d/%02d", year, month + 1, dayOfMonth);
                             mtv_limitDate.setText(date);
@@ -349,7 +385,7 @@ public class StackManagerFragment extends Fragment {
     /*
      * 指定年月日が現在日よりも後か
      */
-    private boolean isAfterSetDate(int year, int month, int dayOfMonth){
+    private boolean isAfterSetDate(int year, int month, int dayOfMonth) {
 
         //現在日時
         Date nowDate = new Date();
@@ -370,7 +406,7 @@ public class StackManagerFragment extends Fragment {
     /*
      * 指定時分が現在時分よりも後か
      */
-    private boolean isAfterSetTime(int hourOfDay, int minute){
+    private boolean isAfterSetTime(int hourOfDay, int minute) {
 
         //現在時分
         Date nowDate = new Date();
@@ -384,7 +420,7 @@ public class StackManagerFragment extends Fragment {
         //Log.i("test", "setLimitDate=" + setLimitDate);
 
         //本日の時刻でなければ、後であること確定
-        if( setLimitDate.compareTo(nowDateStr) != 0 ){
+        if (setLimitDate.compareTo(nowDateStr) != 0) {
             return true;
         }
 
@@ -399,7 +435,7 @@ public class StackManagerFragment extends Fragment {
         //Log.i("test", "setStr=" + setStr);
         //Log.i("test", "compareTo=" + nowStr.compareTo(setStr));
 
-        if( setStr.compareTo(nowStr) >= 0 ){
+        if (setStr.compareTo(nowStr) >= 0) {
             //設定時分が、現在時分よりも後であれば
             return true;
         } else {
@@ -478,7 +514,7 @@ public class StackManagerFragment extends Fragment {
     /*
      * 「リミット日時」を設定
      */
-    private void setDisplayLimitDate(){
+    private void setDisplayLimitDate() {
 
         //-- リミット時間の設定
 
@@ -520,20 +556,17 @@ public class StackManagerFragment extends Fragment {
     }
 
     /*
-     * 「やること」データを表示エリアにセット
+     * 「やること」選択エリアの設定
      */
-    private void setDisplayTaskData(){
-
-        //やることリストを取得
-        List<TaskTable> taskList = mParentActivity.getTaskData();
+    private void setTaskSelectionArea() {
 
         //登録がなければ終了
-        if( taskList == null || taskList.size() == 0 ) {
+        if (mTaskList == null || mTaskList.size() == 0) {
             return;
         }
 
         //レイアウトからリストビューを取得
-        RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+        RecyclerView rv_task = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
@@ -549,8 +582,13 @@ public class StackManagerFragment extends Fragment {
                 //RecyclerViewの横幅 / 2 を子アイテムの横幅とする
                 int width = rv_task.getWidth() / 2;
 
+                //RecyclerViewがGONE中は、アダプタ設定をしない
+                if( width == 0 ){
+                    return true;
+                }
+
                 //アダプタの生成・設定
-                TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
+                TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
 
                 //ドラッグリスナーの設定
                 adapter.setOnItemLongClickListener(new View.OnLongClickListener() {
@@ -573,8 +611,83 @@ public class StackManagerFragment extends Fragment {
                 return false;
             }
         });
+
+
     }
 
+    /*
+     * 「グループ」選択エリアの設定
+     */
+    private void setGroupSelectionArea(){
+
+        //やることリストを取得
+        List<GroupTable> groupList = mParentActivity.getGroupData();
+
+        //登録がなければ終了
+        if (groupList == null || groupList.size() == 0) {
+            return;
+        }
+
+        //レイアウトからリストビューを取得
+        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+
+        //レイアウトマネージャの生成・設定（横スクロール）
+        LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
+        ll_manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rv_group.setLayoutManager(ll_manager);
+
+        //-- アダプタの設定は、サイズが確定してから行う
+        // ビューツリー描画時に呼ばれるリスナーの設定
+        rv_group.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+
+                //RecyclerViewの横幅 / 2 を子アイテムの横幅とする
+                int width = rv_group.getWidth() / 2;
+
+                //RecyclerViewがGONE中は、アダプタ設定をしない
+                if( width == 0 ){
+                    return true;
+                }
+
+                //アダプタの生成・設定
+                GroupSelectRecyclerAdapter adapter = new GroupSelectRecyclerAdapter(mContext, groupList, width, 0);
+
+                //ドラッグリスナーの設定
+                adapter.setOnItemLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        view.startDrag(null, new View.DragShadowBuilder(view), (Object) view, 0);
+                        return true;
+                    }
+                });
+
+                //RecyclerViewにアダプタを設定
+                rv_group.setAdapter(adapter);
+
+                //本リスナーを削除（何度も処理する必要はないため）
+                rv_group.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                //描画を中断するため、false
+                return false;
+            }
+        });
+    }
+
+    /*
+     * 「やること」リストから、指定されたPidの「やること」を取得
+     */
+    private TaskTable getTaskByPid( int pid ){
+
+        //保持している「やること」リスト内を検索
+        for( TaskTable task: mTaskList ){
+            if( task.getId() == pid ){
+                return task;
+            }
+        }
+
+        return null;
+    }
 
     /*
      * ドラッグリスナー
@@ -594,27 +707,48 @@ public class StackManagerFragment extends Fragment {
                 }
                 //ドロップ時(ドロップしてドラッグが終了したとき)
                 case DragEvent.ACTION_DROP: {
-                    Log.i("test", "drop=" + view);
-                    /*
-                    View dragView = (View) dragEvent.getLocalState();
-                    dragView.setBackgroundColor(Color.TRANSPARENT);
-                    ((TextView)dragView).setTextColor(Color.BLACK);
-
-                    ((LinearLayout) dragView.getParent()).removeView(dragView);
-                    ((LinearLayout) view).addView(dragView);
-                    */
 
                     //ドラッグしたビューからデータを取得
                     View dragView = (View)dragEvent.getLocalState();
-                    TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
-                    TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
-                    TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
 
-                    Log.i("test", "drop task=" + tv_taskName.getText());
+                    //ドロップされたのが「やること」か「グループ」か
+                    TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
+                    if( tv_taskInGroup == null ){
+                        //--「やること」がドロップ
 
-                    int pid      = Integer.parseInt( tv_pid.getText().toString() );
-                    int taskTime = Integer.parseInt( tv_taskTime.getText().toString() );
-                    mStackTask.add( 0, new TaskTable( pid, tv_taskName.getText().toString(), taskTime ) );
+                        TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
+                        TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
+                        TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
+
+                        int pid      = Integer.parseInt( tv_pid.getText().toString() );
+                        int taskTime = Integer.parseInt( tv_taskTime.getText().toString() );
+
+                        mStackTask.add( 0, new TaskTable( pid, tv_taskName.getText().toString(), taskTime ) );
+
+                    } else {
+                        //--「グループ」がドロップ
+
+                        TextView tv_groupPid  = dragView.findViewById(R.id.tv_groupPid);
+                        TextView tv_groupName = dragView.findViewById(R.id.tv_groupName);
+
+                        String taskPidsStr = tv_taskInGroup.getText().toString();
+                        Log.i("test", "drop taskPidsStr=" + taskPidsStr);
+                        List<Integer> pids = TaskTableManager.getPidsIntArray( taskPidsStr );
+                        if( pids == null ){
+                            //何もないなら、何もせず終了
+                            break;
+                        }
+
+                        //グループ内の「やること」を積み上げ先のリストに追加する
+                        int i = pids.size() - 1;
+                        for( ; i >= 0; i-- ) {
+                            Integer pid = pids.get(i);
+                            TaskTable task = getTaskByPid(pid);
+                            if( task != null ){
+                                mStackTask.add( 0, task );
+                            }
+                        }
+                    }
 
                     //アダプタへ通知
                     mStackAreaAdapter.clearAlarmList();

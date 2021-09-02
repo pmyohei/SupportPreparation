@@ -12,7 +12,7 @@ import java.util.List;
 /*
  *
  */
-public class TaskSelectListAdapter extends BaseAdapter {
+public class TaskSelectListAdapter_old extends BaseAdapter {
 
     private LayoutInflater  inflater;
     private int             layoutID;
@@ -24,7 +24,7 @@ public class TaskSelectListAdapter extends BaseAdapter {
         TextView taskTime;
     }
 
-    public TaskSelectListAdapter(Context context, int itemLayoutId, List<TaskTable> tasks) {
+    public TaskSelectListAdapter_old(Context context, int itemLayoutId, List<TaskTable> tasks) {
         //this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.layoutID = itemLayoutId;

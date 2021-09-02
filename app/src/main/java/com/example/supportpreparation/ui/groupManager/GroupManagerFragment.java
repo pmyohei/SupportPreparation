@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.AsyncGroupTableOperaion;
-import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.CreateGroupDialog;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
@@ -48,8 +47,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     private AppDatabase mDB;                        //DB
     private List<TaskTable> mTaskList;                  //「やること」リスト
     private List<GroupTable> mGroupList;                 //「グループ」リスト
-    private List<List<TaskTable>> mTaskListInGroup;           //「グループ」に割り当てられた「やること」リスト
-    private List<TaskRecyclerAdapter> mTaskInGroupAdapter;      //グループ内「やること」のアダプタ
+    private List<TaskRecyclerAdapter> mTaskInGroupAdapterList;      //グループ内「やること」のアダプタ
     private GroupRecyclerAdapter mGroupAdapter;                //「グループ」表示アダプタ
     private AsyncGroupTableOperaion.GroupOperationListener
             mGroupDBListener;                   //「グループ」DB操作リスナー
@@ -78,16 +76,18 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //「グループ」リストを取得
         mGroupList       = mParentActivity.getGroupData();
-        mTaskListInGroup = mParentActivity.getTaskListInGroup();
 
         //グループ内「やること」のアダプタを保持
-        mTaskInGroupAdapter = new ArrayList<>();
-        for( List<TaskTable> taskList: mTaskListInGroup){
-            mTaskInGroupAdapter.add(
-                    new TaskRecyclerAdapter(mContext, taskList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
+        mTaskInGroupAdapterList = new ArrayList<>();
+        for( GroupTable group: mGroupList ){
+            List<TaskTable> taskInGroupList = group.getTaskInGroupList();
+
+            mTaskInGroupAdapterList.add(
+                    new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
             );
         }
-        
+
+
         //削除待ちの「グループ」-リストIndex
         _mDeletedGroupPos = NOT_DELETE_WAITING;
 
@@ -193,7 +193,9 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
-                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, mTaskListInGroup, mTaskInGroupAdapter, dbListener, height);
+
+                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, mTaskInGroupAdapterList, dbListener, height);
+
                 //リスナー設定(グループ名編集)
                 mGroupAdapter.setOnGroupNameClickListener(new View.OnClickListener() {
                     @Override
@@ -201,6 +203,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                         createEditGroupDialog(view);
                     }
                 });
+
                 //リスナー設定(やることスクロール)
                 mGroupAdapter.setOnTaskTouchListener(new View.OnTouchListener() {
                     @Override
@@ -333,13 +336,26 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         return NO_SEARCH;
     }
 
+    /*
+     * 「グループ」リストIndex検索
+     */
+    private int searchIdxGroupList(int groupPid){
+
+        int i = 0;
+        for( GroupTable group: mGroupList ){
+            if( group.getId() == groupPid ){
+                return i;
+            }
+            i++;
+        }
+        return NO_SEARCH;
+    }
 
     /* --------------------------------------
      * 「グループ」
      */
     @Override
-    public void onSuccessReadGroup(List<GroupTable> groupList, List<List<TaskTable>> taskListInGroup) {
-
+    public void onSuccessReadGroup(List<GroupTable> groupList) {
     }
 
     @Override
@@ -369,13 +385,11 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //生成された「グループ」情報をリストに追加
         mGroupList.add( group );
-        mTaskListInGroup.add( new ArrayList<>() );
 
         //対応するアダプタを生成してリストに追加
-        int last = mTaskListInGroup.size() - 1;
-        List<TaskTable> taskList = mTaskListInGroup.get( last );
-        mTaskInGroupAdapter.add(
-                new TaskRecyclerAdapter(mContext, taskList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
+        List<TaskTable> taskInGroupList = group.getTaskInGroupList();
+        mTaskInGroupAdapterList.add(
+                new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
         );
 
         //アダプタに変更を通知
@@ -386,8 +400,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     public void onSuccessDeleteGroup(String groupName) {
         //リストから削除
         mGroupList.remove(_mDeletedGroupPos);
-        mTaskListInGroup.remove(_mDeletedGroupPos);
-        mTaskInGroupAdapter.remove(_mDeletedGroupPos);
+        mTaskInGroupAdapterList.remove(_mDeletedGroupPos);
 
         //ビューにアイテム削除を通知
         mGroupAdapter.notifyItemRemoved(_mDeletedGroupPos);
@@ -406,7 +419,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //更新されたリストのIndexを取得
         int i = searchIdxGroupList(preGroupName);
 
-        //フェールセーフ
+        //--フェールセーフ
         if( i == NO_SEARCH ){
             //見つからなければ、何もしない
             Log.i("failsafe", "onSuccessEditGroup couldn't found");
@@ -425,4 +438,15 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         toast.setText("更新しました");
         toast.show();
     }
+
+    @Override
+    public void onSuccessUpdateTask(int groupPid, String taskPidsStr){
+        //更新されたグループを取得
+        int i = searchIdxGroupList(groupPid);
+        GroupTable group = mGroupList.get(i);
+
+        //やること文字列を更新
+        group.setTaskPidsStr(taskPidsStr);
+    }
+
 }

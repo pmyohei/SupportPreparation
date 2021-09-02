@@ -23,7 +23,6 @@ import java.util.List;
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
 
     private List<GroupTable> mGroupList;
-    private List<List<TaskTable>> mTasksList;
     private List<TaskRecyclerAdapter> mTaskInGroupAdapterList;
     private Context mContext;
     private int mItemHeight;
@@ -62,10 +61,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     /*
      * コンストラクタ
      */
-    public GroupRecyclerAdapter(Context context, List<GroupTable> groupList, List<List<TaskTable>> taskListInGroup, List<TaskRecyclerAdapter> taskAdapter,
+    public GroupRecyclerAdapter(Context context, List<GroupTable> groupList, List<TaskRecyclerAdapter> taskAdapter,
                                 AsyncGroupTableOperaion.GroupOperationListener dbListener, int height) {
         mGroupList = groupList;
-        mTasksList = taskListInGroup;
         mTaskInGroupAdapterList = taskAdapter;
         mContext = context;
         mItemHeight = height;
@@ -148,16 +146,16 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
         //グループ内のやること／アダプタ
         TaskRecyclerAdapter adapter = mTaskInGroupAdapterList.get(idx);
-        List<TaskTable> taskList = mTasksList.get(idx);
+        List<TaskTable> taskInGroupList = mGroupList.get(idx).getTaskInGroupList();
 
         Log.i("test", "idx=" + idx);
 
         //アダプタの設定
-        //TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
+        //TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
         viewHolder.rv_taskInGroup.setAdapter(adapter);
 
         //ドラッグ、スワイプの設定
-        ItemTouchHelper helper = new ItemTouchHelper( new SimpleCallback(adapter, taskList, groupPid) );
+        ItemTouchHelper helper = new ItemTouchHelper( new SimpleCallback(adapter, taskInGroupList, groupPid) );
         //リサイクラービューをヘルパーにアタッチ
         helper.attachToRecyclerView(viewHolder.rv_taskInGroup);
 
@@ -173,7 +171,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         }
 
         //「やること」ドロップ時のリスナー設定
-        DragGroupListener listener = new DragGroupListener(adapter, taskList, groupPid);
+        DragGroupListener listener = new DragGroupListener(adapter, taskInGroupList, groupPid);
         viewHolder.ll_group.setOnDragListener(listener);
 
     }
@@ -225,6 +223,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             switch (dragEvent.getAction()) {
                 //ドロップ
                 case DragEvent.ACTION_DROP: {
+                    //--グループに「やること」がドロップされたとき
 
                     //ドラッグしたビューからデータを取得
                     View dragView = (View) dragEvent.getLocalState();
@@ -236,10 +235,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                     int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
                     mTaskInGroup.add(new TaskTable(pid, tv_taskName.getText().toString(), taskTime));
 
-                    //--DBへ保存
                     //DB取得
                     AppDatabase db = AppDatabaseSingleton.getInstanceNotFirst();
-                    //「やること」を追加
+                    //グループに「やること」を追加
                     new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.ADD_TASK, mGroupPid, pid).execute();
 
                     //アダプタへ通知
@@ -249,7 +247,6 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 }
                 //ドラッグ終了時
                 case DragEvent.ACTION_DRAG_ENDED: {
-
                     return true;
                 }
             }
@@ -297,7 +294,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             int i = viewHolder.getAdapterPosition();
 
             AppDatabase db = AppDatabaseSingleton.getInstance(mContext);
-            new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.DELETE_TASK, mGroupPid, i).execute();
+            new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.REMOVE_TASK, mGroupPid, i).execute();
 
             //リストから削除
             mTaskInGroup.remove(i);

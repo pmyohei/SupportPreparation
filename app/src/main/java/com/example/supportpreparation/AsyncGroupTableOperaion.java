@@ -18,18 +18,17 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         UPDATE,         //更新
         DELETE,         //削除
         ADD_TASK,       //やることを追加
-        DELETE_TASK;    //やることを削除
+        REMOVE_TASK;    //やることを削除
     }
 
-    private AppDatabase             mDB;
-    private DB_OPERATION            mOperation;
+    private final AppDatabase       mDB;
+    private final DB_OPERATION      mOperation;
     private String                  mPreGroupName;
     private int                     mGroupPid;
     private String                  mGroupName;
-    private GroupTable mNewGroupTable;
+    private String                  mNewTaskPidsStr;
+    private GroupTable              mNewGroupTable;
     private List<GroupTable>        mGroupList;
-    private List<List<TaskTable>>   mTaskListInGroup;
-    private int                     mSelectedTaskPid;
     private int                     mAddTaskPid;
     private int                     mDeleteTaskPos;
     private GroupOperationListener  mListener;
@@ -42,8 +41,6 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         mDB = db;
         mListener = listener;
         mOperation = operation;
-
-        mTaskListInGroup = new ArrayList<>();
     }
 
     /*
@@ -110,16 +107,9 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
             //削除
             deleteGroup(groupTableDao);
 
-        } else if(mOperation == DB_OPERATION.ADD_TASK ){
-            //やること追加
-            addTaskToGroup(groupTableDao);
-
-        } else if(mOperation == DB_OPERATION.DELETE_TASK ){
-            //やること削除
-            deleteTaskInGroup(groupTableDao);
-
-        } else{
-            //do nothing
+        } else if(mOperation == DB_OPERATION.ADD_TASK || mOperation == DB_OPERATION.REMOVE_TASK ){
+            //やること追加・削除
+            updateTaskInGroup(groupTableDao);
         }
 
         return ret;
@@ -170,26 +160,27 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
             //グループに紐づいた「やること」
             List<TaskTable> tasks = new ArrayList<>();
 
-            //Pidあれば
-            if( pids != null ) {
-                //pid分繰り返し
-                for( Integer pid: pids ){
-                    Log.i("test", "displaySetData pid loop");
-                    //pidに対応する「やること」を取得し、リストに追加
-                    TaskTable task = taskTableDao.getRecord(pid);
-                    if( task != null ){
-                        //フェールセーフ
-                        //該当する「やること」がない場合
-                        Log.i("failsafe", "group task is null. pid=" + pid);
+            //やること未追加なら次へ
+            if( pids == null ) {
+                continue;
+            }
 
-                        //グループ内「やること」リストに追加
-                        tasks.add(task);
-                    }
+            //pid分繰り返し
+            for( Integer pid: pids ){
+                //pidに対応する「やること」を取得し、リストに追加
+                TaskTable task = taskTableDao.getRecord(pid);
+                if( task != null ){
+                    //--フェールセーフ
+                    //該当する「やること」あり
+                    Log.i("failsafe", "group task is null. pid=" + pid);
+
+                    //グループ内「やること」リストに追加
+                    tasks.add(task);
                 }
             }
 
-            //「やること」を追加
-            mTaskListInGroup.add(tasks);
+            //GroupTable内のリストに保持させる
+            groupInfo.setTaskInGroupList(tasks);
         }
     }
 
@@ -218,41 +209,32 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
     /*
      * 「やることグループ」の追加処理
      */
-    private Integer addTaskToGroup(GroupTableDao dao ){
+    private Integer updateTaskInGroup(GroupTableDao dao ){
 
         //選択済みの「やること」を取得
         String taskPidsStr = dao.getTaskPidsStr(mGroupPid);
         if( taskPidsStr == null ){
-            //フェールセーフ
+            //--フェールセーフ
             //存在しないグループPIDが指定された場合
             Log.i("failsafe", "error getTaskPidsStr mGroupPid=" + mGroupPid);
+            return -1;
         }
 
-        //「やること」Pidを文字列に追加（重複は許容する）
-        taskPidsStr = TaskTableManager.addTaskPidsStrDuplicate(taskPidsStr, mAddTaskPid);
+        if( mOperation == DB_OPERATION.ADD_TASK ){
+            //「やること」Pidを文字列に追加（重複は許容する）
+            mNewTaskPidsStr = TaskTableManager.addTaskPidsStrDuplicate(taskPidsStr, mAddTaskPid);
+
+        } else {
+            //「やること」Pidを文字列から削除
+            mNewTaskPidsStr = TaskTableManager.deleteTaskPosInStr(taskPidsStr, mDeleteTaskPos);
+
+        }
 
         //選択済みの「やること」を更新
-        dao.updateTaskPidsStrByPid(mGroupPid, taskPidsStr);
-
-        Log.i("test", "taskPidsStr=" + taskPidsStr);
+        dao.updateTaskPidsStrByPid(mGroupPid, mNewTaskPidsStr);
 
         //正常終了
         return 0;
-    }
-
-    /*
-     * 「やることグループ」の削除
-     */
-    private void deleteTaskInGroup(GroupTableDao dao ) {
-
-        //選択済みの「やること」を取得
-        String taskPidsStr = dao.getTaskPidsStr(mGroupPid);
-
-        //「やること」Pidを文字列から削除
-        taskPidsStr = TaskTableManager.deleteTaskPosInStr(taskPidsStr, mDeleteTaskPos);
-
-        //選択済みの「やること」を更新
-        dao.updateTaskPidsStrByPid(mGroupPid, taskPidsStr);
     }
 
     /*
@@ -267,7 +249,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             if( mOperation == DB_OPERATION.READ ){
                 //処理終了：読み込み
-                mListener.onSuccessReadGroup(mGroupList, mTaskListInGroup);
+                mListener.onSuccessReadGroup(mGroupList);
 
             } else if( mOperation == DB_OPERATION.CREATE ){
                 //処理終了：新規作成
@@ -281,8 +263,10 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
                 //処理終了：更新
                 mListener.onSuccessEditGroup(mPreGroupName, mGroupName);
 
-            } else {
-                //do nothing
+            } else if( mOperation == DB_OPERATION.ADD_TASK || mOperation == DB_OPERATION.REMOVE_TASK){
+                //処理終了：やること
+                mListener.onSuccessUpdateTask(mGroupPid, mNewTaskPidsStr);
+
             }
         }
     }
@@ -303,7 +287,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         /*
          * 取得完了時
          */
-        void onSuccessReadGroup(List<GroupTable> groupList, List<List<TaskTable>> tasksList );
+        void onSuccessReadGroup(List<GroupTable> groupList);
 
         /*
          * 新規生成完了時
@@ -319,6 +303,11 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
          * 更新完了時
          */
         void onSuccessEditGroup(String preTask, String groupName);
+
+        /*
+         * やること追加／削除完了時
+         */
+        void onSuccessUpdateTask(int groupPid, String taskPidsStr);
 
     }
 }

@@ -20,11 +20,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private AppDatabase             mDB;                                //DB
 
     //-- フラグメント間共通データ
-    private List<TaskTable>         mTaskList;                          //「やること」リスト
-    private List<GroupTable>        mGroupList;                         //「やることグループ」リスト
-    private List<List<TaskTable>>   mTaskListInGroup;                   //「やることグループ」に割り当てられた「やること」リスト
-                                                                        //「積み上げやること」リスト
-    private List<TaskTable>     mStackTaskList = new ArrayList<>();
+    private List<TaskTable>     mTaskList;                              //「やること」リスト
+    private List<GroupTable>    mGroupList;                             //「やることグループ」リスト
+    private List<TaskTable>     mStackTaskList = new ArrayList<>();     //「積み上げやること」リスト
     private String              mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
     private String              mLimitTime;                             //リミット-時（"hh:mm"）
 
@@ -53,13 +51,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
     public List<GroupTable> getGroupData() {
         return mGroupList;
-    }
-
-    /*
-     * 「やることグループ」に割り当てられた「やること」リストを取得
-     */
-    public List<List<TaskTable>> getTaskListInGroup() {
-        return mTaskListInGroup;
     }
 
     /*
@@ -148,11 +139,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      * 「やることグループ」
      */
     @Override
-    public void onSuccessReadGroup(List<GroupTable> groupList, List<List<TaskTable>> taskListInGroup) {
+    public void onSuccessReadGroup(List<GroupTable> groupList) {
 
         //DBから取得したデータを保持
         mGroupList       = groupList;
-        mTaskListInGroup = taskListInGroup;
 
         //「積み上げやること」
         new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.READ).execute();
@@ -161,14 +151,16 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     @Override
     public void onSuccessCreateGroup(Integer code, GroupTable group) {
     }
-
     @Override
     public void onSuccessDeleteGroup(String task) {
     }
-
     @Override
     public void onSuccessEditGroup(String preTask, String groupName) {
     }
+    @Override
+    public void onSuccessUpdateTask(int groupPid, String taskPidsStr){
+    }
+
 
     /* --------------------------------------
      * 「積み上げやること」
