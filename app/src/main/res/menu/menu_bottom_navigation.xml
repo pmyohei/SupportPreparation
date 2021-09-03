@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_navi_stack"
+        android:icon="@drawable/anim_selector_stack"
+        android:title="@string/title_stack" />
+
+    <item
+        android:id="@+id/item_navi_task"
+        android:icon="@drawable/anim_selector_task"
+        android:title="@string/title_task" />
+
+    <item
+        android:id="@+id/item_navi_group"
+        android:icon="@drawable/anim_selector_group"
+        android:title="@string/title_group" />
+
+    <item
+        android:id="@+id/item_navi_time"
+        android:icon="@drawable/anim_selector_time"
+        android:title="@string/title_time" />
+
+</menu>

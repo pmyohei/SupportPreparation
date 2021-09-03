@@ -1,0 +1,126 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="640dp"
+            android:height="640dp"
+            android:viewportWidth="640"
+            android:viewportHeight="640">
+            <group android:name="group_top">
+                <path
+                    android:name="topblock"
+                    android:pathData="M 428.95 -0.81 C 469.16 -0.81 501.76 31.79 501.76 71.99 L 501.76 117.58 C 501.76 157.58 469.33 190 429.34 190 L 230.54 190 C 186.06 190 150 153.94 150 109.46 L 150 80.79 C 150 35.72 186.53 -0.81 231.59 -0.81 L 428.95 -0.81 Z"
+                    android:fillColor="#000"
+                    android:strokeWidth="1"/>
+            </group>
+            <group android:name="group_middle">
+                <path
+                    android:name="middleblock"
+                    android:pathData="M 430.32 223.48 C 469.77 223.48 501.76 255.47 501.76 294.92 L 501.76 346.14 C 501.76 385.01 470.25 416.52 431.38 416.52 L 219.89 416.52 C 181.29 416.52 150 385.23 150 346.63 L 150 292.14 C 150 254.22 180.74 223.48 218.65 223.48 L 430.32 223.48 Z"
+                    android:fillColor="#000"
+                    android:strokeWidth="1"/>
+            </group>
+            <group android:name="group_bottom">
+                <path
+                    android:name="bottomblock"
+                    android:pathData="M 432.36 450 C 470.69 450 501.76 481.07 501.76 519.4 L 501.76 570.46 C 501.76 609.7 469.94 641.52 430.7 641.52 L 220.57 641.52 C 181.59 641.52 150 609.92 150 570.95 L 150 520.7 C 150 481.65 181.65 450 220.7 450 L 432.36 450 Z"
+                    android:fillColor="#000"
+                    android:strokeWidth="1"/>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="group_top">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="translateY"
+                android:startOffset="640"
+                android:duration="960"
+                android:valueFrom="-400"
+                android:valueTo="0"
+                android:valueType="floatType"
+                android:interpolator="@android:anim/bounce_interpolator"/>
+        </aapt:attr>
+    </target>
+    <target android:name="group_middle">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="translateY"
+                android:startOffset="320"
+                android:duration="1000"
+                android:valueFrom="-400"
+                android:valueTo="0"
+                android:valueType="floatType"
+                android:interpolator="@android:anim/bounce_interpolator"/>
+        </aapt:attr>
+    </target>
+    <target android:name="group_bottom">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="translateY"
+                android:startOffset="20"
+                android:duration="1000"
+                android:valueFrom="-400"
+                android:valueTo="0"
+                android:valueType="floatType"
+                android:interpolator="@android:anim/bounce_interpolator"/>
+        </aapt:attr>
+    </target>
+    <target android:name="bottomblock">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="fillAlpha"
+                android:startOffset="20"
+                android:duration="1000"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>
+    <target android:name="middleblock">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="fillAlpha"
+                    android:startOffset="320"
+                    android:duration="1000"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator
+                    android:propertyName="fillAlpha"
+                    android:startOffset="20"
+                    android:duration="300"
+                    android:valueFrom="0"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="topblock">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="fillAlpha"
+                    android:startOffset="640"
+                    android:duration="960"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator
+                    android:propertyName="fillAlpha"
+                    android:startOffset="20"
+                    android:duration="620"
+                    android:valueFrom="0"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

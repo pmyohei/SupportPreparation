@@ -1,11 +1,16 @@
 package com.example.supportpreparation;
 
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
@@ -25,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private List<TaskTable>     mStackTaskList = new ArrayList<>();     //「積み上げやること」リスト
     private String              mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
     private String              mLimitTime;                             //リミット-時（"hh:mm"）
+
+    private AnimationDrawable rocketAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,8 +193,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         setContentView(R.layout.activity_main);
 
         //下部ナビゲーション設定
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        BottomNavigationView navView = findViewById(R.id.bnv_nav);
+        NavController navController = Navigation.findNavController(this, R.id.fragment_host);
         NavigationUI.setupWithNavController(navView, navController);
     }
 
