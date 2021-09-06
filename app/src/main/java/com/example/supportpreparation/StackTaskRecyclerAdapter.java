@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +41,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         private TextView tv_taskName;       //表示内容
         private TextView tv_taskTime;
         private TextView tv_taskStartTime;
+        private LinearLayout    ll_label;
+        private TextView        tv_label;
 
 
         /*
@@ -51,6 +54,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
             tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
             tv_taskStartTime = (TextView) itemView.findViewById(R.id.tv_taskStartTime);
+            ll_label         = (LinearLayout) itemView.findViewById(R.id.ll_label);
+            tv_label         = (TextView) itemView.findViewById(R.id.tv_label);
         }
     }
 
@@ -68,11 +73,23 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     }
 
     /*
+     * 表示データ数の取得
+     */
+    @Override
+    public int getItemCount() {
+        Log.i("test", "stack getItemCount");
+
+        //表示データ数を返す
+        return mData.size();
+    }
+
+    /*
      * ここで返した値が、onCreateViewHolder()の第２引数になる
      */
     @Override
     public int getItemViewType(int position) {
-        Log.i("test", "stack getItemViewType id=" + mData.get(position).getId());
+        Log.i("test", "stack getItemViewType position=" + position);
+
         return mData.get(position).getTaskTime();
     }
 
@@ -81,6 +98,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     @Override
     public StackTaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+
+        Log.i("test", "stack onCreateViewHolder viewType=" + viewType);
 
         //レイアウトIDを取得
         int id = getLayoutId(viewType);
@@ -92,12 +111,15 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         return new StackTaskViewHolder(view);
     }
 
-
     /*
      * ViewHolderの設定
      */
     @Override
     public void onBindViewHolder(StackTaskViewHolder viewHolder, final int i) {
+
+        Log.i("test", "stack onBindViewHolder i=" + i);
+
+        viewHolder.getItemViewType();
 
         //文字列変換
         int    taskTime = mData.get(i).getTaskTime();
@@ -110,9 +132,10 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         viewHolder.tv_taskTime.setText(timeStr);
 
         //-- やること開始時間の算出と設定
-        Log.i("test", "mTest=" + mtv_limitTime.getText().toString());
-
         //文字列-リミット時間
+        setTaskStartTime( viewHolder, i );
+
+        /*
         String limitTimeStr = mtv_limitTime.getText().toString();
 
         String noInputStr = mContext.getString(R.string.limittime_no_input);
@@ -122,11 +145,78 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
             return;
         }
 
-        //-- 時間が設定されているなら、開始時間を計算
+        //期限日と期限時間を連結
+        String limitStr = mtv_limitDate.getText().toString() + " " + limitTimeStr;
+
+        //「やること」開始時刻の文字列を取得
+        String startTimeStr = getStartTimeStr( i, limitStr );
+        if( startTimeStr == null ){
+            //時刻未定の文字列を設定
+            startTimeStr = noInputStr;
+        }
+
+        //「開始時間」として設定
+        viewHolder.tv_taskStartTime.setText(startTimeStr);
+         */
+    }
+
+    /*
+     * 「やること」開始時刻の取得
+     */
+    private void setTaskStartTime( StackTaskViewHolder viewHolder, int i ) {
+
+        //リミット時刻
+        String limitTimeStr = mtv_limitTime.getText().toString();
+        //時刻指定なし文字列
+        String noInputStr = mContext.getString(R.string.limittime_no_input);
+        if ( limitTimeStr.equals(noInputStr) ) {
+            //未設定なら、無効値を表示
+            viewHolder.tv_taskStartTime.setText(noInputStr);
+            return;
+        }
 
         //期限日と期限時間を連結
         String limitStr = mtv_limitDate.getText().toString() + " " + limitTimeStr;
-        //Date型へ変換
+
+        //リミット日時をDate型へ変換
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
+
+        Date finalLimit;
+        try {
+            //文字列をDate型に変換
+            finalLimit = sdf.parse(limitStr);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
+            //例外発生なら、無効値を表示
+            viewHolder.tv_taskStartTime.setText(noInputStr);
+            return;
+        }
+
+        //「やること」開始時刻のカレンダーを取得
+        Calendar startCalendar = getStartTimeCalendar(i, finalLimit);
+
+        //開始時間を取得し、文字列に変換
+        Date startDate = startCalendar.getTime();
+        sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
+        String startTimeStr = sdf.format(startDate);
+
+        //ラベルの設定
+        setLabel(viewHolder, i, startCalendar);
+
+        //「開始時間」として設定
+        viewHolder.tv_taskStartTime.setText(startTimeStr);
+    }
+
+
+    /*
+     * 「やること」開始時刻の取得
+     */
+    /*
+    private String getStartTimeStr( int i, String limitStr ) {
+
+        //リミット日時をDate型へ変換
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
 
         Date finalLimit;
@@ -137,9 +227,29 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
             e.printStackTrace();
 
             //例外発生なら、無効値を表示
-            viewHolder.tv_taskStartTime.setText(noInputStr);
-            return;
+            return null;
         }
+
+        //「やること」開始時刻のカレンダーを取得
+        Calendar startCalendar = getStartTimeCalendar(i, finalLimit);
+
+        //開始時間を取得し、文字列に変換
+        Date startDate = startCalendar.getTime();
+        sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
+        String startTimeStr = sdf.format(startDate);
+
+        //ラベルの設定
+        setLabel(i, startCalendar);
+
+        return startTimeStr;
+    }
+    */
+
+    /*
+     * 「やること」の開始時刻（カレンダー）の取得
+     *   取得に伴い、アラーム時刻のリストに開始時刻を追加する
+     */
+    private Calendar getStartTimeCalendar(int i, Date finalLimit) {
 
         //リミットから引く時間を計算
         int totalTaskMin = getTotalTaskTime(i);
@@ -152,23 +262,49 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         //アラーム時間として追加
         mAlarmList.add(calendar);
 
-        //開始時間を取得し、文字列に変換
-        Date startDate = calendar.getTime();
-        sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-        String startTimeStr = sdf.format(startDate);
-
-        //「開始時間」として設定
-        viewHolder.tv_taskStartTime.setText(startTimeStr);
+        return calendar;
     }
 
     /*
-     * 表示データ数の取得
+     * 「やること」ラベルの設定
+     *   ラベルを設定する必要がない場合、何もしない
      */
-    @Override
-    public int getItemCount() {
-        //表示データ数を返す
-        Log.i("test", "stack getItemCount");
-        return mData.size();
+    private void setLabel(StackTaskViewHolder viewHolder, int i, Calendar calendar) {
+
+        //現在時刻
+        Date nowTime = new Date();
+        //開始時刻
+        Date startTime = calendar.getTime();
+
+        //現在時刻が開始時刻よりも前の場合
+        if (nowTime.before(startTime)) {
+            //ラベル設定はなし
+            viewHolder.ll_label.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+        //「やること時間」取得
+        int taskTime = mData.get(i).getTaskTime();
+
+        //終了時刻を取得
+        calendar.add(Calendar.MINUTE, taskTime);
+        Date endTime = calendar.getTime();
+
+        //ラべルの設定
+        String label;
+        if( nowTime.before(endTime) ){
+            //--現在時刻が終了時刻の前の場合
+
+            //「やること」進行中
+            label = mContext.getString(R.string.label_now);
+        } else {
+            //「やること」終了済み
+            label = mContext.getString(R.string.label_finish);
+        }
+
+        //ラベルを可視化し、文字列を設定
+        viewHolder.ll_label.setVisibility(View.VISIBLE);
+        viewHolder.tv_label.setText(label);
     }
 
     /*

@@ -323,6 +323,7 @@ public class StackManagerFragment extends Fragment {
                             mParentActivity.setLimitTime(limit);
 
                             //やること開始時間を変更させる
+                            //mStackAreaAdapter.;
                             mStackAreaAdapter.clearAlarmList();
                             mStackAreaAdapter.notifyDataSetChanged();
 

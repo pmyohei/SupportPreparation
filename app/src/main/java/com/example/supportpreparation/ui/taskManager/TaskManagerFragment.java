@@ -67,7 +67,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //現在登録されている「やること」を表示
         //displayTask();
         mTaskList = mParentActivity.getTaskData();
-        this.displayTaskData();
+        displayTaskData();
 
         // FloatingActionButton
         FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addTask);
@@ -90,7 +90,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
                 //ダイアログを生成
                 DialogFragment dialog = new CreateTaskDialog(mTaskListener);
-                Log.i("test", "CreateTaskDialog");
                 dialog.setArguments(bundle);
                 dialog.show(transaction, "CreateTask");
             }
@@ -136,13 +135,13 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     /*
      * 「やること」リスト検索
      */
-    private int getIdTaskList(String task, int taskTime) {
+    private int getIdTaskList(String taskName, int taskTime) {
 
         int i = 0;
         for (TaskTable taskInfo : mTaskList) {
 
             //「やること」「やること時間」が一致するデータを発見した場合
-            if ((task == taskInfo.getTaskName()) && (taskTime == taskInfo.getTaskTime())) {
+            if ((taskName.equals(taskInfo.getTaskName()) ) && (taskTime == taskInfo.getTaskTime())) {
                 return i;
             }
             i++;

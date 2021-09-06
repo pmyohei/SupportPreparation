@@ -5,10 +5,16 @@
     <string name="title_group">Group</string>
     <string name="title_time">Time</string>
 
+    <!-- スタック画面 -->
+    <string name="label_now">now</string>
+    <string name="label_finish">finish</string>
+
+    <!-- タスク画面 -->
     <string name="task_name_hint">やることを入力してください</string>
     <string name="group_name_hint">グループ名を入力してください</string>
     <string name="dialog_create_btn">保存</string>
 
+    <string name="unit_task_time">min</string>
 
 
     <string name="limittime_no_input">--:--</string>

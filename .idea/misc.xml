@@ -29,6 +29,11 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_task_very_long.xml" value="0.32447916666666665" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_task_very_short.xml" value="0.32447916666666665" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_limit_date.xml" value="0.32447916666666665" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_stack_label.xml" value="0.2296875" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_stack_label_normal.xml" value="0.17760416666666667" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_stack_label_short.xml" value="0.17760416666666667" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_stack_label_very_long.xml" value="0.17760416666666667" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_stack_label_very_short.xml" value="0.17760416666666667" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.31197916666666664" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_main.xml" value="0.8" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_set_manage.xml" value="0.28125" />
@@ -70,10 +75,11 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack.xml" value="0.2760416666666667" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group_for_select_long.xml" value="0.29030797101449274" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_stack_label.xml" value="0.21354166666666666" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_select_short.xml" value="0.29030797101449274" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_long.xml" value="0.4" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_normal.xml" value="0.2" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_normal.xml" value="0.536" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_short.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_very_long.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_very_short.xml" value="0.16666666666666666" />
@@ -91,6 +97,7 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/stack_task_contents.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/stack_task_old.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/bottom_nav_menu.xml" value="0.17447916666666666" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/menu_bottom_navigation.xml" value="0.2765625" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_button.xml" value="0.259375" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_edittext.xml" value="0.259375" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_frame.xml" value="0.3390625" />
