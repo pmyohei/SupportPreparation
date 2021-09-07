@@ -21,6 +21,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     private AppDatabase mDB;
     private DB_OPERATION mOperation;
     private String mPreTask;
+    private int mPid;
     private int mPreTaskTime;
     private String mNewTaskName;
     private int mNewTaskTime;
@@ -42,12 +43,23 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
      * コンストラクタ
      *   生成・削除
      */
-    public AsyncTaskTableOperaion(AppDatabase db, TaskOperationListener listener, DB_OPERATION operation, String task, int taskTime){
+    public AsyncTaskTableOperaion(AppDatabase db, TaskOperationListener listener, DB_OPERATION operation, String taskName, int taskTime){
         mDB = db;
         mListener = listener;
         mOperation = operation;
-        mNewTaskName = task;
+        mNewTaskName = taskName;
         mNewTaskTime = taskTime;
+    }
+
+    /*
+     * コンストラクタ
+     *   削除
+     */
+    public AsyncTaskTableOperaion(AppDatabase db, TaskOperationListener listener, DB_OPERATION operation, int pid){
+        mDB         = db;
+        mListener   = listener;
+        mOperation  = operation;
+        mPid        = pid;
     }
 
     /*
@@ -111,6 +123,11 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         mTaskTable = new TaskTable( mNewTaskName, mNewTaskTime);
         dao.insert( mTaskTable);
 
+        //今追加した「やること」のPIDを新規作成データに設定
+        //※PIDはテーブル追加時、自動設定される
+        pid = dao.getPid(mNewTaskName, mNewTaskTime);
+        mTaskTable.setId(pid);
+
         //正常終了
         return 0;
     }
@@ -143,10 +160,10 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
      */
     private void deleteTaskData( TaskTableDao dao ){
         //Pidを取得
-        int pid = dao.getPid( mNewTaskName, mNewTaskTime);
+        //int pid = dao.getPid( mNewTaskName, mNewTaskTime);
 
         //削除
-        dao.deleteByPid( pid );
+        dao.deleteByPid( mPid );
     }
 
     @Override

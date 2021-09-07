@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.AsyncGroupTableOperaion;
+import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.CreateGroupDialog;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
@@ -30,7 +31,9 @@ import com.example.supportpreparation.R;
 import com.example.supportpreparation.GroupRecyclerAdapter;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,20 +41,18 @@ import java.util.List;
 public class GroupManagerFragment extends Fragment implements AsyncGroupTableOperaion.GroupOperationListener {
 
     private final int NO_SEARCH = -1;                   //未発見
-    private final int NOT_DELETE_WAITING = -1;          //「グループ」削除待ちなし
 
-    private MainActivity mParentActivity;            //親アクティビティ
-    private View mRootLayout;                //本フラグメントに設定しているレイアウト
-    private Fragment mFragment;                  //本フラグメント
-    private Context mContext;                   //コンテキスト（親アクティビティ）
-    private AppDatabase mDB;                        //DB
-    private List<TaskTable> mTaskList;                  //「やること」リスト
-    private List<GroupTable> mGroupList;                 //「グループ」リスト
-    private List<TaskRecyclerAdapter> mTaskInGroupAdapterList;      //グループ内「やること」のアダプタ
-    private GroupRecyclerAdapter mGroupAdapter;                //「グループ」表示アダプタ
+    private MainActivity                                    mParentActivity;            //親アクティビティ
+    private View                                            mRootLayout;                //本フラグメントに設定しているレイアウト
+    private Fragment                                        mFragment;                  //本フラグメント
+    private Context                                         mContext;                   //コンテキスト（親アクティビティ）
+    private AppDatabase                                     mDB;                        //DB
+    private List<TaskTable>                                 mTaskList;                  //「やること」リスト
+    private List<GroupTable>                                mGroupList;                 //「グループ」リスト
+    private List<TaskRecyclerAdapter>                       mTaskInGroupAdapterList;    //グループ内「やること」のアダプタ
+    private GroupRecyclerAdapter                            mGroupAdapter;              //「グループ」表示アダプタ
     private AsyncGroupTableOperaion.GroupOperationListener
-            mGroupDBListener;                   //「グループ」DB操作リスナー
-    private int                     _mDeletedGroupPos;           //削除対象グループのID
+                                                            mGroupDBListener;                   //「グループ」DB操作リスナー
 
 
 
@@ -86,10 +87,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
             );
         }
-
-
-        //削除待ちの「グループ」-リストIndex
-        _mDeletedGroupPos = NOT_DELETE_WAITING;
 
         //現在登録されている「やること」「グループ」を表示
         displayTask();
@@ -190,11 +187,14 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //「RecyclerViewの高さ」の 3 / 4 を子アイテムの高さとする
                 int height = rv_group.getHeight() * 3 / 4;
 
+                //下部ナビゲーション
+                BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
+
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
 
-                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, mTaskInGroupAdapterList, dbListener, height);
+                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, mTaskInGroupAdapterList, dbListener, height, bnv);
 
                 //リスナー設定(グループ名編集)
                 mGroupAdapter.setOnGroupNameClickListener(new View.OnClickListener() {
@@ -259,21 +259,52 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 @Override
                 public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-                    if( _mDeletedGroupPos != NOT_DELETE_WAITING ){
-                        //削除待ちのものがあるなら、何もしない
-                        return;
-                    }
+                    //スワイプされたデータ
+                    final int        adapterPosition = viewHolder.getAdapterPosition();
+                    final GroupTable deletedGroup    = mGroupList.get(adapterPosition);
 
-                    //-- DBから削除
-                    int i = viewHolder.getAdapterPosition();
-                    String groupName = mGroupList.get(i).getGroupName();
+                    //下部ナビゲーションを取得
+                    BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
-                    new AsyncGroupTableOperaion(mDB, mGroupDBListener, AsyncGroupTableOperaion.DB_OPERATION.DELETE, groupName).execute();
+                    //UNDOメッセージの表示
+                    Snackbar snackbar = Snackbar
+                            .make(rv_group, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                            //アクションボタン押下時の動作
+                            .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
+                                    mGroupList.add(adapterPosition, deletedGroup);
+                                    mGroupAdapter.notifyItemInserted(adapterPosition );
+                                    rv_group.scrollToPosition(adapterPosition );
+                                }
+                            })
+                            //スナックバークローズ時の動作
+                            .addCallback(new Snackbar.Callback() {
+                                @Override
+                                public void onDismissed(Snackbar snackbar, int event) {
+                                    super.onDismissed(snackbar, event);
 
-                    //削除アイテムを保持
-                    _mDeletedGroupPos = viewHolder.getAdapterPosition();
+                                    //アクションバー押下以外で閉じられた場合
+                                    if (event != DISMISS_EVENT_ACTION) {
+                                        //DBから削除
+                                        int gPid = mGroupList.get(adapterPosition).getId();
+                                        new AsyncGroupTableOperaion(mDB, mGroupDBListener, AsyncGroupTableOperaion.DB_OPERATION.DELETE, gPid).execute();
+                                    }
+                                }
+                            })
+                            //下部ナビゲーションの上に表示させるための設定
+                            .setAnchorView(bnv)
+                            .setBackgroundTint(getResources().getColor(R.color.basic))
+                            .setTextColor(getResources().getColor(R.color.white))
+                            .setActionTextColor(getResources().getColor(R.color.white));
 
-                    //※アダプタへの削除通知は、DBの削除完了後、行う
+                    //表示
+                    snackbar.show();
+
+                    //リストから削除し、アダプターへ通知
+                    mGroupList.remove(adapterPosition);
+                    mGroupAdapter.notifyItemRemoved(adapterPosition);
                 }
             }
         );
@@ -398,20 +429,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
     @Override
     public void onSuccessDeleteGroup(String groupName) {
-        //リストから削除
-        mGroupList.remove(_mDeletedGroupPos);
-        mTaskInGroupAdapterList.remove(_mDeletedGroupPos);
-
-        //ビューにアイテム削除を通知
-        mGroupAdapter.notifyItemRemoved(_mDeletedGroupPos);
-
-        //削除待ちなしに戻す
-        _mDeletedGroupPos = NOT_DELETE_WAITING;
-
-        //トーストの生成
-        Toast toast = new Toast(mContext);
-        toast.setText("削除しました");
-        toast.show();
     }
 
     @Override

@@ -14,7 +14,6 @@
     <string name="group_name_hint">グループ名を入力してください</string>
     <string name="dialog_create_btn">保存</string>
 
-    <string name="unit_task_time">min</string>
 
 
     <string name="limittime_no_input">--:--</string>
@@ -26,6 +25,11 @@
     <string name="heading_next">Next</string>
     <string name="waiting">待機中...</string>
     <string name="next_none">ー</string>
+
+    <!-- 共通 -->
+    <string name="unit_task_time">min</string>
+    <string name="snackbar_delete">削除されました</string>
+    <string name="snackbar_undo">元に戻す</string>
 
 
 

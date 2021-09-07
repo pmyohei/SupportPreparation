@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
+import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.GroupSelectRecyclerAdapter;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
@@ -43,7 +44,9 @@ import com.example.supportpreparation.StackTaskRecyclerAdapter;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.TaskTableManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -495,13 +498,58 @@ public class StackManagerFragment extends Fragment {
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-                        //-- DBから削除
-                        int i = viewHolder.getAdapterPosition();
-                        //リストから削除
-                        mStackTask.remove(i);
-                        //ビューにアイテム削除を通知
-                        mStackAreaAdapter.notifyItemRemoved(i);
-                        //各開始時間も変更になるため、通知
+                        //スワイプされたデータ
+                        final int       adapterPosition = viewHolder.getAdapterPosition();
+                        final TaskTable deletedTask     = mStackTask.get(adapterPosition);
+
+                        //下部ナビゲーションを取得
+                        BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
+
+                        //UNDOメッセージの表示
+                        Snackbar snackbar = Snackbar
+                                .make(rv_stackArea, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                                //アクションボタン押下時の動作
+                                .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
+                                        mStackTask.add(adapterPosition, deletedTask);
+                                        mStackAreaAdapter.notifyItemInserted(adapterPosition );
+                                        rv_stackArea.scrollToPosition(adapterPosition );
+
+                                        //各開始時間を変更させるため、アダプタへ変更を通知
+                                        mStackAreaAdapter.clearAlarmList();
+                                        mStackAreaAdapter.notifyDataSetChanged();
+                                    }
+                                })
+                                //スナックバークローズ時の動作
+                                .addCallback(new Snackbar.Callback() {
+                                    @Override
+                                    public void onDismissed(Snackbar snackbar, int event) {
+                                        super.onDismissed(snackbar, event);
+
+                                        //アクションバー押下以外で閉じられた場合
+                                        if (event != DISMISS_EVENT_ACTION) {
+                                            //各開始時間を変更させるため、アダプタへ変更を通知
+                                            mStackAreaAdapter.clearAlarmList();
+                                            mStackAreaAdapter.notifyDataSetChanged();
+                                        }
+                                    }
+                                })
+                                //下部ナビゲーションの上に表示させるための設定
+                                .setAnchorView(bnv)
+                                .setBackgroundTint(getResources().getColor(R.color.basic))
+                                .setTextColor(getResources().getColor(R.color.white))
+                                .setActionTextColor(getResources().getColor(R.color.white));
+
+                        //表示
+                        snackbar.show();
+
+                        //リストから削除し、アダプターへ通知
+                        mStackTask.remove(adapterPosition);
+                        mStackAreaAdapter.notifyItemRemoved(adapterPosition);
+
+                        //各開始時間を変更させるため、アダプタへ変更を通知
                         mStackAreaAdapter.clearAlarmList();
                         mStackAreaAdapter.notifyDataSetChanged();
                     }

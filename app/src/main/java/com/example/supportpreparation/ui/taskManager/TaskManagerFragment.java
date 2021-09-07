@@ -1,5 +1,6 @@
 package com.example.supportpreparation.ui.taskManager;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,13 +26,13 @@ import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
 public class TaskManagerFragment extends Fragment implements AsyncTaskTableOperaion.TaskOperationListener {
-
-    private final int NOT_DELETE_WAITING = -1;    //「やること」削除待ちなし
 
     private MainActivity            mParentActivity;            //親アクティビティ
     private View                    mRootLayout;                //本フラグメントに設定しているレイアウト
@@ -40,7 +41,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     private AppDatabase             mDB;                        //DB
     private List<TaskTable>         mTaskList;                  //「やること」リスト
     private TaskRecyclerAdapter     mTaskAdapter;               //「やること」表示アダプタ
-    private int                     _mDeletedTaskPos;           //削除対象のID
     private AsyncTaskTableOperaion.TaskOperationListener
             mTaskListener;              //「やること」操作リスナー
 
@@ -60,9 +60,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         mParentActivity = (MainActivity) getActivity();
         //「やること」操作リスナー
         mTaskListener = (AsyncTaskTableOperaion.TaskOperationListener) mFragment;
-
-        //削除待ちの「やること」-リストIndex
-        _mDeletedTaskPos = NOT_DELETE_WAITING;
 
         //現在登録されている「やること」を表示
         //displayTask();
@@ -161,9 +158,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //グリッド表示の設定
         rv_task.setLayoutManager(new GridLayoutManager(mContext, 2));
         //アダプタの生成
-        Log.i("test", "dash  pre TaskRecyclerAdapter");
         mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.LIST);
-        Log.i("test", "dash TaskRecyclerAdapter");
 
         //リスナー設定
         mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
@@ -196,25 +191,56 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                         return true;
                     }
 
+                    @SuppressLint("ResourceAsColor")
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-                        if( _mDeletedTaskPos != NOT_DELETE_WAITING ){
-                            //削除待ちのものがあるなら、何もしない
-                            return;
-                        }
+                        //スワイプされたデータ
+                        final int       adapterPosition = viewHolder.getAdapterPosition();
+                        final TaskTable deletedTask     = mTaskList.get(adapterPosition);
 
-                        //-- DBから削除
-                        int i = viewHolder.getAdapterPosition();
-                        String taskName = mTaskList.get(i).getTaskName();
-                        int    taskTime = mTaskList.get(i).getTaskTime();
+                        //下部ナビゲーションを取得
+                        BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
-                        new AsyncTaskTableOperaion(mDB, mTaskListener, AsyncTaskTableOperaion.DB_OPERATION.DELETE, taskName, taskTime).execute();
+                        //UNDOメッセージの表示
+                        Snackbar snackbar = Snackbar
+                                .make(rv_task, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                                //アクションボタン押下時の動作
+                                .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
+                                        mTaskList.add(adapterPosition, deletedTask);
+                                        mTaskAdapter.notifyItemInserted(adapterPosition );
+                                        rv_task.scrollToPosition(adapterPosition );
+                                    }
+                                })
+                                //スナックバークローズ時の動作
+                                .addCallback(new Snackbar.Callback() {
+                                    @Override
+                                    public void onDismissed(Snackbar snackbar, int event) {
+                                        super.onDismissed(snackbar, event);
 
-                        //削除アイテムを保持
-                        _mDeletedTaskPos = viewHolder.getAdapterPosition();
+                                        //アクションバー押下以外で閉じられた場合
+                                        if (event != DISMISS_EVENT_ACTION) {
+                                            //DBから削除
+                                            int pid = deletedTask.getId();
+                                            new AsyncTaskTableOperaion(mDB, mTaskListener, AsyncTaskTableOperaion.DB_OPERATION.DELETE, pid).execute();
+                                        }
+                                    }
+                                })
+                                //下部ナビゲーションの上に表示させるための設定
+                                .setAnchorView(bnv)
+                                .setBackgroundTint(getResources().getColor(R.color.basic))
+                                .setTextColor(getResources().getColor(R.color.white))
+                                .setActionTextColor(getResources().getColor(R.color.white));
 
-                        //※アダプタへの削除通知は、DBの削除完了後、行う
+                        //表示
+                        snackbar.show();
+
+                        //リストから削除し、アダプターへ通知
+                        mTaskList.remove(adapterPosition);
+                        mTaskAdapter.notifyItemRemoved(adapterPosition);
                     }
                 }
         );
@@ -223,8 +249,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         helper.attachToRecyclerView(rv_task);
 
     }
-
-
 
 
 
@@ -261,13 +285,14 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //トーストの生成
         Toast toast = new Toast(mContext);
         toast.setText(message);
-        //toast.setGravity(Gravity.CENTER, 0, 0);   //E/Toast: setGravity() shouldn't be called on text toasts, the values won't be used
         toast.show();
 
         if( code == -1 ){
             //登録済みなら、ここで終了
             return;
         }
+
+        Log.i("test", "onSuccessTaskCreate pid=" + taskTable.getId());
 
         //生成された「やること」をリストに追加
         mTaskList.add( taskTable );
@@ -277,18 +302,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
     @Override
     public void onSuccessTaskDelete(String task, int taskTime) {
-
-        //リストから削除
-        mTaskList.remove(_mDeletedTaskPos);
-        //ビューにアイテム削除を通知
-        mTaskAdapter.notifyItemRemoved(_mDeletedTaskPos);
-        //削除待ちなしに戻す
-        _mDeletedTaskPos = NOT_DELETE_WAITING;
-
-        //トーストの生成
-        Toast toast = new Toast(mContext);
-        toast.setText("削除しました");
-        toast.show();
     }
 
     /* -------------------

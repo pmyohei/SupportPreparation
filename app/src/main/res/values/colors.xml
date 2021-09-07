@@ -38,6 +38,8 @@
     <color name="a_orange_2">#ffad60</color>
 
     <!-- -->
+    <color name="basic">#8ac6d1</color>
+
 
     <color name="bg_task">#ffb6b9</color>
     <color name="tx_task">#f5f5f5</color>

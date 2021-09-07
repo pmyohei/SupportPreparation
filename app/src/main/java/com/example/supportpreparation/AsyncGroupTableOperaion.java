@@ -45,13 +45,24 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
     /*
      * コンストラクタ
-     *   生成・削除
+     *   生成
      */
     public AsyncGroupTableOperaion(AppDatabase db, GroupOperationListener listener, DB_OPERATION operation, String groupName){
         mDB = db;
         mListener = listener;
         mOperation = operation;
         mGroupName = groupName;
+    }
+
+    /*
+     * コンストラクタ
+     *   削除
+     */
+    public AsyncGroupTableOperaion(AppDatabase db, GroupOperationListener listener, DB_OPERATION operation, int gPid){
+        mDB        = db;
+        mListener  = listener;
+        mOperation = operation;
+        mGroupPid  = gPid;
     }
 
     /*
@@ -200,10 +211,10 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
      */
     private void deleteGroup(GroupTableDao dao ){
         //Pidを取得
-        int pid = dao.getPid( mGroupName);
+        //int pid = dao.getPid( mGroupName);
 
         //削除
-        dao.deleteByPid( pid );
+        dao.deleteByPid( mGroupPid );
     }
 
     /*

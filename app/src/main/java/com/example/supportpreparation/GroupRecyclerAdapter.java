@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.List;
 
 /*
@@ -22,15 +25,15 @@ import java.util.List;
  */
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
 
-    private List<GroupTable> mGroupList;
-    private List<TaskRecyclerAdapter> mTaskInGroupAdapterList;
-    private Context mContext;
-    private int mItemHeight;
-    //private OnRecyclerListener mListener;
-    private View.OnClickListener mGroupNameClickListener;
-    private View.OnTouchListener mTaskTouchListener;
-    private View.OnDragListener mDragListener;
-    private AsyncGroupTableOperaion.GroupOperationListener mDBListener;
+    private List<GroupTable>                                mGroupList;
+    private List<TaskRecyclerAdapter>                       mTaskInGroupAdapterList;
+    private Context                                         mContext;
+    private int                                             mItemHeight;
+    private BottomNavigationView                            mBNV;
+    private View.OnClickListener                            mGroupNameClickListener;
+    private View.OnTouchListener                            mTaskTouchListener;
+    private View.OnDragListener                             mDragListener;
+    private AsyncGroupTableOperaion.GroupOperationListener  mDBListener;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -38,10 +41,10 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_groupPid;
-        private LinearLayout ll_group;
-        private TextView tv_groupName;
-        private RecyclerView rv_taskInGroup;
+        private TextView        tv_groupPid;
+        private LinearLayout    ll_group;
+        private TextView        tv_groupName;
+        private RecyclerView    rv_taskInGroup;
 
         /*
          * コンストラクタ
@@ -62,14 +65,15 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      * コンストラクタ
      */
     public GroupRecyclerAdapter(Context context, List<GroupTable> groupList, List<TaskRecyclerAdapter> taskAdapter,
-                                AsyncGroupTableOperaion.GroupOperationListener dbListener, int height) {
-        mGroupList = groupList;
+                                AsyncGroupTableOperaion.GroupOperationListener dbListener, int height, BottomNavigationView bnv) {
+        mContext                = context;
+        mGroupList              = groupList;
         mTaskInGroupAdapterList = taskAdapter;
-        mContext = context;
-        mItemHeight = height;
-        mDBListener = dbListener;
-        //mListener = listener;
+        mItemHeight             = height;
+        mDBListener             = dbListener;
+        mBNV                    = bnv;
         Log.i("test", "set mData=" + mGroupList);
+
     }
 
     /*
@@ -95,6 +99,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int i) {
 
+        Log.i("test", "group adapter onBindViewHolder i=" + i);
+
         //文字列変換
         int groupPid = mGroupList.get(i).getId();
         String pidStr = Integer.toString(groupPid);
@@ -104,13 +110,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         viewHolder.tv_groupName.setText(mGroupList.get(i).getGroupName());
 
         //-- グループに紐づいた「やること」
-        Log.i("test", "group adapter onBindViewHolder i=" + i);
 
-        //アダプタがまだ設定されていない場合（初回のみ行う処理）
-        //if(viewHolder.rv_taskInGroup.getAdapter() == null){
-            //グループ内「やること」の表示設定
-            setTaskInGroup(viewHolder, i, groupPid);
-        //}
+        //グループ内「やること」の表示設定
+        setTaskInGroup(viewHolder, i, groupPid);
 
         //グループ名クリックリスナー設定
         if (mGroupNameClickListener != null) {
@@ -155,7 +157,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         viewHolder.rv_taskInGroup.setAdapter(adapter);
 
         //ドラッグ、スワイプの設定
-        ItemTouchHelper helper = new ItemTouchHelper( new SimpleCallback(adapter, taskInGroupList, groupPid) );
+        ItemTouchHelper helper = new ItemTouchHelper( new SimpleCallback(viewHolder.rv_taskInGroup, adapter, taskInGroupList, groupPid) );
         //リサイクラービューをヘルパーにアタッチ
         helper.attachToRecyclerView(viewHolder.rv_taskInGroup);
 
@@ -260,13 +262,15 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     private class SimpleCallback extends ItemTouchHelper.SimpleCallback {
 
+        private RecyclerView        mRecyclerView;  //本コールバックのアタッチ先のRecyclerView
         private TaskRecyclerAdapter mAdapter;       //本コールバックのアタッチ先のRecyclerView
         private int                 mGroupPid;      //グループのプライマリーキー
         private List<TaskTable>     mTaskInGroup;   //グループに割り当てられた「やること」
 
-        public SimpleCallback(TaskRecyclerAdapter adapter, List<TaskTable> taskInGroup, int groupPid) {
+        public SimpleCallback(RecyclerView recyclerView, TaskRecyclerAdapter adapter, List<TaskTable> taskInGroup, int groupPid) {
             super(0, ItemTouchHelper.LEFT);
 
+            mRecyclerView   = recyclerView;
             mAdapter        = adapter;
             mTaskInGroup    = taskInGroup;
             mGroupPid       = groupPid;
@@ -290,17 +294,49 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-            //-- DBから削除
-            int i = viewHolder.getAdapterPosition();
+            //スワイプされたデータ
+            final int       adapterPosition = viewHolder.getAdapterPosition();
+            final TaskTable deletedTask     = mTaskInGroup.get(adapterPosition);
 
-            AppDatabase db = AppDatabaseSingleton.getInstance(mContext);
-            new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.REMOVE_TASK, mGroupPid, i).execute();
+            //UNDOメッセージの表示
+            Snackbar snackbar = Snackbar
+                    .make(mRecyclerView, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                    //アクションボタン押下時の動作
+                    .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
+                            mTaskInGroup.add(adapterPosition, deletedTask);
+                            mAdapter.notifyItemInserted(adapterPosition );
+                            mRecyclerView.scrollToPosition(adapterPosition );
+                        }
+                    })
+                    //スナックバークローズ時の動作
+                    .addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar snackbar, int event) {
+                            super.onDismissed(snackbar, event);
 
-            //リストから削除
-            mTaskInGroup.remove(i);
+                            //アクションバー押下以外で閉じられた場合
+                            if (event != DISMISS_EVENT_ACTION) {
+                                //DBから削除
+                                AppDatabase db = AppDatabaseSingleton.getInstance(mContext);
+                                new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.REMOVE_TASK, mGroupPid, adapterPosition).execute();
+                            }
+                        }
+                    })
+                    //下部ナビゲーションの上に表示させるための設定
+                    .setAnchorView(mBNV)
+                    .setBackgroundTint(mContext.getResources().getColor(R.color.basic))
+                    .setTextColor(mContext.getResources().getColor(R.color.white))
+                    .setActionTextColor(mContext.getResources().getColor(R.color.white));
 
-            //viewHolder.getBindingAdapter();
-            mAdapter.notifyItemRemoved(i);
+            //表示
+            snackbar.show();
+
+            //リストから削除し、アダプターへ通知
+            mTaskInGroup.remove(adapterPosition);
+            mAdapter.notifyItemRemoved(adapterPosition);
         }
     }
 }
