@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
@@ -467,11 +468,14 @@ public class StackManagerFragment extends Fragment {
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
+        //ll_manager.setReverseLayout(true);
         rv_stackArea.setLayoutManager(ll_manager);
 
         //アダプタの生成・設定
         mStackAreaAdapter = new StackTaskRecyclerAdapter(mContext, mStackTask, mtv_limitDate, mtv_limitTime);
         rv_stackArea.setAdapter(mStackAreaAdapter);
+
+        ((SimpleItemAnimator) rv_stackArea.getItemAnimator()).setSupportsChangeAnimations(false);
 
         //ドラッグアンドドロップ、スワイプの設定(リサイクラービュー)
         ItemTouchHelper helper = new ItemTouchHelper(
@@ -531,8 +535,8 @@ public class StackManagerFragment extends Fragment {
                                         //アクションバー押下以外で閉じられた場合
                                         if (event != DISMISS_EVENT_ACTION) {
                                             //各開始時間を変更させるため、アダプタへ変更を通知
-                                            mStackAreaAdapter.clearAlarmList();
-                                            mStackAreaAdapter.notifyDataSetChanged();
+                                            //mStackAreaAdapter.clearAlarmList();
+                                            //mStackAreaAdapter.notifyDataSetChanged();
                                         }
                                     }
                                 })
@@ -547,7 +551,7 @@ public class StackManagerFragment extends Fragment {
 
                         //リストから削除し、アダプターへ通知
                         mStackTask.remove(adapterPosition);
-                        mStackAreaAdapter.notifyItemRemoved(adapterPosition);
+                        //mStackAreaAdapter.notifyItemRemoved(adapterPosition);
 
                         //各開始時間を変更させるため、アダプタへ変更を通知
                         mStackAreaAdapter.clearAlarmList();
@@ -760,6 +764,9 @@ public class StackManagerFragment extends Fragment {
                     //ドラッグしたビューからデータを取得
                     View dragView = (View)dragEvent.getLocalState();
 
+                    //やること積み上げアニメーションの適用Idx
+                    int animToIdx = 0;
+
                     //ドロップされたのが「やること」か「グループ」か
                     TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
                     if( tv_taskInGroup == null ){
@@ -774,6 +781,11 @@ public class StackManagerFragment extends Fragment {
 
                         mStackTask.add( 0, new TaskTable( pid, tv_taskName.getText().toString(), taskTime ) );
 
+                        int addIdx = mStackTask.size() - 1;
+
+                        //先頭のみアニメーションを適用
+                        animToIdx = 0;
+
                     } else {
                         //--「グループ」がドロップ
 
@@ -781,7 +793,6 @@ public class StackManagerFragment extends Fragment {
                         TextView tv_groupName = dragView.findViewById(R.id.tv_groupName);
 
                         String taskPidsStr = tv_taskInGroup.getText().toString();
-                        Log.i("test", "drop taskPidsStr=" + taskPidsStr);
                         List<Integer> pids = TaskTableManager.getPidsIntArray( taskPidsStr );
                         if( pids == null ){
                             //何もないなら、何もせず終了
@@ -795,13 +806,21 @@ public class StackManagerFragment extends Fragment {
                             TaskTable task = getTaskByPid(pid);
                             if( task != null ){
                                 mStackTask.add( 0, task );
+
+                                //積み上げ数を加算
+                                animToIdx++;
                             }
                         }
+
+                        //積み上げられた最後のIndexを指定するため、ー１する
+                        animToIdx -= 1;
                     }
 
                     //アダプタへ通知
                     mStackAreaAdapter.clearAlarmList();
+                    mStackAreaAdapter.setInsertAnimation(animToIdx);
                     mStackAreaAdapter.notifyDataSetChanged();
+                    //mStackAreaAdapter.notifyItemInserted(0);
 
                     break;
                 }

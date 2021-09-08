@@ -288,7 +288,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                                     //アクションバー押下以外で閉じられた場合
                                     if (event != DISMISS_EVENT_ACTION) {
                                         //DBから削除
-                                        int gPid = mGroupList.get(adapterPosition).getId();
+                                        int gPid = deletedGroup.getId();
                                         new AsyncGroupTableOperaion(mDB, mGroupDBListener, AsyncGroupTableOperaion.DB_OPERATION.DELETE, gPid).execute();
                                     }
                                 }

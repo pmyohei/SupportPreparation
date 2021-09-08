@@ -10,6 +10,7 @@
         android:id="@+id/rv_taskList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"/>
+        android:layout_marginBottom="60dp"
+        android:layoutAnimation="@anim/layout_anim_rv_task"/>
 
 </LinearLayout>

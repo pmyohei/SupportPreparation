@@ -10,5 +10,6 @@
 
     <!-- やることの高さ(3次元)-->
     <dimen name="task_evelation">8px</dimen>
+    <dimen name="group_evelation">16px</dimen>
 
 </resources>

@@ -22,7 +22,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginTop="24dp"
-            android:gravity="bottom|center_horizontal"/>
+            android:gravity="bottom|center_horizontal"
+            android:layoutAnimation="@anim/layout_anim_rv_stack"/>
 
         <View
             android:id="@+id/v_underLine"

@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <stroke
-        android:width="1px"
+        android:width="2px"
         android:color="@color/tx_groupName" />
 
     <solid
-        android:color="@color/tx_groupName" />
-
-    <size
-        android:width="100dp"
-        android:height="64dp" />
+        android:color="@color/bg_taskGroup" />
 
     <padding
         android:top="4dp"

@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,13 +25,14 @@ import java.util.Locale;
  */
 public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecyclerAdapter.StackTaskViewHolder> {
 
-    private List<TaskTable>             mData;
-    private Context                     mContext;
+    private List<TaskTable> mData;
+    private Context         mContext;
 
-    private TextView                    mtv_limitDate;          //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
-    private TextView                    mtv_limitTime;          //リミット時間のTextView：ユーザー設定変更の内容反映のために保持する
+    private TextView mtv_limitDate;         //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
+    private TextView mtv_limitTime;         //リミット時間のTextView：ユーザー設定変更の内容反映のために保持する
 
-    private List<Calendar>              mAlarmList;
+    private List<Calendar>  mAlarmList;      //アラーム時間リスト
+    private int             mAnimToIdx;   //アニメーション有効最大Idx
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -41,8 +44,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         private TextView tv_taskName;       //表示内容
         private TextView tv_taskTime;
         private TextView tv_taskStartTime;
-        private LinearLayout    ll_label;
-        private TextView        tv_label;
+        private LinearLayout ll_label;
+        private TextView tv_label;
 
 
         /*
@@ -50,12 +53,12 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
          */
         public StackTaskViewHolder(View itemView) {
             super(itemView);
-            tv_pid      = (TextView) itemView.findViewById(R.id.tv_pid);
+            tv_pid = (TextView) itemView.findViewById(R.id.tv_pid);
             tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
             tv_taskStartTime = (TextView) itemView.findViewById(R.id.tv_taskStartTime);
-            ll_label         = (LinearLayout) itemView.findViewById(R.id.ll_label);
-            tv_label         = (TextView) itemView.findViewById(R.id.tv_label);
+            ll_label = (LinearLayout) itemView.findViewById(R.id.ll_label);
+            tv_label = (TextView) itemView.findViewById(R.id.tv_label);
         }
     }
 
@@ -63,13 +66,15 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      * コンストラクタ
      */
     public StackTaskRecyclerAdapter(Context context, List<TaskTable> data, TextView limitDate, TextView limitTime) {
-        mData         = data;
-        mContext      = context;
+        mData = data;
+        mContext = context;
         mtv_limitDate = limitDate;
         mtv_limitTime = limitTime;
 
         //アラーム時間リスト
         mAlarmList = new ArrayList<>();
+        //セットメソッドがコールされたとき、設定する
+        mAnimToIdx = -1;
     }
 
     /*
@@ -131,33 +136,21 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         viewHolder.tv_taskName.setText(mData.get(i).getTaskName());
         viewHolder.tv_taskTime.setText(timeStr);
 
-        //-- やること開始時間の算出と設定
-        //文字列-リミット時間
+        //やること開始時間の算出と設定
         setTaskStartTime( viewHolder, i );
 
-        /*
-        String limitTimeStr = mtv_limitTime.getText().toString();
+        //アニメーション指定Idxの範囲内の場合
+        if( mAnimToIdx >= i ){
+            //やること追加時のアニメーション開始
+            Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.on_task);
+            viewHolder.itemView.startAnimation(animation);
 
-        String noInputStr = mContext.getString(R.string.limittime_no_input);
-        if ( limitTimeStr.equals(noInputStr) ) {
-            //未設定なら、無効値を表示
-            viewHolder.tv_taskStartTime.setText(noInputStr);
-            return;
+            //最後のIdxまで適用した場合
+            if( mAnimToIdx == i ){
+                //アニメーション無効化
+                mAnimToIdx = -1;
+            }
         }
-
-        //期限日と期限時間を連結
-        String limitStr = mtv_limitDate.getText().toString() + " " + limitTimeStr;
-
-        //「やること」開始時刻の文字列を取得
-        String startTimeStr = getStartTimeStr( i, limitStr );
-        if( startTimeStr == null ){
-            //時刻未定の文字列を設定
-            startTimeStr = noInputStr;
-        }
-
-        //「開始時間」として設定
-        viewHolder.tv_taskStartTime.setText(startTimeStr);
-         */
     }
 
     /*
@@ -208,42 +201,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         //「開始時間」として設定
         viewHolder.tv_taskStartTime.setText(startTimeStr);
     }
-
-
-    /*
-     * 「やること」開始時刻の取得
-     */
-    /*
-    private String getStartTimeStr( int i, String limitStr ) {
-
-        //リミット日時をDate型へ変換
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
-
-        Date finalLimit;
-        try {
-            //文字列をDate型に変換
-            finalLimit = sdf.parse(limitStr);
-        } catch (ParseException e) {
-            e.printStackTrace();
-
-            //例外発生なら、無効値を表示
-            return null;
-        }
-
-        //「やること」開始時刻のカレンダーを取得
-        Calendar startCalendar = getStartTimeCalendar(i, finalLimit);
-
-        //開始時間を取得し、文字列に変換
-        Date startDate = startCalendar.getTime();
-        sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-        String startTimeStr = sdf.format(startDate);
-
-        //ラベルの設定
-        setLabel(i, startCalendar);
-
-        return startTimeStr;
-    }
-    */
 
     /*
      * 「やること」の開始時刻（カレンダー）の取得
@@ -321,6 +278,14 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     public List<Calendar> getAlarmList() {
         //アラームリストを取得
         return mAlarmList;
+    }
+
+    /*
+     * 追加時のアニメーション設定
+     */
+    public void setInsertAnimation(int toIdx) {
+        //0からこのIndexまで、アイテム追加時のアニメーションを適用する
+        mAnimToIdx = toIdx;
     }
 
     /*
