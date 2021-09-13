@@ -6,7 +6,7 @@
     android:layout_margin="10dp"
     android:padding="10dp"
     android:elevation="@dimen/task_evelation"
-    android:background="@drawable/frame_item_task_very_long"
+    android:background="@drawable/frame_item_task"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:orientation="vertical"

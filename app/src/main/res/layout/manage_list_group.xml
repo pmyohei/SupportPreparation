@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/bg_common"
     tools:context=".ui.groupManager.GroupManagerFragment">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -13,21 +14,25 @@
         android:layout_weight="0.8"
         android:paddingTop="20dp"/>
 
-    <View
-        android:id="@+id/v_underLine"
-        android:layout_width="wrap_content"
-        android:layout_height="1dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:background="@color/bg_limit_line" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_taskList"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.5"
-        android:gravity="center_vertical"/>
+        android:layout_weight="0.4"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:elevation="60dp"
+        android:background="@drawable/frame_select_area">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_taskList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="52dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:layoutAnimation="@anim/layout_anim_rv_task"/>
+
+    </LinearLayout>
 
 </LinearLayout>

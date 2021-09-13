@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -36,7 +39,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
-import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.GroupSelectRecyclerAdapter;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
@@ -57,7 +59,9 @@ import java.util.Locale;
 
 public class StackManagerFragment extends Fragment {
 
-    private final int MAX_ALARM_CANCEL_NUM = 256; //アラームキャンセル最大数
+    public final static int SELECT_TASK_AREA_DIV = 4;          //やること選択エリア-横幅分割数
+
+    private final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
 
     private MainActivity                mParentActivity;        //親アクティビティ
     private Fragment                    mFragment;              //本フラグメント
@@ -68,11 +72,10 @@ public class StackManagerFragment extends Fragment {
     private List<TaskTable>             mStackTask;             //積み上げ「やること」
     private List<TaskTable>             mTaskList;              //「やること」
     private StackTaskRecyclerAdapter    mStackAreaAdapter;      //積み上げ「やること」アダプタ
-    //private FloatingActionButton mFab;                        //フローティングボタン
+    private FloatingActionButton        mFab;                   //フローティングボタン
     private TextView                    mtv_limitDate;          //リミット日のビュー
     private TextView                    mtv_limitTime;          //リミット時間のビュー
     private Intent                      mAlarmReceiverIntent;   //アラーム受信クラスのIntent
-
 
     //-- 変更有無の確認用
     //private List<TaskTable>         mInit_StackTask;            //開始時点-積み上げやること
@@ -111,9 +114,9 @@ public class StackManagerFragment extends Fragment {
         setTaskSelectionArea();
         setGroupSelectionArea();
 
-        //選択エリアの切り替え
-        TextView tv_selecySwitchLabel = (TextView)mRootLayout.findViewById(R.id.tv_selecySwitchLabel);
-        tv_selecySwitchLabel.setOnClickListener(new View.OnClickListener() {
+        //選択エリア切り替え設定
+        ImageView iv_selectSwitch = (ImageView)mRootLayout.findViewById(R.id.iv_selectSwitch);
+        iv_selectSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -127,21 +130,34 @@ public class StackManagerFragment extends Fragment {
                     rv_task.setVisibility( View.GONE );
                     rv_group.setVisibility( View.VISIBLE );
 
-                    ((TextView)view).setText( R.string.select_switch_label_group);
+                    //layoutAnimation　を再度適用
+                    rv_group.requestLayout();
+                    rv_group.scheduleLayoutAnimation();
 
+                    //アイコンのアニメーション
+                    view.setBackgroundResource(R.drawable.avd_task_to_group);
                 } else {
                     //表示切り替え：グループ → やること
                     rv_task.setVisibility( View.VISIBLE );
                     rv_group.setVisibility( View.GONE );
 
-                    ((TextView)view).setText( R.string.select_switch_label_task);
+                    //layoutAnimation　を再度適用
+                    rv_task.requestLayout();
+                    rv_task.scheduleLayoutAnimation();
+
+                    //アイコンのアニメーション
+                    view.setBackgroundResource(R.drawable.avd_group_to_task);
                 }
+
+                //アイコンアニメーション開始
+                AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) view.getBackground();
+                rocketAnimation.start();
             }
         });
 
         // アラーム開始ボタンの設定
-        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_startSupport);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -632,11 +648,10 @@ public class StackManagerFragment extends Fragment {
             @Override
             public boolean onPreDraw() {
 
-                //RecyclerViewの横幅 / 2 を子アイテムの横幅とする
-                int width = rv_task.getWidth() / 2;
-
-                //RecyclerViewがGONE中は、アダプタ設定をしない
+                //RecyclerViewの横幅分割
+                int width = rv_task.getWidth() / SELECT_TASK_AREA_DIV;
                 if( width == 0 ){
+                    //RecyclerViewがGONE中は、アダプタ設定をしない
                     return true;
                 }
 
@@ -656,6 +671,18 @@ public class StackManagerFragment extends Fragment {
 
                 //RecyclerViewにアダプタを設定
                 rv_task.setAdapter(adapter);
+
+                //--FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                rv_task.addItemDecoration( new RecyclerView.ItemDecoration(){
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                        int position = parent.getChildAdapterPosition(view);
+                        if (position == state.getItemCount() - 1) {
+                            //最後の要素の右に空間を設定
+                            outRect.right = mFab.getWidth();
+                        }
+                    }
+                });
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
@@ -781,16 +808,11 @@ public class StackManagerFragment extends Fragment {
 
                         mStackTask.add( 0, new TaskTable( pid, tv_taskName.getText().toString(), taskTime ) );
 
-                        int addIdx = mStackTask.size() - 1;
-
                         //先頭のみアニメーションを適用
                         animToIdx = 0;
 
                     } else {
                         //--「グループ」がドロップ
-
-                        TextView tv_groupPid  = dragView.findViewById(R.id.tv_groupPid);
-                        TextView tv_groupName = dragView.findViewById(R.id.tv_groupName);
 
                         String taskPidsStr = tv_taskInGroup.getText().toString();
                         List<Integer> pids = TaskTableManager.getPidsIntArray( taskPidsStr );

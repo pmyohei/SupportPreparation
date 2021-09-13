@@ -1,6 +1,8 @@
 package com.example.supportpreparation;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.ParseException;
@@ -101,17 +104,21 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     /*
      *　ViewHolderの生成
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public StackTaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         Log.i("test", "stack onCreateViewHolder viewType=" + viewType);
 
         //レイアウトIDを取得
-        int id = getLayoutId(viewType);
+        int id = R.layout.outer_task_for_stack;
 
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(id, viewGroup, false);
+
+        //drawableファイルを適用
+        applyDrawableResorce(view, viewType);
 
         return new StackTaskViewHolder(view);
     }
@@ -305,26 +312,32 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         return minute;
     }
 
-
     /*
-     * カラーIDの取得
+     * ビューにdrawableを適用
      */
-    private int getLayoutId(int time){
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void applyDrawableResorce(View view, int time) {
 
-        int id;
+        //適用対象のビューを取得
+        LinearLayout ll = view.findViewById(R.id.ll_taskInfo);
 
-        if( time <= 5 ){
-            id = R.layout.outer_task_for_stack_very_short;
-        } else if( time <= 10 ){
-            id = R.layout.outer_task_for_stack_short;
-        } else if( time <= 30 ){
-            id = R.layout.outer_task_for_stack_normal;
-        } else if( time <= 60 ){
-            id = R.layout.outer_task_for_stack_long;
+        //表示目的に応じて、drawableリソースを取得
+        Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task);;
+
+        //時間に応じて、色を設定
+        if (time <= 5) {
+            drawable.setTint(mContext.getColor(R.color.bg_task_very_short));
+        } else if (time <= 10) {
+            drawable.setTint(mContext.getColor(R.color.bg_task_short));
+        } else if (time <= 30) {
+            drawable.setTint(mContext.getColor(R.color.bg_task_normal));
+        } else if (time <= 60) {
+            drawable.setTint(mContext.getColor(R.color.bg_task_long));
         } else {
-            id = R.layout.outer_task_for_stack_very_long;
+            drawable.setTint(mContext.getColor(R.color.bg_task_very_long));
         }
-        return id;
+
+        ll.setBackground(drawable);
     }
 
 }

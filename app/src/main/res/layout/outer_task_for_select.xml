@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_taskInfo"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_taskDesign"
+        android:layout_width="@dimen/select_task_width"
+        android:layout_height="@dimen/select_task_height"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:padding="10dp"
+        android:gravity="center"
+        android:elevation="@dimen/task_evelation"
+        android:background="@drawable/frame_item_task"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:orientation="vertical"
+        android:enabled="true">
+
+    </LinearLayout>
+
+    <!-- 実際の表示内容 -->
+    <include layout="@layout/element_task_for_select" />
+
+</LinearLayout>

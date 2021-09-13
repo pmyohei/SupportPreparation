@@ -11,13 +11,24 @@
     <include layout="@layout/manage_stack" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_startSupport"
+        android:id="@+id/fab_switchDirection"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:layout_marginBottom="@dimen/fab_switch_margin_bottom"
         android:layout_marginRight="@dimen/fab_margin_right"
-        app:backgroundTint="@color/white_3"
+        app:backgroundTint="@color/white"
+        app:tint="@color/teal_700"
+        app:srcCompat="@drawable/ic_switch_up_32" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_setAlarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_alarm_margin_bottom"
+        android:layout_marginRight="@dimen/fab_margin_right"
+        app:backgroundTint="@color/white"
         app:tint="@color/teal_700"
         app:srcCompat="@drawable/ic_action_bell_32px" />
 

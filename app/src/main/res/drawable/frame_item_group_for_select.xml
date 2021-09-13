@@ -5,14 +5,8 @@
         android:color="@color/tx_groupName" />
 
     <solid
-        android:color="@color/bg_taskGroup" />
-
-    <padding
-        android:top="4dp"
-        android:bottom="4dp"
-        android:left="30dp"
-        android:right="30dp"/>
-
+        android:color="@color/bg_group" />
+    
     <corners
         android:radius="@dimen/task_corner_radius" />
 

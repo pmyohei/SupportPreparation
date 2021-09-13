@@ -37,12 +37,15 @@
     <color name="a_orange_1">#ff8a5c</color>
     <color name="a_orange_2">#ffad60</color>
 
-    <!-- -->
+    <!-- 共通 -->
     <color name="basic">#8ac6d1</color>
+    <color name="bg_common">#FFF7EB</color>
+    <color name="_before_change">#c4c1be</color>    <!-- 動的に変更される前に設定する色 -->
 
 
     <color name="bg_task">#ffb6b9</color>
     <color name="tx_task">#f5f5f5</color>
+    <color name="tx_select_task">#716e77</color>
 
     <color name="bg_task_very_short">#B4D2E7</color>
     <color name="tx_task_very_short">#e2f3f5</color>
@@ -55,8 +58,8 @@
     <color name="bg_task_very_long">#C5AFCF</color>
     <color name="tx_task_very_long">#e2f3f5</color>
 
-    <color name="bg_taskGroup">#F2F2F2</color>
-    <color name="tx_groupName">#D5070707</color>
+    <color name="bg_group">#4B6587</color>
+    <color name="tx_groupName">#FEFBF3</color>
 
     <color name="bg_dialog">#8ac6d1</color>
     <color name="tx_diarog_alart">#d9534f</color>

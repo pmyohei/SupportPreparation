@@ -1,6 +1,7 @@
 package com.example.supportpreparation.ui.groupManager;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
@@ -23,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.AsyncGroupTableOperaion;
-import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.CreateGroupDialog;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
@@ -31,6 +32,7 @@ import com.example.supportpreparation.R;
 import com.example.supportpreparation.GroupRecyclerAdapter;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
+import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -51,6 +53,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     private List<GroupTable>                                mGroupList;                 //「グループ」リスト
     private List<TaskRecyclerAdapter>                       mTaskInGroupAdapterList;    //グループ内「やること」のアダプタ
     private GroupRecyclerAdapter                            mGroupAdapter;              //「グループ」表示アダプタ
+    private FloatingActionButton                            mFab;                       //フローティングボタン
     private AsyncGroupTableOperaion.GroupOperationListener
                                                             mGroupDBListener;                   //「グループ」DB操作リスナー
 
@@ -89,12 +92,12 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         }
 
         //現在登録されている「やること」「グループ」を表示
-        displayTask();
+        setTaskSelectionArea();
         displayGroup();
 
         // FloatingActionButton
-        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //-- 「グループ」追加ダイアログの生成
@@ -114,7 +117,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     /*
      * 「やること」データを表示エリアにセット
      */
-    private void displayTask() {
+    private void setTaskSelectionArea() {
 
         //登録がなければ終了
         if (mTaskList == null || mTaskList.size() == 0) {
@@ -136,8 +139,8 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             @Override
             public boolean onPreDraw() {
 
-                //RecyclerViewの横幅 / 2 を子アイテムの横幅とする
-                int width = rv_task.getWidth() / 2;
+                //RecyclerViewの横幅分割
+                int width = rv_task.getWidth() / StackManagerFragment.SELECT_TASK_AREA_DIV;
 
                 //アダプタの生成・設定
                 TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
@@ -153,6 +156,18 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
                 //RecyclerViewにアダプタを設定
                 rv_task.setAdapter(adapter);
+
+                //--FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                rv_task.addItemDecoration( new RecyclerView.ItemDecoration(){
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                        int position = parent.getChildAdapterPosition(view);
+                        if (position == state.getItemCount() - 1) {
+                            //最後の要素の右に空間を設定
+                            outRect.right = mFab.getWidth();
+                        }
+                    }
+                });
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
@@ -176,6 +191,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager l_manager = new LinearLayoutManager(mContext);
         //l_manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        //rv_group.setLayoutManager(new GridLayoutManager(mContext, 2));
         rv_group.setLayoutManager(l_manager);
 
         //-- アダプタの設定は、サイズが確定してから行う
@@ -184,7 +200,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             @Override
             public boolean onPreDraw() {
 
-                //「RecyclerViewの高さ」の 3 / 4 を子アイテムの高さとする
+                //子アイテムの高さ
                 int height = rv_group.getHeight() * 3 / 4;
 
                 //下部ナビゲーション
@@ -193,7 +209,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
-
                 mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, mTaskInGroupAdapterList, dbListener, height, bnv);
 
                 //リスナー設定(グループ名編集)

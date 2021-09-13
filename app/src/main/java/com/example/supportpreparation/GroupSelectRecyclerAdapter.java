@@ -165,7 +165,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
 
         int id;
 
-        id = R.layout.outer_group_for_select_long;
+        id = R.layout.outer_group_for_select;
         /*
         if (time <= 5) {
             id = R.layout.outer_task_very_short;
