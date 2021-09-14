@@ -298,6 +298,10 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         mTaskList.add( taskTable );
         //アダプタに変更を通知
         mTaskAdapter.notifyDataSetChanged();
+
+        //追加された位置へスクロール
+        RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+        rv_task.scrollToPosition( mTaskList.size() - 1 );
     }
 
     @Override

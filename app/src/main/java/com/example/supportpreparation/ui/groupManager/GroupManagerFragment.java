@@ -440,6 +440,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //アダプタに変更を通知
         mGroupAdapter.notifyDataSetChanged();
+
+        //追加された位置へスクロール
+        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+        rv_group.scrollToPosition( mGroupList.size() - 1 );
     }
 
     @Override

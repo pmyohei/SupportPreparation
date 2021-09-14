@@ -15,8 +15,9 @@
                 <path
                     android:name="task"
                     android:pathData="M 495.84 60 C 542.32 60 580 97.68 580 144.16 L 580 495.84 C 580 542.32 542.32 580 495.84 580 L 144.16 580 C 97.68 580 60 542.32 60 495.84 L 60 145.42 C 60 98.24 98.24 60 145.42 60 L 495.84 60 Z"
+                    android:fillAlpha="0"
                     android:strokeColor="#000000"
-                    android:strokeAlpha="0.5"
+                    android:strokeAlpha="0"
                     android:strokeWidth="40"/>
             </group>
             <group

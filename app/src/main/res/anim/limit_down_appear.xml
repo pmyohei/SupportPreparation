@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true">
+
+    <!-- 現在位置よりも上から下方向へ -->
+    <translate
+        android:duration="@android:integer/config_mediumAnimTime"
+        android:interpolator="@android:anim/accelerate_interpolator"
+        android:fromYDelta="-100%"
+        android:toYDelta="0" />
+
+    <alpha
+        android:duration="@android:integer/config_mediumAnimTime"
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0" />
+</set>

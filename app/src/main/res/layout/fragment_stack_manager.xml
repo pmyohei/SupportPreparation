@@ -12,12 +12,13 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_switchDirection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="bottom|end"
+        android:gravity="center"
         android:layout_marginBottom="@dimen/fab_switch_margin_bottom"
         android:layout_marginRight="@dimen/fab_margin_right"
-        app:backgroundTint="@color/white"
+        app:backgroundTint="@color/white_3"
         app:tint="@color/teal_700"
         app:srcCompat="@drawable/ic_switch_up_32" />
 

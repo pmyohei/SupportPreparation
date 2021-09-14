@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private List<TaskTable>     mStackTaskList = new ArrayList<>();     //「積み上げやること」リスト
     private String              mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
     private String              mLimitTime;                             //リミット-時（"hh:mm"）
+    private boolean             mFlgSelectTask;                         //フラグ-「やること」選択エリア表示中
+    private boolean             mFlgLimit;                              //フラグ-リミット選択中
 
     private AnimationDrawable rocketAnimation;
 
@@ -37,9 +39,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //起動時の選択エリアは「やること」
+        mFlgSelectTask = true;
+        //起動時の時間指定はリミット
+        mFlgLimit = true;
+
         //DB操作インスタンスを取得
         mDB = AppDatabaseSingleton.getInstance(this);
-
         //-- 非同期スレッドにて、読み込み開始
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
@@ -61,15 +67,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     }
 
     /*
-     * 「積み上げやること」データを取得
+     * 「積み上げやること」データを取得・設定
      */
     public List<TaskTable> getStackTaskData() {
         return mStackTaskList;
     }
-
-    /*
-     * 「積み上げやること」データの設定
-     */
     public void setStackTaskData( List<TaskTable> taskList ) {
         //「積み上げやること」を設定
         mStackTaskList = taskList;
@@ -78,35 +80,45 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.CREATE, mStackTaskList, mLimitDate, mLimitTime).execute();
     }
 
-
     /*
-     * 「リミット-日付」を取得する
+     * 「リミット-日付」を取得・設定
      */
     public String getLimitDate() {
         return mLimitDate;
     }
-
-    /*
-     * 「リミット-日付」を設定する
-     */
     public void setLimitDate(String value) {
         mLimitDate = value;
     }
 
     /*
-     * 「リミット-時分」を取得する
+     * 「リミット-時分」を取得・設定
      */
     public String getLimitTime() {
         return mLimitTime;
     }
-
-    /*
-     * 「リミット-時分」を設定する
-     */
     public void setLimitTime(String value) {
         mLimitTime = value;
     }
 
+    /*
+     * 「フラグ-「やること」選択エリア表示中」を取得・設定
+     */
+    public boolean getFlgSelectTask() {
+        return mFlgSelectTask;
+    }
+    public void setFlgSelectTask(boolean flg) {
+        mFlgSelectTask = flg;
+    }
+
+    /*
+     * 「フラグ-リミット選択中」の取得・設定
+     */
+    public boolean getFlgLimit() {
+        return mFlgLimit;
+    }
+    public void setFlgLimit(boolean flg) {
+        mFlgLimit = flg;
+    }
 
 
     /*
