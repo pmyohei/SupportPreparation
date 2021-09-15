@@ -48,13 +48,13 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     class StackTaskViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_pid;            //Pid
-        private TextView tv_taskName;       //表示内容
-        private TextView tv_taskTime;
-        private LinearLayout ll_startTime;
-        private LinearLayout ll_endTime;
-        private TextView tv_taskStartTime;
-        private TextView tv_taskEndTime;
+        private TextView        tv_pid;            //Pid
+        private TextView        tv_taskName;       //表示内容
+        private TextView        tv_taskTime;
+        private LinearLayout    ll_startTime;
+        private LinearLayout    ll_endTime;
+        private TextView        tv_taskStartTime;
+        private TextView        tv_taskEndTime;
         private LinearLayout    ll_label;
         private TextView        tv_label;
 
@@ -314,6 +314,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
         //アラーム時間として追加
         mAlarmList.add(calendar);
+        //アラーム時間を設定
+        mData.get(i).setAlarmCalendar(calendar);
 
         return calendar;
     }
@@ -334,6 +336,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
         //アラーム時間として追加
         mAlarmList.add(calendar);
+        //アラーム時間を設定
+        mData.get(i).setAlarmCalendar(calendar);
 
         return calendar;
     }

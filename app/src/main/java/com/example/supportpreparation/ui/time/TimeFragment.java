@@ -87,11 +87,13 @@ public class TimeFragment extends Fragment {
         sdfProgressTime.setTimeZone(tz);
 
         //「やること時間」を合計
+        //★TaskArrayList にメソッドを用意
         int totalMinute = 0;
         for (TaskTable task : mStackTask) {
             //時間を累算
             totalMinute += task.getTaskTime();
         }
+        //★
 
         //-- 最終時刻をDate型に変換
         Date finalTime;
@@ -120,12 +122,15 @@ public class TimeFragment extends Fragment {
         nowCalendar.setTime(nowTime);
 
         //最終時刻が既に過ぎていた場合
+
+        //★TaskArrayList にメソッドを用意
         if (nowTime.after(finalTime)) {
             //カウントダウンはせず、終了
             return mRootLayout;
         }
+        //★
 
-        //-- 最初の開始時間
+        //最初の開始時間
         Calendar beginCalendar = Calendar.getInstance();
         beginCalendar.setTime(finalTime);
         beginCalendar.add(Calendar.MINUTE, -totalMinute);

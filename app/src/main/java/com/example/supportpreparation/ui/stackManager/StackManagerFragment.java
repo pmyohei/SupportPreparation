@@ -37,7 +37,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
@@ -128,10 +127,10 @@ public class StackManagerFragment extends Fragment {
         setupGroupSelectionArea();
 
         //選択エリア切り替えアイコンの設定
-        setupSelectSwitchImage();
+        setupIvSwitchSelectArea();
 
         //FABの設定
-        setupFabSwitchDirection();
+        setupIvSwitchDirection();
         setupFabSetAlarm();
 
         return mRootLayout;
@@ -672,7 +671,7 @@ public class StackManagerFragment extends Fragment {
     /*
      * 選択エリア切り替えアイコンの設定
      */
-    private void setupSelectSwitchImage(){
+    private void setupIvSwitchSelectArea(){
         ImageView iv_selectSwitch = (ImageView) mRootLayout.findViewById(R.id.iv_selectSwitch);
 
         //リサイクラービュー取得
@@ -680,7 +679,6 @@ public class StackManagerFragment extends Fragment {
         RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
 
         //設定アイコンの取得
-        int backgroundResource;
         if( mFlgSelectTask ){
             //やること表示の場合
 
@@ -696,8 +694,7 @@ public class StackManagerFragment extends Fragment {
             rv_group.setVisibility(View.VISIBLE);
 
             //アイコン設定
-            backgroundResource = R.drawable.ic_switch_group;
-            iv_selectSwitch.setBackgroundResource(backgroundResource);
+            iv_selectSwitch.setBackgroundResource(R.drawable.ic_switch_group);
         }
 
         //クリックリスナーの設定
@@ -746,13 +743,21 @@ public class StackManagerFragment extends Fragment {
     }
 
     /*
-     * FAB(積み上げ方向変更)の設定
+     * ImageView(積み上げ方向変更)の設定
      */
-    private void setupFabSwitchDirection(){
+    private void setupIvSwitchDirection(){
 
         // 開始・リミット変更ボタンの設定
-        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
-        fab.setOnClickListener(new View.OnClickListener() {
+        ImageView iv_switchDirection = (ImageView) mRootLayout.findViewById(R.id.iv_switchDirection);
+
+        //設定アイコンの取得
+        if( !mFlgLimit ){
+            //スタート指定の場合
+            //アイコン設定
+            iv_switchDirection.setBackgroundResource(R.drawable.ic_switch_que);
+        }
+
+        iv_switchDirection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //スタート側のビュー
@@ -769,6 +774,7 @@ public class StackManagerFragment extends Fragment {
                 LayoutAnimationController anim;
                 int anim_limit;
                 int anim_start;
+                int anim_iv;
 
                 //フラグ反転し、親側データと同期
                 mFlgLimit = !mFlgLimit;
@@ -790,6 +796,8 @@ public class StackManagerFragment extends Fragment {
                     //アニメーション：ベース時間
                     anim_limit = R.anim.limit_down_appear;
                     anim_start = R.anim.start_down_disappear;
+                    //アニメーション：切り替えアイコン
+                    anim_iv = R.anim.switch_to_que;
 
                 } else {
                     //--リミット(true) → スタート(false) へ変更
@@ -807,6 +815,8 @@ public class StackManagerFragment extends Fragment {
                     //アニメーション：ベース時間
                     anim_limit = R.anim.limit_up_disappear;
                     anim_start = R.anim.start_up_appear;
+                    //アニメーション：切り替えアイコン
+                    anim_iv = R.anim.switch_to_stack;
                 }
 
                 //基準の時間を反転し、積み上げエリアアダプタへ変更通知
@@ -828,6 +838,9 @@ public class StackManagerFragment extends Fragment {
                 ll_limitGroup.startAnimation(animation);
                 animation = AnimationUtils.loadAnimation(mContext, anim_start);
                 ll_startGroup.startAnimation(animation);
+
+                animation = AnimationUtils.loadAnimation(mContext, anim_iv);
+                view.startAnimation(animation);
             }
         });
     }
@@ -857,7 +870,7 @@ public class StackManagerFragment extends Fragment {
                 List<Calendar> alarmList = mStackAreaAdapter.getAlarmList();
 
                 //「やること」未選択の場合
-                if (mStackTask.size() == 0 || alarmList == null) {
+                if (mStackTask.size() == 0) {
                     //メッセージを表示
                     toast.setText("やることを選択してください");
                     toast.show();

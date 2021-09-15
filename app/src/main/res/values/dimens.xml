@@ -3,9 +3,14 @@
     <dimen name="fab_margin_bottom">64dp</dimen>
     <dimen name="fab_alarm_margin_bottom">64dp</dimen>
     <dimen name="fab_switch_margin_bottom">128dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- スタック画面-ベース時間反転ボタン -->
+    <dimen name="iv_reverse_margin_top">240dp</dimen>
+    <dimen name="iv_reverse_margin_end">24dp</dimen>
 
     <!-- やることの四隅のカーブ -->
     <dimen name="task_corner_radius">60px</dimen>

@@ -29,7 +29,7 @@ public class GroupTable {
     private String taskPidsStr = "";
 
     /*
-     * フィールド
+     * 非レコードフィールド
      */
     private final static String DELIMITER = " ";    //「セットに追加されたやること」の区切文字
 

@@ -1,16 +1,12 @@
 package com.example.supportpreparation;
 
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
@@ -33,7 +29,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private boolean             mFlgSelectTask;                         //フラグ-「やること」選択エリア表示中
     private boolean             mFlgLimit;                              //フラグ-リミット選択中
 
-    private AnimationDrawable rocketAnimation;
+
+    private TaskArrayList<TaskTable> mTaskTestList;                              //「やること」リスト
+    private ArrayList<TaskTable> testArray;                              //「やること」リスト
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +41,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         mFlgSelectTask = true;
         //起動時の時間指定はリミット
         mFlgLimit = true;
+
+        //テスト
+        Log.i("test", "main cast");
+        //mTaskTestList = (TaskArrayList<TaskTable>)testArray;
 
         //DB操作インスタンスを取得
         mDB = AppDatabaseSingleton.getInstance(this);
@@ -133,10 +135,40 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
 
     @Override
-    public void onSuccessTaskRead(List<TaskTable> taskList) {
+    public void onSuccessTaskRead(List<TaskTable> taskList, TaskArrayList<TaskTable> testaList) {
         //「やること」リストを保持
         mTaskList = taskList;
 
+        mTaskTestList = testaList;
+        for( TaskTable task: mTaskTestList ){
+            Log.i("test", "mTaskTestList task=" + task.getTaskName());
+        }
+        Log.i("test", "mTaskTestList getTaskByPid=" + mTaskTestList.getTaskByPid(0));
+        Log.i("test", "mTaskTestList getTotalTaskTime=" + mTaskTestList.getTotalTaskTime());
+        Log.i("test", "mTaskTestList getTopAlarmIndex=" + mTaskTestList.getTopAlarmIndex());
+
+
+/*        //test
+        mTaskTestList = new TaskArrayList<>();
+        TaskTable test = new TaskTable("test1", 10 );
+        test.setId(0);
+        mTaskTestList.add( test );
+
+        TaskTable test1 = new TaskTable("test2", 30 );
+        test1.setId(1);
+        mTaskTestList.add( test1 );
+
+        TaskTable task = mTaskTestList.getTaskByPid(0);
+        if( task != null ){
+            Log.i("test", "mTaskTestList task=" + task.getTaskName());
+        }
+        task = mTaskTestList.getTaskByPid(1);
+        if( task != null ){
+            Log.i("test", "mTaskTestList task=" + task.getTaskName());
+        }
+        //test
+        */
+        
         //「やることセット」
         new AsyncGroupTableOperaion(mDB, this, AsyncGroupTableOperaion.DB_OPERATION.READ).execute();
     }

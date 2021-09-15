@@ -24,6 +24,7 @@ import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.CreateTaskDialog;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
+import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -262,7 +263,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
      *   「やること」の表示
      */
     @Override
-    public void onSuccessTaskRead(List<TaskTable> taskList) {
+    public void onSuccessTaskRead(List<TaskTable> taskList, TaskArrayList<TaskTable> testList) {
     }
 
     @Override
