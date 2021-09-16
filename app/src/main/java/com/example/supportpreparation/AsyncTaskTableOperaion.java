@@ -26,8 +26,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     private String mNewTaskName;
     private int mNewTaskTime;
     private TaskTable mTaskTable;
-    private List<TaskTable> mTaskList;
-    private TaskArrayList<TaskTable> mTaskTestList = new TaskArrayList<>();
+    private TaskArrayList<TaskTable> mTaskList = new TaskArrayList<>();
     private TaskOperationListener mListener;
 
     /*
@@ -139,13 +138,12 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     private void displayTaskData( TaskTableDao dao ){
 
         //DBから、保存済みのタスクリストを取得
-        mTaskList = dao.getAll();
+        List<TaskTable> taskList = dao.getAll();
 
-        for( TaskTable task: mTaskList ){
-            mTaskTestList.add(task);
+        //やることリスト用クラスのインスタンスに格納
+        for( TaskTable task: taskList ){
+            mTaskList.add(task);
         }
-
-        //mTaskTestList = (TaskArrayList<TaskTable>) dao.getAll();
     }
 
     /*
@@ -182,7 +180,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             if( mOperation == DB_OPERATION.READ ){
                 //処理終了：読み込み
-                mListener.onSuccessTaskRead(mTaskList, mTaskTestList);
+                mListener.onSuccessTaskRead(mTaskList);
 
             } else if( mOperation == DB_OPERATION.CREATE ){
                 //処理終了：新規作成
@@ -218,7 +216,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         /*
          * 取得完了時
          */
-        void onSuccessTaskRead(List<TaskTable> taskList, TaskArrayList<TaskTable> testList);
+        void onSuccessTaskRead(TaskArrayList<TaskTable> taskList);
 
         /*
          * 新規生成完了時

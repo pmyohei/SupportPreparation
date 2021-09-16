@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
+import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskTable;
 
 import java.text.ParseException;
@@ -39,7 +40,7 @@ public class TimeFragment extends Fragment {
     private Fragment mFragment;                  //本フラグメント
     private Context mContext;                   //コンテキスト（親アクティビティ）
     private View mRootLayout;                //本フラグメントに設定しているレイアウト
-    private List<TaskTable> mStackTask;                 //積み上げ「やること」
+    private TaskArrayList<TaskTable> mStackTask;                 //積み上げ「やること」
     private int mTaskRefIdx;                //積み上げ「やること」の参照中インデックス
     private TextView mtv_finalTime;              //
     private TextView mtv_progressTime;           //

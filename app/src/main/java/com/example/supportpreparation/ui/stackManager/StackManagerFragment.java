@@ -41,11 +41,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
+import com.example.supportpreparation.GroupArrayList;
 import com.example.supportpreparation.GroupSelectRecyclerAdapter;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.StackTaskRecyclerAdapter;
+import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.TaskTableManager;
@@ -72,8 +74,8 @@ public class StackManagerFragment extends Fragment {
     private View mRootLayout;            //本フラグメントに設定しているレイアウト
     private AppDatabase mDB;                    //DB
     private LinearLayout mll_stackArea;          //「やること」積み上げ領域
-    private List<TaskTable> mStackTask;             //積み上げ「やること」
-    private List<TaskTable> mTaskList;              //「やること」
+    private TaskArrayList<TaskTable> mStackTask;             //積み上げ「やること」
+    private TaskArrayList<TaskTable> mTaskList;              //「やること」
     private StackTaskRecyclerAdapter mStackAreaAdapter;      //積み上げ「やること」アダプタ
     private FloatingActionButton mfab_setAlarm;                   //フローティングボタン
     private TextView mtv_limitDate;          //リミット日のビュー
@@ -81,11 +83,6 @@ public class StackManagerFragment extends Fragment {
     private Intent mAlarmReceiverIntent;   //アラーム受信クラスのIntent
     private boolean mFlgSelectTask;                         //フラグ-「やること」選択エリア表示中
     private boolean mFlgLimit;                              //フラグ-リミット選択中
-
-    //-- 変更有無の確認用
-    //private List<TaskTable>         mInit_StackTask;            //開始時点-積み上げやること
-    //private String                  mInit_LimitDate;            //開始時点-リミット日
-    //private String                  mInit_LimitTime;            //開始時点-リミット時間
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -612,7 +609,7 @@ public class StackManagerFragment extends Fragment {
     private void setupGroupSelectionArea() {
 
         //やることリストを取得
-        List<GroupTable> groupList = mParentActivity.getGroupData();
+        GroupArrayList<GroupTable> groupList = mParentActivity.getGroupData();
 
         //登録がなければ終了
         if (groupList == null || groupList.size() == 0) {

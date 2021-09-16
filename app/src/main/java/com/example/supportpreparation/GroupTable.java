@@ -5,9 +5,6 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /*
  * エンティティ
  *   テーブルに相当
@@ -29,25 +26,29 @@ public class GroupTable {
     private String taskPidsStr = "";
 
     /*
-     * 非レコードフィールド
+     * 定数
      */
     private final static String DELIMITER = " ";    //「セットに追加されたやること」の区切文字
 
+    /*
+     * 非レコードフィールド
+     */
     @Ignore
-    private List<TaskTable> mTaskInGroupList;       //グループ内の「やること」
+    private TaskArrayList<TaskTable>    mTaskInGroupList;   //グループ内「やること」
+    @Ignore
+    private TaskRecyclerAdapter         mTaskAdapter;       //グループ内「やること」用アダプタ
 
     /*
      * コンストラクタ
      */
     public GroupTable(String groupName) {
-        this.groupName          = groupName;
-        mTaskInGroupList   = new ArrayList<>();
+        this.groupName     = groupName;
+        mTaskInGroupList   = new TaskArrayList<>();
     }
 
     public void setId(int id) {
         this.id = id;
     }
-
     public int getId() {
         return this.id;
     }
@@ -55,7 +56,6 @@ public class GroupTable {
     public String getGroupName() {
         return this.groupName;
     }
-
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
@@ -63,16 +63,28 @@ public class GroupTable {
     public String getTaskPidsStr() {
         return taskPidsStr;
     }
-
     public void setTaskPidsStr(String taskPidsStr) {
         this.taskPidsStr = taskPidsStr;
     }
 
-    public List<TaskTable> getTaskInGroupList() {
+    /*
+     * グループ内「やること」取得・設定
+     */
+    public TaskArrayList<TaskTable> getTaskInGroupList() {
         return mTaskInGroupList;
     }
-
-    public void setTaskInGroupList(List<TaskTable> mTaskInGroupList) {
+    public void setTaskInGroupList(TaskArrayList<TaskTable> mTaskInGroupList) {
         this.mTaskInGroupList = mTaskInGroupList;
     }
+
+    /*
+     * グループ内「やること」アダプタ 取得・設定
+     */
+    public TaskRecyclerAdapter getTaskAdapter() {
+        return mTaskAdapter;
+    }
+    public void setTaskAdapter(TaskRecyclerAdapter taskAdapter) {
+        this.mTaskAdapter = taskAdapter;
+    }
+
 }

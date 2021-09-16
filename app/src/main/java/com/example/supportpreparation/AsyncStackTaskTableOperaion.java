@@ -29,10 +29,10 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
 
     //-- DBからの読み込みデータ
     private StackTaskTable              mReadStackTask;     //
-    private List<TaskTable>             mReadTaskList;      //※読み込んだデータを元に変換した「やること」リスト
+    private TaskArrayList<TaskTable>    mReadTaskList;      //※読み込んだデータを元に変換した「やること」リスト
 
     //-- DB登録対象のデータ
-    private List<TaskTable>             mTaskList;          //「積み上げやること」のリスト
+    private TaskArrayList<TaskTable>    mTaskList;          //「積み上げやること」のリスト
     private String                      mDate;              //リミット-年月日
     private String                      mTime;              //リミット-時間
 
@@ -52,7 +52,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
      * コンストラクタ
      *   生成
      */
-    public AsyncStackTaskTableOperaion(AppDatabase db, StackTaskOperationListener listener, DB_OPERATION operation, List<TaskTable> taskList, String date, String time){
+    public AsyncStackTaskTableOperaion(AppDatabase db, StackTaskOperationListener listener, DB_OPERATION operation, TaskArrayList<TaskTable> taskList, String date, String time){
         mDB         = db;
         mListener   = listener;
         mOperation  = operation;
@@ -142,7 +142,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         TaskTableDao taskTableDao = mDB.taskTableDao();
 
         //「やること」をリスト化する
-        mReadTaskList = new ArrayList<>();
+        mReadTaskList = new TaskArrayList<>();
         for( Integer pid: pids ){
             //pidに対応する「やること」を取得し、リストに追加
             TaskTable task = taskTableDao.getRecord(pid);
@@ -221,7 +221,7 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         /*
          * 取得完了時
          */
-        void onSuccessStackRead( Integer code, StackTaskTable stack, List<TaskTable> taskList );
+        void onSuccessStackRead( Integer code, StackTaskTable stack, TaskArrayList<TaskTable> taskList );
 
         /*
          * 削除完了時

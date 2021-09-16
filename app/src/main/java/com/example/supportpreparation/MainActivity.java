@@ -21,13 +21,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private AppDatabase             mDB;                                //DB
 
     //-- フラグメント間共通データ
-    private List<TaskTable>     mTaskList;                              //「やること」リスト
-    private List<GroupTable>    mGroupList;                             //「やることグループ」リスト
-    private List<TaskTable>     mStackTaskList = new ArrayList<>();     //「積み上げやること」リスト
-    private String              mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
-    private String              mLimitTime;                             //リミット-時（"hh:mm"）
-    private boolean             mFlgSelectTask;                         //フラグ-「やること」選択エリア表示中
-    private boolean             mFlgLimit;                              //フラグ-リミット選択中
+    private TaskArrayList<TaskTable>    mTaskList;                              //「やること」リスト
+    private GroupArrayList<GroupTable>  mGroupList;                             //「やることグループ」リスト
+    private TaskArrayList<TaskTable>    mStackTaskList = new TaskArrayList<>(); //「積み上げやること」リスト
+    private String                      mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
+    private String                      mLimitTime;                             //リミット-時（"hh:mm"）
+    private boolean                     mFlgSelectTask;                         //フラグ-「やること」選択エリア表示中
+    private boolean                     mFlgLimit;                              //フラグ-リミット選択中
 
 
     private TaskArrayList<TaskTable> mTaskTestList;                              //「やること」リスト
@@ -57,24 +57,24 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     /*
      * 「やること」データを取得する
      */
-    public List<TaskTable> getTaskData() {
+    public TaskArrayList<TaskTable> getTaskData() {
         return mTaskList;
     }
 
     /*
      * 「やることグループ」データを取得
      */
-    public List<GroupTable> getGroupData() {
+    public GroupArrayList<GroupTable> getGroupData() {
         return mGroupList;
     }
 
     /*
      * 「積み上げやること」データを取得・設定
      */
-    public List<TaskTable> getStackTaskData() {
+    public TaskArrayList<TaskTable> getStackTaskData() {
         return mStackTaskList;
     }
-    public void setStackTaskData( List<TaskTable> taskList ) {
+    public void setStackTaskData( TaskArrayList<TaskTable> taskList ) {
         //「積み上げやること」を設定
         mStackTaskList = taskList;
 
@@ -135,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
 
     @Override
-    public void onSuccessTaskRead(List<TaskTable> taskList, TaskArrayList<TaskTable> testaList) {
+    public void onSuccessTaskRead(TaskArrayList<TaskTable> taskList) {
         //「やること」リストを保持
         mTaskList = taskList;
-
+/*
         mTaskTestList = testaList;
         for( TaskTable task: mTaskTestList ){
             Log.i("test", "mTaskTestList task=" + task.getTaskName());
@@ -147,8 +147,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         Log.i("test", "mTaskTestList getTotalTaskTime=" + mTaskTestList.getTotalTaskTime());
         Log.i("test", "mTaskTestList getTopAlarmIndex=" + mTaskTestList.getTopAlarmIndex());
 
-
-/*        //test
+        //test
         mTaskTestList = new TaskArrayList<>();
         TaskTable test = new TaskTable("test1", 10 );
         test.setId(0);
@@ -190,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      * 「やることグループ」
      */
     @Override
-    public void onSuccessReadGroup(List<GroupTable> groupList) {
+    public void onSuccessReadGroup(GroupArrayList<GroupTable> groupList) {
 
         //DBから取得したデータを保持
         mGroupList       = groupList;
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      * 「積み上げやること」
      */
     @Override
-    public void onSuccessStackRead( Integer code, StackTaskTable stack, List<TaskTable> taskList ) {
+    public void onSuccessStackRead( Integer code, StackTaskTable stack, TaskArrayList<TaskTable> taskList ) {
 
         //DBからデータを取れれば
         if( code == AsyncStackTaskTableOperaion.READ_NORMAL ){

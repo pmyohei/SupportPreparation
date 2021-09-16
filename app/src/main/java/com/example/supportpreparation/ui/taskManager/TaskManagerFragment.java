@@ -35,13 +35,13 @@ import java.util.List;
 
 public class TaskManagerFragment extends Fragment implements AsyncTaskTableOperaion.TaskOperationListener {
 
-    private MainActivity            mParentActivity;            //親アクティビティ
-    private View                    mRootLayout;                //本フラグメントに設定しているレイアウト
-    private Fragment                mFragment;                  //本フラグメント
-    private Context                 mContext;                   //コンテキスト（親アクティビティ）
-    private AppDatabase             mDB;                        //DB
-    private List<TaskTable>         mTaskList;                  //「やること」リスト
-    private TaskRecyclerAdapter     mTaskAdapter;               //「やること」表示アダプタ
+    private MainActivity                mParentActivity;            //親アクティビティ
+    private View                        mRootLayout;                //本フラグメントに設定しているレイアウト
+    private Fragment                    mFragment;                  //本フラグメント
+    private Context                     mContext;                   //コンテキスト（親アクティビティ）
+    private AppDatabase                 mDB;                        //DB
+    private TaskArrayList<TaskTable>    mTaskList;                  //「やること」リスト
+    private TaskRecyclerAdapter         mTaskAdapter;               //「やること」表示アダプタ
     private AsyncTaskTableOperaion.TaskOperationListener
             mTaskListener;              //「やること」操作リスナー
 
@@ -263,7 +263,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
      *   「やること」の表示
      */
     @Override
-    public void onSuccessTaskRead(List<TaskTable> taskList, TaskArrayList<TaskTable> testList) {
+    public void onSuccessTaskRead(TaskArrayList<TaskTable> taskList) {
     }
 
     @Override

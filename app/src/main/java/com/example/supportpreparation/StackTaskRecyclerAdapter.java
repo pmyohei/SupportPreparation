@@ -30,7 +30,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
     private final int NO_ANIMATION = -1;              //アニメーション適用なし
 
-    private List<TaskTable> mData;
+    private TaskArrayList<TaskTable> mData;
     private Context mContext;
 
     private TextView mtv_limitDate;                  //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
@@ -81,7 +81,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      *　　 スタート設定の場合でも、設定日時は同期されるため、
      * 　  リミット関連のビューのみの保持で問題なし。
      */
-    public StackTaskRecyclerAdapter(Context context, List<TaskTable> data, TextView limitDate, TextView limitTime) {
+    public StackTaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, TextView limitDate, TextView limitTime) {
         mData = data;
         mContext = context;
         mtv_limitDate = limitDate;

@@ -28,7 +28,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         GROUP,              //「やること」グループ割り当て
     }
 
-    private List<TaskTable> mData;
+    private TaskArrayList<TaskTable> mData;
     private Context mContext;
     private View.OnClickListener clickListener;
     private View.OnLongClickListener longListener;
@@ -62,7 +62,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     /*
      * コンストラクタ
      */
-    public TaskRecyclerAdapter(Context context, List<TaskTable> data, SETTING setting) {
+    public TaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, SETTING setting) {
         mData = data;
         mContext = context;
         mSetting = setting;
@@ -75,7 +75,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     /*
      * コンストラクタ
      */
-    public TaskRecyclerAdapter(Context context, List<TaskTable> data, SETTING setting, int width, int height) {
+    public TaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, SETTING setting, int width, int height) {
         mData = data;
         mContext = context;
         mSetting = setting;

@@ -1,5 +1,6 @@
 package com.example.supportpreparation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.DragEvent;
@@ -25,8 +26,7 @@ import java.util.List;
  */
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
 
-    private List<GroupTable>                                mGroupList;
-    private List<TaskRecyclerAdapter>                       mTaskInGroupAdapterList;
+    private GroupArrayList<GroupTable>                      mGroupList;
     private Context                                         mContext;
     private int                                             mItemHeight;
     private BottomNavigationView                            mBNV;
@@ -64,11 +64,10 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     /*
      * コンストラクタ
      */
-    public GroupRecyclerAdapter(Context context, List<GroupTable> groupList, List<TaskRecyclerAdapter> taskAdapter,
+    public GroupRecyclerAdapter(Context context, GroupArrayList<GroupTable> groupList,
                                 AsyncGroupTableOperaion.GroupOperationListener dbListener, int height, BottomNavigationView bnv) {
         mContext                = context;
         mGroupList              = groupList;
-        mTaskInGroupAdapterList = taskAdapter;
         mItemHeight             = height;
         mDBListener             = dbListener;
         mBNV                    = bnv;
@@ -137,6 +136,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     /*
      * グループのやることを設定
      */
+    @SuppressLint("ClickableViewAccessibility")
     public void setTaskInGroup(ViewHolder viewHolder, int idx, int groupPid) {
 
         //レイアウトマネージャの生成・設定
@@ -147,13 +147,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         int taskHeight = mItemHeight / 3;
 
         //グループ内のやること／アダプタ
-        TaskRecyclerAdapter adapter = mTaskInGroupAdapterList.get(idx);
-        List<TaskTable> taskInGroupList = mGroupList.get(idx).getTaskInGroupList();
+        TaskRecyclerAdapter adapter = mGroupList.get(idx).getTaskAdapter();
+        TaskArrayList<TaskTable> taskInGroupList = mGroupList.get(idx).getTaskInGroupList();
 
         Log.i("test", "idx=" + idx);
 
         //アダプタの設定
-        //TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
         viewHolder.rv_taskInGroup.setAdapter(adapter);
 
         //ドラッグ、スワイプの設定
@@ -175,7 +174,6 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         //「やること」ドロップ時のリスナー設定
         DragGroupListener listener = new DragGroupListener(adapter, taskInGroupList, groupPid);
         viewHolder.ll_group.setOnDragListener(listener);
-
     }
 
     /*
@@ -207,14 +205,14 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     private class DragGroupListener implements View.OnDragListener {
 
-        private TaskRecyclerAdapter mAdapter;       //本コールバックのアタッチ先のRecyclerView
-        private int                 mGroupPid;      //グループのプライマリーキー
-        private List<TaskTable>     mTaskInGroup;   //グループに割り当てられた「やること」
+        private TaskRecyclerAdapter         mAdapter;       //本コールバックのアタッチ先のRecyclerView
+        private int                         mGroupPid;      //グループのプライマリーキー
+        private TaskArrayList<TaskTable>    mTaskInGroup;   //グループに割り当てられた「やること」
 
         /*
          * コンストラクタ
          */
-        public DragGroupListener(TaskRecyclerAdapter adapter, List<TaskTable> taskInGroup, int groupPid) {
+        public DragGroupListener(TaskRecyclerAdapter adapter, TaskArrayList<TaskTable> taskInGroup, int groupPid) {
             mAdapter     = adapter;
             mGroupPid    = groupPid;
             mTaskInGroup = taskInGroup;
@@ -262,12 +260,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     private class SimpleCallback extends ItemTouchHelper.SimpleCallback {
 
-        private RecyclerView        mRecyclerView;  //本コールバックのアタッチ先のRecyclerView
-        private TaskRecyclerAdapter mAdapter;       //本コールバックのアタッチ先のRecyclerView
-        private int                 mGroupPid;      //グループのプライマリーキー
-        private List<TaskTable>     mTaskInGroup;   //グループに割り当てられた「やること」
+        private RecyclerView                mRecyclerView;  //本コールバックのアタッチ先のRecyclerView
+        private TaskRecyclerAdapter         mAdapter;       //本コールバックのアタッチ先のRecyclerView
+        private int                         mGroupPid;      //グループのプライマリーキー
+        private TaskArrayList<TaskTable>    mTaskInGroup;   //グループに割り当てられた「やること」
 
-        public SimpleCallback(RecyclerView recyclerView, TaskRecyclerAdapter adapter, List<TaskTable> taskInGroup, int groupPid) {
+        public SimpleCallback(RecyclerView recyclerView, TaskRecyclerAdapter adapter, TaskArrayList<TaskTable> taskInGroup, int groupPid) {
             super(0, ItemTouchHelper.LEFT);
 
             mRecyclerView   = recyclerView;

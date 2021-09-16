@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelectRecyclerAdapter.GroupViewHolder> {
 
-    private List<GroupTable>            mData;
+    private GroupArrayList<GroupTable>  mData;
     private Context                     mContext;
     private View.OnClickListener        mClickListener;
     private View.OnLongClickListener    mLongListener;
@@ -53,7 +53,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
     /*
      * コンストラクタ
      */
-    public GroupSelectRecyclerAdapter(Context context, List<GroupTable> data) {
+    public GroupSelectRecyclerAdapter(Context context, GroupArrayList<GroupTable> data) {
         mData = data;
         mContext = context;
 
@@ -65,7 +65,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
     /*
      * コンストラクタ
      */
-    public GroupSelectRecyclerAdapter(Context context, List<GroupTable> data, int width, int height) {
+    public GroupSelectRecyclerAdapter(Context context, GroupArrayList<GroupTable> data, int width, int height) {
         mData = data;
         mContext = context;
         mItemWidth = width;

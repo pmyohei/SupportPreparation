@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
@@ -26,10 +25,12 @@ import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.AsyncGroupTableOperaion;
 import com.example.supportpreparation.CreateGroupDialog;
+import com.example.supportpreparation.GroupArrayList;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.GroupRecyclerAdapter;
+import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
@@ -44,18 +45,17 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
     private final int NO_SEARCH = -1;                   //未発見
 
-    private MainActivity                                    mParentActivity;            //親アクティビティ
-    private View                                            mRootLayout;                //本フラグメントに設定しているレイアウト
-    private Fragment                                        mFragment;                  //本フラグメント
-    private Context                                         mContext;                   //コンテキスト（親アクティビティ）
-    private AppDatabase                                     mDB;                        //DB
-    private List<TaskTable>                                 mTaskList;                  //「やること」リスト
-    private List<GroupTable>                                mGroupList;                 //「グループ」リスト
-    private List<TaskRecyclerAdapter>                       mTaskInGroupAdapterList;    //グループ内「やること」のアダプタ
-    private GroupRecyclerAdapter                            mGroupAdapter;              //「グループ」表示アダプタ
-    private FloatingActionButton                            mFab;                       //フローティングボタン
+    private MainActivity                   mParentActivity;            //親アクティビティ
+    private View                           mRootLayout;                //本フラグメントに設定しているレイアウト
+    private Fragment                       mFragment;                  //本フラグメント
+    private Context                        mContext;                   //コンテキスト（親アクティビティ）
+    private AppDatabase                    mDB;                        //DB
+    private TaskArrayList<TaskTable>       mTaskList;                  //「やること」リスト
+    private GroupArrayList<GroupTable>     mGroupList;                 //「グループ」リスト
+    private GroupRecyclerAdapter           mGroupAdapter;              //「グループ」表示アダプタ
+    private FloatingActionButton           mFab;                       //フローティングボタン
     private AsyncGroupTableOperaion.GroupOperationListener
-                                                            mGroupDBListener;                   //「グループ」DB操作リスナー
+                                           mGroupDBListener;           //「グループ」DB操作リスナー
 
 
 
@@ -81,14 +81,14 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //「グループ」リストを取得
         mGroupList       = mParentActivity.getGroupData();
 
-        //グループ内「やること」のアダプタを保持
-        mTaskInGroupAdapterList = new ArrayList<>();
+        //グループ内「やること」のアダプタを設定
         for( GroupTable group: mGroupList ){
-            List<TaskTable> taskInGroupList = group.getTaskInGroupList();
+            //アダプタ生成
+            TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
+            TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
 
-            mTaskInGroupAdapterList.add(
-                    new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
-            );
+            //設定
+            group.setTaskAdapter(adapter);
         }
 
         //現在登録されている「やること」「グループ」を表示
@@ -209,7 +209,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
-                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, mTaskInGroupAdapterList, dbListener, height, bnv);
+                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, dbListener, height, bnv);
 
                 //リスナー設定(グループ名編集)
                 mGroupAdapter.setOnGroupNameClickListener(new View.OnClickListener() {
@@ -401,7 +401,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
      * 「グループ」
      */
     @Override
-    public void onSuccessReadGroup(List<GroupTable> groupList) {
+    public void onSuccessReadGroup(GroupArrayList<GroupTable> groupList) {
     }
 
     @Override
@@ -432,11 +432,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //生成された「グループ」情報をリストに追加
         mGroupList.add( group );
 
-        //対応するアダプタを生成してリストに追加
-        List<TaskTable> taskInGroupList = group.getTaskInGroupList();
-        mTaskInGroupAdapterList.add(
-                new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0)
-        );
+        //対応するアダプタを生成して、設定
+        TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
+        group.setTaskAdapter(adapter);
 
         //アダプタに変更を通知
         mGroupAdapter.notifyDataSetChanged();

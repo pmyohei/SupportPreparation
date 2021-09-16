@@ -21,17 +21,17 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         REMOVE_TASK;    //やることを削除
     }
 
-    private final AppDatabase       mDB;
-    private final DB_OPERATION      mOperation;
-    private String                  mPreGroupName;
-    private int                     mGroupPid;
-    private String                  mGroupName;
-    private String                  mNewTaskPidsStr;
-    private GroupTable              mNewGroupTable;
-    private List<GroupTable>        mGroupList;
-    private int                     mAddTaskPid;
-    private int                     mDeleteTaskPos;
-    private GroupOperationListener  mListener;
+    private final AppDatabase           mDB;
+    private final DB_OPERATION          mOperation;
+    private String                      mPreGroupName;
+    private int                         mGroupPid;
+    private String                      mGroupName;
+    private String                      mNewTaskPidsStr;
+    private GroupTable                  mNewGroupTable;
+    private GroupArrayList<GroupTable>  mGroupList  = new GroupArrayList<>();
+    private int                         mAddTaskPid;
+    private int                         mDeleteTaskPos;
+    private GroupOperationListener      mListener;
 
     /*
      * コンストラクタ
@@ -158,18 +158,18 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         TaskTableDao taskTableDao = mDB.taskTableDao();
 
         //DBから、保存済みのグループリストを取得
-        mGroupList = dao.getAll();
+        List<GroupTable> groupList = dao.getAll();
 
         //-- 各グループの「選択済みやること」をリスト化する
         //グループ分ループ
-        for( GroupTable groupInfo: mGroupList){
+        for( GroupTable groupInfo: groupList){
 
             //グループに紐づいた「やること」pidを取得
             String tasksStr = groupInfo.getTaskPidsStr();
             List<Integer> pids = TaskTableManager.getPidsIntArray(tasksStr);
 
             //グループに紐づいた「やること」
-            List<TaskTable> tasks = new ArrayList<>();
+            TaskArrayList<TaskTable> tasks = new TaskArrayList<>();
 
             //やること未追加なら次へ
             if( pids == null ) {
@@ -190,8 +190,11 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
                 }
             }
 
-            //GroupTable内のリストに保持させる
+            //GroupTable内のリストに保持
             groupInfo.setTaskInGroupList(tasks);
+
+            //グループリスト用クラスのインスタンスに格納
+            mGroupList.add( groupInfo );
         }
     }
 
@@ -298,7 +301,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         /*
          * 取得完了時
          */
-        void onSuccessReadGroup(List<GroupTable> groupList);
+        void onSuccessReadGroup(GroupArrayList<GroupTable> groupList);
 
         /*
          * 新規生成完了時
