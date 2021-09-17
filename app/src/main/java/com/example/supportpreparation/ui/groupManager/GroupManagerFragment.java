@@ -38,9 +38,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GroupManagerFragment extends Fragment implements AsyncGroupTableOperaion.GroupOperationListener {
 
     private final int NO_SEARCH = -1;                   //未発見
@@ -92,7 +89,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         }
 
         //現在登録されている「やること」「グループ」を表示
-        setTaskSelectionArea();
+        setupTaskSelectionArea();
         displayGroup();
 
         // FloatingActionButton
@@ -117,7 +114,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     /*
      * 「やること」データを表示エリアにセット
      */
-    private void setTaskSelectionArea() {
+    private void setupTaskSelectionArea() {
 
         //登録がなければ終了
         if (mTaskList == null || mTaskList.size() == 0) {
@@ -367,36 +364,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         dialog.show(transaction, "EditGroup");
     }
 
-    /*
-     * 「グループ」リストIndex検索
-     */
-    private int searchIdxGroupList(String groupName){
-
-        int i = 0;
-        for( GroupTable group: mGroupList ){
-            if( group.getGroupName().equals( groupName ) ){
-                return i;
-            }
-            i++;
-        }
-        return NO_SEARCH;
-    }
-
-    /*
-     * 「グループ」リストIndex検索
-     */
-    private int searchIdxGroupList(int groupPid){
-
-        int i = 0;
-        for( GroupTable group: mGroupList ){
-            if( group.getId() == groupPid ){
-                return i;
-            }
-            i++;
-        }
-        return NO_SEARCH;
-    }
-
     /* --------------------------------------
      * 「グループ」
      */
@@ -452,10 +419,9 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     @Override
     public void onSuccessEditGroup(String preGroupName, String groupName) {
         //更新されたリストのIndexを取得
-        int i = searchIdxGroupList(preGroupName);
-
-        //--フェールセーフ
+        int i = mGroupList.searchIdxByGroupName(preGroupName);
         if( i == NO_SEARCH ){
+            //--フェールセーフ
             //見つからなければ、何もしない
             Log.i("failsafe", "onSuccessEditGroup couldn't found");
             return;
@@ -463,10 +429,13 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //リストの該当データを更新
         mGroupList.get(i).setGroupName(groupName);
-        //mGroupList.set(i, group);
 
         //アダプタに変更を通知
-        mGroupAdapter.notifyDataSetChanged();
+        mGroupAdapter.notifyItemChanged(i);
+
+        //追加された位置へスクロール
+        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+        rv_group.scrollToPosition(i);
 
         //トーストの生成
         Toast toast = new Toast(mContext);
@@ -477,8 +446,11 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     @Override
     public void onSuccessUpdateTask(int groupPid, String taskPidsStr){
         //更新されたグループを取得
-        int i = searchIdxGroupList(groupPid);
-        GroupTable group = mGroupList.get(i);
+        GroupTable group = mGroupList.getGroupByPid(groupPid);
+        if( group == null ){
+            //--フェールセーフ
+            return;
+        }
 
         //やること文字列を更新
         group.setTaskPidsStr(taskPidsStr);

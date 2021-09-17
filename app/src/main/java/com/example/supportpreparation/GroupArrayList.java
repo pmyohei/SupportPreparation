@@ -15,7 +15,7 @@ public class GroupArrayList<E> extends ArrayList<GroupTable> {
     /*
      * 「グループ」Index検索（グループ名指定）
      */
-    private int searchIdxByGroupName(String groupName){
+    public int searchIdxByGroupName(String groupName){
 
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -28,18 +28,19 @@ public class GroupArrayList<E> extends ArrayList<GroupTable> {
     }
 
     /*
-     * 「グループ」Index検索（グループ名指定）
+     * 「グループ」取得（pid指定）
      */
-    private int getIdxByPid(int groupPid){
+    public GroupTable getGroupByPid(int groupPid){
 
         int size = size();
         for (int i = 0; i < size; i++) {
+            GroupTable group = get(i);
             //グループPidが一致した場合
-            int pid = get(i).getId();
-            if ( pid == groupPid ) {
-                return i;
+            if ( groupPid == group.getId() ) {
+                return group;
             }
         }
-        return NO_DATA;
+        return null;
     }
+
 }

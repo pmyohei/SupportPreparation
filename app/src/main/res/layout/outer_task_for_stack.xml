@@ -90,8 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="now"
-                    android:textColor="@color/bg_task_long"
+                    android:textColor="@color/tx_stack_task_label"
                     android:textSize="12sp" />
 
             </LinearLayout>

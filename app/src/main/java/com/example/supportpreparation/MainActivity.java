@@ -1,6 +1,5 @@
 package com.example.supportpreparation;
 
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,7 +11,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AsyncGroupTableOperaion.GroupOperationListener,
                                                                 AsyncTaskTableOperaion.TaskOperationListener,
@@ -26,21 +24,18 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private TaskArrayList<TaskTable>    mStackTaskList = new TaskArrayList<>(); //「積み上げやること」リスト
     private String                      mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
     private String                      mLimitTime;                             //リミット-時（"hh:mm"）
-    private boolean                     mFlgSelectTask;                         //フラグ-「やること」選択エリア表示中
-    private boolean                     mFlgLimit;                              //フラグ-リミット選択中
+    private boolean                     mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
+    private boolean                     mIsLimit;                               //フラグ-リミット選択中
 
-
-    private TaskArrayList<TaskTable> mTaskTestList;                              //「やること」リスト
-    private ArrayList<TaskTable> testArray;                              //「やること」リスト
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //起動時の選択エリアは「やること」
-        mFlgSelectTask = true;
+        mIsSelectTask = true;
         //起動時の時間指定はリミット
-        mFlgLimit = true;
+        mIsLimit = true;
 
         //テスト
         Log.i("test", "main cast");
@@ -105,21 +100,21 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     /*
      * 「フラグ-「やること」選択エリア表示中」を取得・設定
      */
-    public boolean getFlgSelectTask() {
-        return mFlgSelectTask;
+    public boolean isSelectTask() {
+        return mIsSelectTask;
     }
     public void setFlgSelectTask(boolean flg) {
-        mFlgSelectTask = flg;
+        mIsSelectTask = flg;
     }
 
     /*
      * 「フラグ-リミット選択中」の取得・設定
      */
-    public boolean getFlgLimit() {
-        return mFlgLimit;
+    public boolean isLimit() {
+        return mIsLimit;
     }
     public void setFlgLimit(boolean flg) {
-        mFlgLimit = flg;
+        mIsLimit = flg;
     }
 
 

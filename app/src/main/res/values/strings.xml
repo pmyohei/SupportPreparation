@@ -6,8 +6,8 @@
     <string name="title_time">Time</string>
 
     <!-- スタック画面 -->
-    <string name="label_now">now</string>
-    <string name="label_finish">finish</string>
+    <string name="label_now"> Now </string>
+    <string name="label_finish"> Fin </string>
 
     <!-- タスク画面 -->
     <string name="task_name_hint">やることを入力してください</string>

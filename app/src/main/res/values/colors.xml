@@ -42,7 +42,6 @@
     <color name="bg_common">#FFF7EB</color>
     <color name="_before_change">#c4c1be</color>    <!-- 動的に変更される前に設定する色 -->
 
-
     <color name="bg_task">#ffb6b9</color>
     <color name="tx_task">#f5f5f5</color>
     <color name="tx_select_task">#716e77</color>
@@ -72,6 +71,7 @@
     <color name="tx_limit_line">#716e77</color>
 
     <color name="bg_stack_task_time_line">#c4c1be</color>
+    <color name="tx_stack_task_label">#716e77</color>
 
     <color name="bg_limit_date">#B4DEE6</color>
 

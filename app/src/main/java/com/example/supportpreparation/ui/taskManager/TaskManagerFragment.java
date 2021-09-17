@@ -31,8 +31,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.List;
-
 public class TaskManagerFragment extends Fragment implements AsyncTaskTableOperaion.TaskOperationListener {
 
     private MainActivity                mParentActivity;            //親アクティビティ
@@ -43,7 +41,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     private TaskArrayList<TaskTable>    mTaskList;                  //「やること」リスト
     private TaskRecyclerAdapter         mTaskAdapter;               //「やること」表示アダプタ
     private AsyncTaskTableOperaion.TaskOperationListener
-            mTaskListener;              //「やること」操作リスナー
+                                        mTaskListener;              //「やること」操作リスナー
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -128,25 +126,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         DialogFragment dialog = new CreateTaskDialog(mTaskListener);
         dialog.setArguments(bundle);
         dialog.show(transaction, "UpdateTask");
-    }
-
-    /*
-     * 「やること」リスト検索
-     */
-    private int getIdTaskList(String taskName, int taskTime) {
-
-        int i = 0;
-        for (TaskTable taskInfo : mTaskList) {
-
-            //「やること」「やること時間」が一致するデータを発見した場合
-            if ((taskName.equals(taskInfo.getTaskName()) ) && (taskTime == taskInfo.getTaskTime())) {
-                return i;
-            }
-            i++;
-        }
-
-        //データなし
-        return -1;
     }
 
     /*
@@ -251,12 +230,9 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
     }
 
-
-
     /* -------------------
      * リスナークラス
      */
-
 
     /* -------------------
      * インターフェース：「やること」
@@ -316,10 +292,9 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     @Override
     public void onSuccessEditTask(String preTaskName, int preTaskTime, TaskTable updatedTask) {
         //更新されたリストのIndexを取得
-        int i = getIdTaskList(preTaskName, preTaskTime);
-
-        //フェールセーフ
+        int i = mTaskList.getIdxByTaskInfo(preTaskName, preTaskTime);
         if( i == -1 ){
+            //--フェールセーフ
             //見つからなければ、何もしない
             Log.i("failsafe", "onSuccessTaskUpdate couldn't found");
             return;
@@ -328,7 +303,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //リストを更新
         mTaskList.set(i, updatedTask);
         //アダプタに変更を通知
-        mTaskAdapter.notifyDataSetChanged();
+        mTaskAdapter.notifyItemChanged(i);
 
         //トーストの生成
         Toast toast = new Toast(mContext);

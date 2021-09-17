@@ -30,17 +30,13 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
     private final int NO_ANIMATION = -1;              //アニメーション適用なし
 
-    private TaskArrayList<TaskTable> mData;
-    private Context mContext;
-
-    private TextView mtv_limitDate;                  //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
-    private TextView mtv_limitTime;                  //リミット時間のTextView：ユーザー設定変更の内容反映のために保持する
-
-    private List<Calendar> mAlarmList;                     //アラーム時間リスト
-    private int mAnimIdx;                           //アニメーション有効Idx
-
-    private boolean mIsLimit;                       //リミット時間かどうか
-    private int mAddAnimationID;                //やること追加時のアニメーションリソースID
+    private TaskArrayList<TaskTable>    mData;              //表示データ
+    private Context                     mContext;           //コンテキスト
+    private TextView                    mtv_limitDate;      //リミット日のTextView：ユーザー設定変更の内容反映のために保持する
+    private TextView                    mtv_limitTime;      //リミット時間のTextView：ユーザー設定変更の内容反映のために保持する
+    private int                         mAnimIdx;           //アニメーション有効Idx
+    private boolean                     mIsLimit;           //リミット時間かどうか
+    private int                         mAddAnimationID;    //やること追加時のアニメーションリソースID
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -48,8 +44,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     class StackTaskViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView        tv_pid;            //Pid
-        private TextView        tv_taskName;       //表示内容
+        private TextView        tv_pid;
+        private TextView        tv_taskName;
         private TextView        tv_taskTime;
         private LinearLayout    ll_startTime;
         private LinearLayout    ll_endTime;
@@ -87,8 +83,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         mtv_limitDate = limitDate;
         mtv_limitTime = limitTime;
 
-        //アラーム時間リスト
-        mAlarmList = new ArrayList<>();
         //セットメソッドがコールされたとき、設定する
         mAnimIdx = NO_ANIMATION;
         //リミット（起動時は、リミットモード）
@@ -259,6 +253,9 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
         String endTimeStr    = sdf.format(endDate);
 
+        //ラベルの設定（スタートベースの場合、ラベル設置なし）
+        viewHolder.ll_label.setVisibility(View.INVISIBLE);
+
         //「終了時間」として設定
         viewHolder.tv_taskEndTime.setText(endTimeStr);
     }
@@ -312,8 +309,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         calendar.setTime(finalLimit);
         calendar.add(Calendar.MINUTE, -totalTaskMin);
 
-        //アラーム時間として追加
-        mAlarmList.add(calendar);
         //アラーム時間を設定
         mData.get(i).setAlarmCalendar(calendar);
 
@@ -334,8 +329,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         calendar.setTime(startTime);
         calendar.add(Calendar.MINUTE, totalTaskMin);
 
-        //アラーム時間として追加
-        mAlarmList.add(calendar);
         //アラーム時間を設定
         mData.get(i).setAlarmCalendar(calendar);
 
@@ -385,22 +378,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     }
 
     /*
-     * アラーム時間リストクリア
-     */
-    public void clearAlarmList() {
-        //アラームリストをクリア
-        mAlarmList.clear();
-    }
-
-    /*
-     * アラーム時間リスト取得
-     */
-    public List<Calendar> getAlarmList() {
-        //アラームリストを取得
-        return mAlarmList;
-    }
-
-    /*
      * 追加時のアニメーション設定
      */
     public void setInsertAnimation(int idx) {
@@ -440,7 +417,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         return minute;
     }
 
-
     /*
      * リミットか否かを反転
      */
@@ -470,17 +446,8 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task);;
 
         //時間に応じて、色を設定
-        if (time <= 5) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_very_short));
-        } else if (time <= 10) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_short));
-        } else if (time <= 30) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_normal));
-        } else if (time <= 60) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_long));
-        } else {
-            drawable.setTint(mContext.getColor(R.color.bg_task_very_long));
-        }
+        int colorId = ResourceManager.getTaskTimeColorId(time);;
+        drawable.setTint(mContext.getColor( colorId ));
 
         ll.setBackground(drawable);
     }

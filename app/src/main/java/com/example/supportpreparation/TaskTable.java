@@ -26,7 +26,6 @@ public class TaskTable {
     private int taskTime;
 
 
-
     /*
      * 非レコードフィールド
      */

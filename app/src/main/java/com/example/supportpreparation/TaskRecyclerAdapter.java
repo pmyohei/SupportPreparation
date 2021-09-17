@@ -266,17 +266,8 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         Drawable drawable = mContext.getDrawable( id_drawable );
 
         //時間に応じて、色を設定
-        if (time <= 5) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_very_short));
-        } else if (time <= 10) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_short));
-        } else if (time <= 30) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_normal));
-        } else if (time <= 60) {
-            drawable.setTint(mContext.getColor(R.color.bg_task_long));
-        } else {
-            drawable.setTint(mContext.getColor(R.color.bg_task_very_long));
-        }
+        int colorId = ResourceManager.getTaskTimeColorId(time);;
+        drawable.setTint(mContext.getColor( colorId ));
 
         ll.setBackground(drawable);
     }
