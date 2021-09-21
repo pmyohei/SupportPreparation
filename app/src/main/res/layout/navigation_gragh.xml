@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="40dp"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp">
+
+    <!-- 開始時刻 -->
+    <LinearLayout
+        android:id="@+id/ll_startTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_startTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12:00" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/bg_stack_task_time_line" />
+
+    </LinearLayout>
+
+    <!-- グラフ -->
+    <ScrollView
+        android:id="@+id/sv_gragh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:overScrollMode="never"
+        tools:ignore="UselessParent">
+
+        <LinearLayout
+            android:id="@+id/ll_gragh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- 終了時刻 -->
+    <LinearLayout
+        android:id="@+id/ll_limitTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="20dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/bg_stack_task_time_line" />
+
+        <TextView
+            android:id="@+id/tv_limitTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="12:00" />
+
+    </LinearLayout>
+
+    <!-- 下部ナビゲーション分 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_navi_height" />
+
+</LinearLayout>

@@ -380,7 +380,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     /*
      * 追加時のアニメーション設定
      */
-    public void setInsertAnimation(int idx) {
+    public void setInsertAnimationIdx(int idx) {
         //リミット指定：0からこのIndexまで、アイテム追加アニメーションを適用
         //スタート指定：このIndexから最後のIndexまで、アイテム追加アニメーションを適用
         mAnimIdx = idx;

@@ -13,6 +13,13 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
     }
 
     /*
+     *　最後尾のIndexの取得
+     */
+    public int getLastIdx() {
+        return size() - 1;
+    }
+
+    /*
      * 「やること」取得（Pid指定）
      */
     public TaskTable getTaskByPid(int pid) {

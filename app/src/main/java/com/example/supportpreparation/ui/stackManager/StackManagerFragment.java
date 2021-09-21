@@ -939,7 +939,7 @@ public class StackManagerFragment extends Fragment {
                     }
 
                     //アダプタへ通知
-                    mStackAreaAdapter.setInsertAnimation(animIdx);
+                    mStackAreaAdapter.setInsertAnimationIdx(animIdx);
                     mStackAreaAdapter.notifyDataSetChanged();
                     //mStackAreaAdapter.notifyItemInserted(0);
 

@@ -8,6 +8,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- 下部ナビゲーション高さ-->
+    <dimen name="bottom_navi_height">60dp</dimen>
+
     <!-- スタック画面-ベース時間反転ボタン -->
     <dimen name="iv_reverse_margin_top">240dp</dimen>
     <dimen name="iv_reverse_margin_end">24dp</dimen>
@@ -25,6 +28,10 @@
     <!-- 選択エリア内のグループサイズ-->
     <dimen name="select_group_width">72dp</dimen>
     <dimen name="select_group_height">64dp</dimen>
+
+    <!-- リスト内のやることサイズ-->
+    <dimen name="list_task_width">160dp</dimen>
+    <dimen name="list_task_height">160dp</dimen>
 
     <!-- 積まれたやることサイズ-->
     <dimen name="stack_task_width">180dp</dimen>
