@@ -2,6 +2,8 @@ package com.example.supportpreparation.ui.stackManager;
 
 import static android.content.Context.ALARM_SERVICE;
 
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
+
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
@@ -63,10 +65,11 @@ import java.util.Locale;
 
 public class StackManagerFragment extends Fragment {
 
-    public final static int SELECT_TASK_AREA_DIV = 4;         //やること選択エリア-横幅分割数
-    public final static int SELECT_GROUP_AREA_DIV = 3;         //やること選択エリア-横幅分割数
+    public final static int SELECT_TASK_AREA_DIV = 4;           //やること選択エリア-横幅分割数
+    public final static int SELECT_GROUP_AREA_DIV = 3;          //やること選択エリア-横幅分割数
 
-    private final int MAX_ALARM_CANCEL_NUM = 256;              //アラームキャンセル最大数
+    private final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
+    private final int FAB_HIDE_SCROLL_DX   = 12;                //fab非表示スクロール量
 
     private MainActivity mParentActivity;        //親アクティビティ
     private Fragment mFragment;              //本フラグメント
@@ -560,6 +563,8 @@ public class StackManagerFragment extends Fragment {
             }
         });
 
+        //スクロールリスナーの設定
+        rv_task.addOnScrollListener(new SelectAreaScrollListener());
     }
 
     /*
@@ -622,6 +627,9 @@ public class StackManagerFragment extends Fragment {
                 return false;
             }
         });
+
+        //スクロールリスナーの設定
+        rv_group.addOnScrollListener(new SelectAreaScrollListener());
     }
 
     /*
@@ -1083,6 +1091,30 @@ public class StackManagerFragment extends Fragment {
         public void onClick(View view) {
             //-- 時刻設定ダイアログの生成
             createCalendarDialog((TextView) view);
+        }
+    }
+
+    /*
+     * ベース日クリックリスナー
+     */
+    private class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy){
+            Log.i("test", "dx=" + dx);
+            //スクロール量が一定量を超えたとき、fabを非表示にする
+            int absDx = Math.abs(dx);
+            if (absDx >= FAB_HIDE_SCROLL_DX) {
+                mfab_setAlarm.hide();
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState){
+            Log.i("test", "newState=" + newState);
+            //スクロールが完全に停止したとき、fabを表示
+            if( newState == SCROLL_STATE_IDLE ){
+                mfab_setAlarm.show();
+            }
         }
     }
 

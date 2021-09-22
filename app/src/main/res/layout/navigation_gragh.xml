@@ -40,13 +40,10 @@
         android:overScrollMode="never"
         tools:ignore="UselessParent">
 
-        <LinearLayout
-            android:id="@+id/ll_gragh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-        </LinearLayout>
+        <!-- グラフ追加先は動的に生成する
+        <include layout="@layout/gragh_body_top" />
+        <include layout="@layout/gragh_body_bottom" />
+        -->
 
     </ScrollView>
 

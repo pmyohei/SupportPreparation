@@ -7,17 +7,18 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
@@ -213,6 +214,17 @@ public class TimeFragment extends Fragment {
         DrawerLayout dl = (DrawerLayout)mRootLayout.findViewById(R.id.dl_time);
         DrawerLayout.DrawerListener listener = new TimeDrawerListener();
         dl.addDrawerListener(listener);
+
+        //グラフ表示ボタンリスナー
+        ImageView iv_openGragh = (ImageView) mRootLayout.findViewById(R.id.iv_openGragh);
+        iv_openGragh.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                //グラフを表示
+                DrawerLayout drawer = (DrawerLayout) mRootLayout.findViewById(R.id.dl_time);
+                drawer.openDrawer(GravityCompat.END);
+            }
+        });
     }
 
     /*
@@ -484,68 +496,30 @@ public class TimeFragment extends Fragment {
      */
     private class TimeDrawerListener implements DrawerLayout.DrawerListener {
 
+        private boolean isCreate = false;
+
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerOpened(@NonNull View drawerView) {
-
-            ScrollView sv_gragh = (ScrollView) mRootLayout.findViewById(R.id.sv_gragh);
-
-            //グラフ表示先ビュー
-            LinearLayout ll_gragh = (LinearLayout) mRootLayout.findViewById(R.id.ll_gragh);
-
-            String limitDate = mParentActivity.getLimitDate();
-            String limitTime = mParentActivity.getLimitTime();
-
-            //指定時刻をDate型として取得
-            Date dateBaseTime = getBaseTimeDate(limitDate, limitTime);
-
-            //ベース時間の設定
-            setupBaseTime(dateBaseTime);
-
-            View v_preAdd = null;
-
-            //グラフ表示
-            int size = mStackTask.size();
-            for (int i = 0; i < size; i++) {
-
-                //追加するレイアウト
-                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View graghUnit = inflater.inflate(R.layout.outer_task_for_gragh, null);
-
-                //やること情報の設定
-                setupTaskInfo(graghUnit, i, dateBaseTime);
-
-                //やること時間
-                int taskTime = mStackTask.get(i).getTaskTime();
-
-                //グラフにdrawableリソースを設定
-                setupGraghInfo(graghUnit, taskTime);
-
-                //グラフに追加
-                ll_gragh.addView(graghUnit);
-
-                //sv_gragh.scrollTo(0, 0);
-
-                //test
-                //sv_gragh.fullScroll(View.FOCUS_DOWN);
-            }
-
-/*            sv_gragh.post(new Runnable() {
-                public void run() {
-                    sv_gragh.scrollTo(0, sv_gragh.getBottom());
-                }
-            });*/
-
-            ViewGroup.LayoutParams params = ll_gragh.getLayoutParams();
-            //params.gravity = Gravity.BOTTOM;
-            //ll_gragh.setLayoutParams(params);
-            //ll_gragh.setGravity(Gravity.BOTTOM);
-
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
             Log.i("test", "onDrawerSlide");
+
+            //未生成なら、描画
+            if (!isCreate) {
+
+                //グラフを上詰めにするか
+                boolean isTopped = isToppedLayout();
+                //グラフ追加先のレイアウトファイルを取得
+                int graghRootLayout = (isTopped ? R.layout.gragh_body_top : R.layout.gragh_body_bottom);
+
+                setupGragh(graghRootLayout);
+
+                isCreate = true;
+            }
         }
 
         @Override
@@ -554,10 +528,107 @@ public class TimeFragment extends Fragment {
 
         @Override
         public void onDrawerStateChanged(int newState) {
+            Log.i("test", "onDrawerStateChanged newState=" + newState);
+
+            //LinearLayout ll_gragh = (LinearLayout) mRootLayout.findViewById(R.id.ll_gragh);
+            //Log.i("test", "ll_gragh getMeasuredHeight=" + ll_gragh.getMeasuredHeight());
         }
 
         /*
-         * グラフの高さ取得（１やること辺り）
+         * グラフを上詰めするか否か
+         */
+        private boolean isToppedLayout() {
+
+            //リミット指定かどうか
+            boolean isLimit = mParentActivity.isLimit();
+            if (!isLimit) {
+                //スタート指定なら、上詰め
+                return true;
+            }
+
+            //リミット指定なら、グラフがスクロールするか否かで決定（スクロールするなら上詰め）
+            //※スクロールありで上詰めするのは、layout_gravityに対してbottom指定すると、適切に表示されないため
+            return whetherGraghScroll();
+        }
+
+        /*
+         * グラフがスクロールするか否か
+         */
+        private boolean whetherGraghScroll() {
+
+            //グラフ全体の高さを取得
+            int graghHeight = calcGraghHeight();
+
+            ScrollView sv_gragh = (ScrollView) mRootLayout.findViewById(R.id.sv_gragh);
+            int scrollViewHeight = sv_gragh.getMeasuredHeight();
+
+            Log.i("test", "scrollViewHeight=" + scrollViewHeight);
+            Log.i("test", "graghHeight=" + graghHeight);
+
+            //グラフの方が高いなら、trueを返す（スクロールする状態）
+            return (graghHeight > scrollViewHeight);
+        }
+
+        /*
+         * グラフ全体の高さを計算
+         */
+        private int calcGraghHeight() {
+
+            //高さを集計
+            int height = 0;
+            for (TaskTable task : mStackTask) {
+                int time = task.getTaskTime();
+                height += getGraghUnitHeight(time);
+            }
+
+            return height;
+        }
+
+        /*
+         * グラフ生成
+         */
+        @RequiresApi(api = Build.VERSION_CODES.M)
+        private void setupGragh(int graghRootLayout) {
+
+            //ScrollView
+            ScrollView sv_gragh = (ScrollView) mRootLayout.findViewById(R.id.sv_gragh);
+
+            //グラフレイアウトを取得(ScrollViewの子)
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v_rootGragh        = inflater.inflate(graghRootLayout, sv_gragh, true);
+            LinearLayout ll_gragh   = (LinearLayout) v_rootGragh.findViewById(R.id.ll_gragh);
+
+            //指定されたベース時間をDate型に変換
+            String limitDate  = mParentActivity.getLimitDate();
+            String limitTime  = mParentActivity.getLimitTime();
+            Date dateBaseTime = getBaseTimeDate(limitDate, limitTime);
+
+            //ベース時間の設定
+            setupBaseTime(dateBaseTime);
+
+            //グラフ表示
+            int size = mStackTask.size();
+            for (int i = 0; i < size; i++) {
+
+                //追加するレイアウト(グラフ)
+                View v_graghUnit = inflater.inflate(R.layout.outer_task_for_gragh, null);
+
+                //やること情報の設定
+                setupTaskInfo(v_graghUnit, i, dateBaseTime);
+
+                //やること時間
+                int taskTime = mStackTask.get(i).getTaskTime();
+
+                //グラフにdrawableリソースを設定
+                setupGraghInfo(v_graghUnit, taskTime);
+
+                //グラフに追加
+                ll_gragh.addView(v_graghUnit);
+            }
+        }
+
+        /*
+         * グラフ（１やること辺り）の高さ取得
          */
         private int getGraghUnitHeight(int taskTime) {
 
@@ -586,6 +657,8 @@ public class TimeFragment extends Fragment {
 
                 height = GRAGH_HEIGHT_120_MORE_MIN;
             }
+
+            Log.i("test", "TypedValue=" + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics()));
 
             //高さをdp単位で返す
             return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
@@ -624,7 +697,7 @@ public class TimeFragment extends Fragment {
                 ll_limitTime.setVisibility(View.GONE);
                 ll_startTime.setVisibility(View.VISIBLE);
 
-                ((TextView) ll_limitTime.findViewById(R.id.tv_startTime)).setText(baseTimeStr);
+                ((TextView) ll_startTime.findViewById(R.id.tv_startTime)).setText(baseTimeStr);
             }
         }
 
@@ -642,29 +715,52 @@ public class TimeFragment extends Fragment {
             tv_taskName.setText(task.getTaskName());
             tv_taskTime.setText(timeStr);
 
+            //ベース時間入力なし
+            String setTimeStr = null;
+            if (dateBaseTime == null) {
+                //時間未指定文字列を設定
+                setTimeStr = mContext.getString(R.string.limittime_no_input);
+            }
+
+            TextView tv_target;
+            Date convertedDate = null;
+
             boolean isLimit = mParentActivity.isLimit();
             if (isLimit) {
-                TextView tv_taskStartTime = view.findViewById(R.id.tv_taskStartTime);
+                //表示切り替え
+                view.findViewById(R.id.ll_startTime).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.ll_endTime).setVisibility(View.GONE);
 
-                //ベース時間入力なし
-                if (dateBaseTime == null) {
-                    String noInputStr = mContext.getString(R.string.limittime_no_input);
-                    tv_taskStartTime.setText(noInputStr);
-                    return;
+                tv_target = view.findViewById(R.id.tv_taskStartTime);
+
+                //ベース時間入力あり
+                if (setTimeStr == null) {
+                    //ベース時間取得
+                    convertedDate = mStackTask.getStartDateBaseLimit(idx, dateBaseTime);
                 }
 
-                //ベース時間取得
-                Date startDate = mStackTask.getStartDateBaseLimit(idx, dateBaseTime);
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-                String startTimeStr = sdf.format(startDate);
-
-                //「開始時間」として設定
-                tv_taskStartTime.setText(startTimeStr);
-
             } else {
-                TextView tv_taskEndTime = view.findViewById(R.id.tv_taskEndTime);
+                //表示切り替え
+                view.findViewById(R.id.ll_startTime).setVisibility(View.GONE);
+                view.findViewById(R.id.ll_endTime).setVisibility(View.VISIBLE);
 
+                tv_target = view.findViewById(R.id.tv_taskEndTime);
+
+                //ベース時間入力あり
+                if (setTimeStr == null) {
+                    //ベース時間取得
+                    convertedDate = mStackTask.getEndDateBaseStart(idx, dateBaseTime);
+                }
             }
+
+            //ベース時間入力あり
+            if( convertedDate != null ){
+                //文字列変換
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
+                setTimeStr = sdf.format(convertedDate);
+            }
+
+            tv_target.setText(setTimeStr);
         }
 
 

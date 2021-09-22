@@ -41,7 +41,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="bottom"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/tv_taskEndTime"
@@ -50,7 +50,7 @@
                 android:text="12:00" />
 
             <View
-                android:layout_width="80dp"
+                android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/bg_stack_task_time_line" />
 
