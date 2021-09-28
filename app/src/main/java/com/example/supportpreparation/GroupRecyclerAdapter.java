@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +31,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     private Context                                         mContext;
     private int                                             mItemHeight;
     private BottomNavigationView                            mBNV;
+    private ConstraintLayout                                mcl_mainContainer;
     private View.OnClickListener                            mGroupNameClickListener;
     private View.OnTouchListener                            mTaskTouchListener;
     private View.OnDragListener                             mDragListener;
@@ -65,14 +67,14 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      * コンストラクタ
      */
     public GroupRecyclerAdapter(Context context, GroupArrayList<GroupTable> groupList,
-                                AsyncGroupTableOperaion.GroupOperationListener dbListener, int height, BottomNavigationView bnv) {
+                                AsyncGroupTableOperaion.GroupOperationListener dbListener, int height,
+                                BottomNavigationView bnv, ConstraintLayout cl_mainContainer) {
         mContext                = context;
         mGroupList              = groupList;
         mItemHeight             = height;
         mDBListener             = dbListener;
         mBNV                    = bnv;
-        Log.i("test", "set mData=" + mGroupList);
-
+        mcl_mainContainer       = cl_mainContainer;
     }
 
     /*
@@ -298,7 +300,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
             //UNDOメッセージの表示
             Snackbar snackbar = Snackbar
-                    .make(mRecyclerView, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                    .make(mcl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
                     //アクションボタン押下時の動作
                     .setAction(R.string.snackbar_undo, new View.OnClickListener() {
                         @Override

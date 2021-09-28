@@ -19,6 +19,12 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
         return size() - 1;
     }
 
+    @Override
+    public TaskTable remove(int index) {
+        super.remove(index);
+        return null;
+    }
+
     /*
      * 「やること」取得（Pid指定）
      */
@@ -56,8 +62,7 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
     }
 
     /*
-     *　【積まれたやることリスト用】
-     *
+     *　一番先に来るアラームのIndexを取得
      */
     public int getAlarmFirstArriveIdx() {
         //現在時刻
@@ -75,7 +80,7 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
         int size = size();
         for (int i = 0; i < size; i++) {
             //アラーム時間取得
-            Calendar alarmCalendar = get(i).getAlarmCalendar();
+            Calendar alarmCalendar = get(i).getStartCalendar();
             if (alarmCalendar == null) {
                 return NO_DATA;
             }
@@ -115,8 +120,10 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
     public Date getStartDate(int idx, Date baseDate, boolean isLimit) {
 
         if (isLimit) {
+            //リミットなら、開始時間
             return getStartDateBaseLimit(idx, baseDate);
         } else {
+            //スタートなら、終了時間
             return getStartDateBaseStart(idx, baseDate);
         }
     }

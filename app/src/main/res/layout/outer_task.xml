@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ll_taskInfo"
+    android:id="@+id/v_gragh"
     android:layout_width="@dimen/list_task_width"
     android:layout_height="@dimen/list_task_height"
     android:layout_margin="10dp"
     android:padding="10dp"
+    android:layout_gravity="center"
     android:elevation="@dimen/task_evelation"
     android:background="@drawable/frame_item_task"
     android:clickable="true"

@@ -5,7 +5,6 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.Calendar;
-import java.util.List;
 
 /*
  * エンティティ
@@ -30,7 +29,9 @@ public class TaskTable {
      * 非レコードフィールド
      */
     @Ignore
-    private Calendar mAlarmCalendar;       //アラーム時刻のカレンダー
+    private Calendar mStartCalendar;        //開始時間のカレンダー
+    @Ignore
+    private Calendar mEndCalendar;          //終了時間のカレンダー
 
     /*
      * コンストラクタ
@@ -70,11 +71,18 @@ public class TaskTable {
         this.taskTime = taskTime;
     }
 
-    public Calendar getAlarmCalendar() {
-        return mAlarmCalendar;
+    public Calendar getStartCalendar() {
+        return mStartCalendar;
     }
-    public void setAlarmCalendar(Calendar mAlarmCalendar) {
-        this.mAlarmCalendar = mAlarmCalendar;
+    public void setStartCalendar(Calendar calender) {
+        this.mStartCalendar = calender;
+    }
+
+    public Calendar getEndCalendar() {
+        return this.mEndCalendar;
+    }
+    public void setEndCalendar(Calendar calender) {
+        this.mEndCalendar = calender;
     }
 
 }

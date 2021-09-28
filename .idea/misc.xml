@@ -12,6 +12,7 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_edittext.xml" value="0.23697916666666666" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_frame.xml" value="0.17239583333333333" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_timepicker.xml" value="0.3255208333333333" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_gragh_test.xml" value="0.17604166666666668" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_group.xml" value="0.2921875" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_group_for_select.xml" value="0.3260416666666667" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_set.xml" value="0.203125" />
@@ -54,6 +55,9 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_stack_manager.xml" value="0.19479166666666667" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_task_manager.xml" value="0.146875" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_time.xml" value="0.26902173913043476" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_body_bottom.xml" value="0.21927083333333333" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_current_line.xml" value="0.21927083333333333" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_current_line_not_arrive.xml" value="0.2427536231884058" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_group.xml" value="0.29528985507246375" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_set.xml" value="0.1578125" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task.xml" value="0.20364583333333333" />
@@ -77,11 +81,14 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_list_task.xml" value="0.15625" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack.xml" value="0.2760416666666667" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/navigation_gragh.xml" value="0.264" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_empty_gragh.xml" value="0.20606884057971014" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_empty_gragh_less_60.xml" value="0.29322916666666665" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_empty_gragh_over_60.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group_for_select_long.xml" value="0.29030797101449274" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_stack_label.xml" value="0.21354166666666666" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task.xml" value="0.1431159420289855" />
-        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_gragh.xml" value="0.4" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_gragh.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_select_short.xml" value="0.29030797101449274" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_stack_long.xml" value="0.4" />
@@ -124,8 +131,6 @@
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_notifications.xml" value="0.264" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_stack_manager.xml" value="0.2598958333333333" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_time.xml" value="0.2598958333333333" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_body.xml" value="0.17753623188405798" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_body_bottom.xml" value="0.17753623188405798" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_set.xml" value="0.20425724637681159" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task.xml" value="0.20425724637681159" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/item_task_contents.xml" value="0.27291666666666664" />
@@ -137,10 +142,8 @@
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_list_task.xml" value="0.28229166666666666" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack.xml" value="0.2598958333333333" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack_task.xml" value="0.2" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/navigation_gragh.xml" value="0.16875" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group.xml" value="0.21240942028985507" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group_for_select.xml" value="0.12395833333333334" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_for_gragh.xml" value="0.264" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_long.xml" value="0.21240942028985507" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/stack_task.xml" value="0.264" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/bottom_nav_menu.xml" value="0.278125" />

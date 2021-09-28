@@ -21,6 +21,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        // releaseの設定を使用
+        // ！2回目以降の実機インストールを可能にするために設定追加
+        releaseDebugKey {
+            initWith release
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -44,6 +50,13 @@ android {
         }
     }
 
+    // ！2回目以降の実機インストールを可能にするために設定追加
+    signingConfigs {
+        releaseDebugKey {
+            // debugの署名を使用
+            initWith debug
+        }
+    }
 }
 
 dependencies {

@@ -1,7 +1,6 @@
 package com.example.supportpreparation;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.util.List;
 
@@ -90,7 +89,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
         } else if(mOperation == DB_OPERATION.READ ){
             //表示
-            displayTaskData(taskTableDao);
+            readTaskData(taskTableDao);
 
         } else if(mOperation == DB_OPERATION.UPDATE ){
             //編集
@@ -135,7 +134,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     /*
      * 「やること」の表示処理
      */
-    private void displayTaskData( TaskTableDao dao ){
+    private void readTaskData(TaskTableDao dao ){
 
         //DBから、保存済みのタスクリストを取得
         List<TaskTable> taskList = dao.getAll();

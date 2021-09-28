@@ -2,73 +2,41 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="200dp"
+    android:layout_width="@dimen/gragh_width"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center">
 
-    <!-- 開始・終了時刻 -->
+    <!-- 開始時刻 -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/ll_startTime"
+        android:layout_width="@dimen/gragh_timeline_width"
         android:layout_height="match_parent"
-        android:layout_weight="0.3"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="top">
 
-        <LinearLayout
-            android:id="@+id/ll_startTime"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="top"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="1dp"
+            android:background="@color/bg_stack_task_time_line" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/bg_stack_task_time_line" />
-
-            <TextView
-                android:id="@+id/tv_taskStartTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="12:00" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_endTime"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="bottom"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tv_taskEndTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="12:00" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/bg_stack_task_time_line" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_taskStartTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12:00" />
 
     </LinearLayout>
 
     <!-- グラフ -->
-    <LinearLayout
-        android:id="@+id/ll_taskInfo"
+    <View
+        android:id="@+id/v_gragh"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.1"
         android:layout_gravity="center_horizontal"
-        android:orientation="vertical"
         android:background="@drawable/frame_item_task_for_gragh">
-
-    </LinearLayout>
+    </View>
 
     <!-- やること情報 -->
     <LinearLayout

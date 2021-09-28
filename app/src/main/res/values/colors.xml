@@ -75,6 +75,9 @@
 
     <color name="bg_limit_date">#B4DEE6</color>
 
-    <color name="tx_time_not_reached">#c4c1be</color>
+    <color name="tx_time_not_reached">#716e77</color>
+
+    <color name="bg_current_time_line">#C1FF0202</color>
+    <color name="tx_current_time">#C1FF0202</color>
 
 </resources>

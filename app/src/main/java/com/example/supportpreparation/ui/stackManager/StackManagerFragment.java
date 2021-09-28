@@ -35,6 +35,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,6 +51,7 @@ import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.StackTaskRecyclerAdapter;
+import com.example.supportpreparation.StackTaskTable;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
@@ -77,7 +80,8 @@ public class StackManagerFragment extends Fragment {
     private View mRootLayout;            //本フラグメントに設定しているレイアウト
     private AppDatabase mDB;                    //DB
     private LinearLayout mll_stackArea;          //「やること」積み上げ領域
-    private TaskArrayList<TaskTable> mStackTask;             //積み上げ「やること」
+    private StackTaskTable           mStackTable;                            //スタックテーブル
+    private TaskArrayList<TaskTable> mStackTaskList;             //積み上げ「やること」
     private TaskArrayList<TaskTable> mTaskList;              //「やること」
     private StackTaskRecyclerAdapter mStackAreaAdapter;      //積み上げ「やること」アダプタ
     private FloatingActionButton mfab_setAlarm;                   //フローティングボタン
@@ -102,12 +106,13 @@ public class StackManagerFragment extends Fragment {
         mDB = AppDatabaseSingleton.getInstance(mRootLayout.getContext());
         //親アクティビティ
         mParentActivity = (MainActivity) getActivity();
-
+        //スタック情報取得
+        mStackTable = mParentActivity.getStackTable();
         //やることリストを取得
         mTaskList = mParentActivity.getTaskData();
         //フラグ取得
         mIsSelectTask = mParentActivity.isSelectTask();
-        mIsLimit = mParentActivity.isLimit();
+        mIsLimit      = mStackTable.isLimit();
 
         //ビューを保持
         mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
@@ -194,7 +199,8 @@ public class StackManagerFragment extends Fragment {
                             }
 
                             //共通データとして保持
-                            mParentActivity.setLimitTime(limit);
+                            mStackTable.setTime(limit);
+                            mParentActivity.setStackTable(mStackTable);
 
                             //やること開始時間を変更
                             mStackAreaAdapter.notifyDataSetChanged();
@@ -235,13 +241,14 @@ public class StackManagerFragment extends Fragment {
                             String date = String.format(Locale.JAPANESE, "%04d/%02d/%02d", year, month + 1, dayOfMonth);
                             touchView.setText(date);
 
-                            if( !mIsLimit){
+                            if( !mIsLimit ){
                                 //リミット指定でないなら、リミット側にも設定(スタックアダプタ参照用)
                                 mtv_limitDate.setText(date);
                             }
 
                             //共通データとして保持
-                            mParentActivity.setLimitDate(date);
+                            mStackTable.setDate(date);
+                            mParentActivity.setStackTable(mStackTable);
 
                             //やること開始時間を変更
                             mStackAreaAdapter.notifyDataSetChanged();
@@ -295,13 +302,13 @@ public class StackManagerFragment extends Fragment {
         String nowDateStr = sdf.format(nowDate);
 
         //設定中の日付
-        String setLimitDate = mParentActivity.getLimitDate();
+        String setDate = mStackTable.getDate();
 
         //Log.i("test", "nowDateStr=" + nowDateStr);
-        //Log.i("test", "setLimitDate=" + setLimitDate);
+        //Log.i("test", "setDate=" + setDate);
 
         //本日の時刻でなければ、後であること確定
-        if (setLimitDate.compareTo(nowDateStr) != 0) {
+        if (setDate.compareTo(nowDateStr) != 0) {
             return true;
         }
 
@@ -332,7 +339,7 @@ public class StackManagerFragment extends Fragment {
     private void setupStackTaskArea() {
 
         //積み上げられた「やること」を取得
-        mStackTask = mParentActivity.getStackTaskData();
+        mStackTaskList = mStackTable.getStackTaskList();
 
         //ドロップリスナーの設定(ドロップ先のビューにセット)
         DragListener listener = new DragListener();
@@ -348,7 +355,7 @@ public class StackManagerFragment extends Fragment {
         rv_stackArea.setLayoutManager(ll_manager);
 
         //アダプタの生成・設定
-        mStackAreaAdapter = new StackTaskRecyclerAdapter(mContext, mStackTask, mtv_limitDate, mtv_limitTime);
+        mStackAreaAdapter = new StackTaskRecyclerAdapter(mContext, mStackTable);
         rv_stackArea.setAdapter(mStackAreaAdapter);
 
         //スタート指定の場合
@@ -357,9 +364,6 @@ public class StackManagerFragment extends Fragment {
             rv_stackArea.setLayoutAnimation(
                     AnimationUtils.loadLayoutAnimation(mContext, R.anim.layout_anim_que_task)
             );
-
-            //アダプタに反転を通知
-            mStackAreaAdapter.reverseTime();
         }
 
         //((SimpleItemAnimator) rv_stackArea.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -395,24 +399,29 @@ public class StackManagerFragment extends Fragment {
 
                         //スワイプされたデータ
                         final int adapterPosition = viewHolder.getAdapterPosition();
-                        final TaskTable deletedTask = mStackTask.get(adapterPosition);
+                        final TaskTable deletedTask = mStackTaskList.get(adapterPosition);
 
                         //下部ナビゲーションを取得
                         BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
+                        //スナックバーを保持する親ビュー
+                        ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+
                         //UNDOメッセージの表示
                         Snackbar snackbar = Snackbar
-                                .make(rv_stackArea, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                                .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
                                 //アクションボタン押下時の動作
                                 .setAction(R.string.snackbar_undo, new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
                                         //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                                        mStackTask.add(adapterPosition, deletedTask);
+                                        mStackTable.insertTask(adapterPosition, deletedTask);
                                         mStackAreaAdapter.notifyItemInserted(adapterPosition);
+
+                                        //表示位置を元に戻した対象の位置へ移動
                                         rv_stackArea.scrollToPosition(adapterPosition);
 
-                                        //各開始時間を変更させるため、アダプタへ変更を通知
+                                        //各時間を変更させるため、アダプタへ変更を通知
                                         mStackAreaAdapter.notifyDataSetChanged();
                                     }
                                 })
@@ -440,7 +449,7 @@ public class StackManagerFragment extends Fragment {
                         snackbar.show();
 
                         //リストから削除し、アダプターへ通知
-                        mStackTask.remove(adapterPosition);
+                        mStackTable.removeTask(adapterPosition);
                         //mStackAreaAdapter.notifyItemRemoved(adapterPosition);
 
                         //各開始時間を変更させるため、アダプタへ変更を通知
@@ -474,7 +483,7 @@ public class StackManagerFragment extends Fragment {
         }
         
         //親アクティビティで保持しているリミット時間を取得
-        String limitTime = mParentActivity.getLimitTime();
+        String limitTime = mStackTable.getTime();
 
         //時間設定-リミット
         mtv_limitTime.setText(limitTime);
@@ -485,10 +494,8 @@ public class StackManagerFragment extends Fragment {
         tv_startTime.setText(limitTime);
         tv_startTime.setOnClickListener(new BaseTimeListener());
 
-        //本日の日付を文字列として
-        Date nowDate         = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        String today         = sdf.format(nowDate);
+        //親アクティビティで保持しているリミット日を取得
+        String today = mStackTable.getDate();
 
         //日付設定-リミット
         mtv_limitDate.setText(today);
@@ -498,10 +505,6 @@ public class StackManagerFragment extends Fragment {
         TextView tv_startDate = (TextView) mRootLayout.findViewById(R.id.tv_startDate);
         tv_startDate.setText(today);
         tv_startDate.setOnClickListener(new BaseDateListener());
-
-        //共通データとして保持
-        String now = sdf.format(nowDate);
-        mParentActivity.setLimitDate(now);
     }
 
     /*
@@ -740,9 +743,11 @@ public class StackManagerFragment extends Fragment {
                 int anim_start;
                 int anim_iv;
 
-                //フラグ反転し、親側データと同期
+                //フラグ反転
                 mIsLimit = !mIsLimit;
-                mParentActivity.setFlgLimit(mIsLimit);
+                //親側データと同期
+                mStackTable.setIsLimit(mIsLimit);
+                mParentActivity.setStackTable(mStackTable);
 
                 if(mIsLimit){
                     //--スタート(false) → リミット(true) へ変更された
@@ -831,7 +836,7 @@ public class StackManagerFragment extends Fragment {
                 }
 
                 //「やること」未選択の場合
-                if (mStackTask.size() == 0) {
+                if (mStackTaskList.size() == 0) {
                     //メッセージを表示
                     toast.setText("やることを選択してください");
                     toast.show();
@@ -853,7 +858,7 @@ public class StackManagerFragment extends Fragment {
                 int requestCode = 0;
 
                 //初めに設定するアラームindexを取得
-                int idx = mStackTask.getAlarmFirstArriveIdx();
+                int idx = mStackTaskList.getAlarmFirstArriveIdx();
                 if (idx == TaskArrayList.NO_DATA) {
                     //すべてのアラームが過ぎてしまっている場合
                     //※過去のアラームに対して、再度アラームを設定しようとした場合のガード処理
@@ -863,9 +868,10 @@ public class StackManagerFragment extends Fragment {
                 }
 
                 //各「やること」のアラームを設定
-                int size = mStackTask.size();
+                int size = mStackTaskList.size();
                 for (; idx < size; idx++) {
-                    long millis = mStackTask.get(idx).getAlarmCalendar().getTimeInMillis();
+                    //★備忘★アラームは、ここだけではなく、ベース時間も追加する必要がある
+                    long millis = mStackTable.getAlarmCalender(idx).getTimeInMillis();
 
                     //アラームの設定
                     PendingIntent pending
@@ -877,7 +883,7 @@ public class StackManagerFragment extends Fragment {
                 }
 
                 //「積み上げやること」をDBに保存
-                mParentActivity.setStackTaskData(mStackTask);
+                //mParentActivity.setStackTaskData(mStackTaskList);
 
                 //メッセージを表示
                 toast.setText("アラームを設定しました");
@@ -970,6 +976,7 @@ public class StackManagerFragment extends Fragment {
 
         /*
          * 積まれた「やること」リストに「やること」を追加
+         * ★備忘★animを返すのは微妙
          */
         private int addTaskToStackList(View dragView) {
 
@@ -981,21 +988,12 @@ public class StackManagerFragment extends Fragment {
             int pid = Integer.parseInt(tv_pid.getText().toString());
             int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
 
+            //スタックにやることを追加
+            TaskTable task = new TaskTable(pid, tv_taskName.getText().toString(), taskTime);
+            mStackTable.addTask(task);
+
             //追加アニメーションを適用するIndex
-            int animIdx;
-
-            //リストに追加
-            if(mIsLimit){
-                //先頭に追加
-                mStackTask.add(0, new TaskTable(pid, tv_taskName.getText().toString(), taskTime));
-
-                animIdx = 0;
-            } else {
-                //最後尾に追加
-                mStackTask.add(new TaskTable(pid, tv_taskName.getText().toString(), taskTime));
-
-                animIdx = mStackTask.size() - 1;
-            }
+            int animIdx = (mIsLimit ? 0: (mStackTaskList.size() - 1) );
 
             return animIdx;
         }
@@ -1028,7 +1026,7 @@ public class StackManagerFragment extends Fragment {
                     TaskTable task = mTaskList.getTaskByPid(pid);
                     if (task != null) {
                         //リスト追加
-                        mStackTask.add(0, task);
+                        mStackTable.addTask(task);
 
                         //積み上げ数を加算
                         animIdx++;
@@ -1040,7 +1038,7 @@ public class StackManagerFragment extends Fragment {
 
             } else {
                 //適用アニメーションは、初めに追加するIndex
-                animIdx = mStackTask.size();
+                animIdx = mStackTaskList.size();
 
                 //グループ内やることを、「頭」から追加
                 for ( int i = 0; i < taskNum; i++) {
@@ -1048,7 +1046,7 @@ public class StackManagerFragment extends Fragment {
                     TaskTable task = mTaskList.getTaskByPid(pid);
                     if (task != null) {
                         //リスト追加
-                        mStackTask.add(task);
+                        mStackTable.addTask(task);
                     }
                 }
             }

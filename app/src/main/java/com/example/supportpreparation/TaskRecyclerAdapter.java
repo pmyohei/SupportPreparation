@@ -1,6 +1,5 @@
 package com.example.supportpreparation;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -13,8 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
 
 /*
  * RecyclerViewアダプター：「やること」用
@@ -55,7 +52,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             tv_pid = (TextView) itemView.findViewById(R.id.tv_pid);
             tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
-            ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.ll_taskInfo);
+            ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.v_gragh);
         }
     }
 
@@ -241,7 +238,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         //表示目的に応じて、IDを取得
         switch (mSetting) {
             case LIST:
-                id_view     = R.id.ll_taskInfo;
+                id_view     = R.id.v_gragh;
                 id_drawable = R.drawable.frame_item_task;
                 break;
 
@@ -251,7 +248,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
                 break;
 
             case GROUP:
-                id_view     = R.id.ll_taskInfo;
+                id_view     = R.id.v_gragh;
                 id_drawable = R.drawable.frame_item_task_in_group;
                 break;
 

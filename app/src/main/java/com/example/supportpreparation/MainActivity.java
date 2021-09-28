@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     //-- フラグメント間共通データ
     private TaskArrayList<TaskTable>    mTaskList;                              //「やること」リスト
     private GroupArrayList<GroupTable>  mGroupList;                             //「やることグループ」リスト
+    private StackTaskTable              mStackTable;                            //スタックテーブル
     private TaskArrayList<TaskTable>    mStackTaskList = new TaskArrayList<>(); //「積み上げやること」リスト
     private String                      mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
     private String                      mLimitTime;                             //リミット-時（"hh:mm"）
@@ -34,16 +35,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         //起動時の選択エリアは「やること」
         mIsSelectTask = true;
-        //起動時の時間指定はリミット
-        mIsLimit = true;
-
-        //テスト
-        Log.i("test", "main cast");
-        //mTaskTestList = (TaskArrayList<TaskTable>)testArray;
 
         //DB操作インスタンスを取得
         mDB = AppDatabaseSingleton.getInstance(this);
-        //-- 非同期スレッドにて、読み込み開始
+        //非同期スレッドにて、読み込み開始
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
         Log.i("test", "main onSuccessTaskRead");
@@ -65,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
     /*
      * 「積み上げやること」データを取得・設定
-     */
+
     public TaskArrayList<TaskTable> getStackTaskData() {
         return mStackTaskList;
     }
@@ -76,26 +71,43 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //DBを更新
         new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.CREATE, mStackTaskList, mLimitDate, mLimitTime).execute();
     }
+ */
+
+    /*
+     * 「スタック」データを取得する・設定
+     */
+    public StackTaskTable getStackTable() {
+        return mStackTable;
+    }
+    public void setStackTable( StackTaskTable stackTable ) {
+
+        //★備忘★テーブルは箇所を参照しているため、この処理は不要
+        mStackTable = stackTable;
+
+        //DBを更新
+        new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.CREATE, mStackTable).execute();
+    }
 
     /*
      * 「リミット-日付」を取得・設定
-     */
+
     public String getLimitDate() {
         return mLimitDate;
     }
     public void setLimitDate(String value) {
         mLimitDate = value;
     }
-
+*/
     /*
      * 「リミット-時分」を取得・設定
-     */
+
     public String getLimitTime() {
         return mLimitTime;
     }
     public void setLimitTime(String value) {
         mLimitTime = value;
     }
+*/
 
     /*
      * 「フラグ-「やること」選択エリア表示中」を取得・設定
@@ -109,14 +121,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
     /*
      * 「フラグ-リミット選択中」の取得・設定
-     */
     public boolean isLimit() {
         return mIsLimit;
     }
     public void setFlgLimit(boolean flg) {
         mIsLimit = flg;
     }
-
+    */
 
     /*
      *  -------------------------------------------------
@@ -211,23 +222,26 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      * 「積み上げやること」
      */
     @Override
-    public void onSuccessStackRead( Integer code, StackTaskTable stack, TaskArrayList<TaskTable> taskList ) {
+    public void onSuccessStackRead( Integer code, StackTaskTable stack ) {
 
         //DBからデータを取れれば
         if( code == AsyncStackTaskTableOperaion.READ_NORMAL ){
+
+            mStackTable = stack;
+
             //DBから取得した「積み上げやること」データを保持
-            mStackTaskList = taskList;
-            mLimitDate     = stack.getDate();
-            mLimitTime     = stack.getTime();
+            //mStackTaskList = taskList;
+            //mLimitDate     = stack.getDate();
+            //mLimitTime     = stack.getTime();
 
             Log.i("test", "onSuccessStackRead");
 
         } else {
             //データなければ、未入力文字列
-            mLimitTime = getString(R.string.limittime_no_input);
+            //mLimitTime = getString(R.string.limittime_no_input);
         }
 
-        //-- レイアウトの設定は、データ取得後に行う
+        //※レイアウトの設定は、データ取得後に行う
         setContentView(R.layout.activity_main);
 
         //下部ナビゲーション設定

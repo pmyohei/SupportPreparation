@@ -9,43 +9,30 @@
     android:paddingRight="20dp"
     android:paddingLeft="20dp">
 
-    <!-- 開始時刻 -->
-    <LinearLayout
-        android:id="@+id/ll_startTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="20dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_startTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:00" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/bg_stack_task_time_line" />
-
-    </LinearLayout>
-
-    <!-- グラフ -->
-    <ScrollView
-        android:id="@+id/sv_gragh"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.8"
-        android:overScrollMode="never"
-        tools:ignore="UselessParent">
+        android:layout_weight="0.8">
 
-        <!-- グラフ追加先は動的に生成する
-        <include layout="@layout/gragh_body_top" />
-        <include layout="@layout/gragh_body_bottom" />
-        -->
+        <!-- グラフ -->
+        <ScrollView
+            android:id="@+id/sv_gragh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            tools:ignore="UselessParent">
 
-    </ScrollView>
+            <!-- グラフ追加先は動的に生成する
+            <include layout="@layout/gragh_body_top" />
+            <include layout="@layout/gragh_body_bottom" />
+            -->
+
+        </ScrollView>
+
+        <!-- 現在時間線 -->
+        <include layout="@layout/gragh_current_line" />
+
+    </FrameLayout>
 
     <!-- 終了時刻 -->
     <LinearLayout
@@ -64,7 +51,7 @@
             android:id="@+id/tv_limitTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="12:00" />
+            android:text="@string/limittime_no_input" />
 
     </LinearLayout>
 

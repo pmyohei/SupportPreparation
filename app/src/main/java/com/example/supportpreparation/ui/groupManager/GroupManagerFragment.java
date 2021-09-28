@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -203,10 +204,13 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //下部ナビゲーション
                 BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
+                //スナックバーを保持する親ビュー
+                ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
-                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, dbListener, height, bnv);
+                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, dbListener, height, bnv, cl_mainContainer);
 
                 //リスナー設定(グループ名編集)
                 mGroupAdapter.setOnGroupNameClickListener(new View.OnClickListener() {
@@ -278,9 +282,12 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     //下部ナビゲーションを取得
                     BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
+                    //スナックバーを保持する親ビュー
+                    ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+
                     //UNDOメッセージの表示
                     Snackbar snackbar = Snackbar
-                            .make(rv_group, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                            .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
                             //アクションボタン押下時の動作
                             .setAction(R.string.snackbar_undo, new View.OnClickListener() {
                                 @Override

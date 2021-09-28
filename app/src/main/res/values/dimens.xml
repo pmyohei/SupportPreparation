@@ -37,6 +37,14 @@
     <dimen name="stack_task_width">180dp</dimen>
     <dimen name="stack_task_height">100dp</dimen>
 
+    <!-- グラフ -->
+    <dimen name="gragh_width">200dp</dimen>
+    <dimen name="gragh_timeline_width">90dp</dimen>
+    <dimen name="gragh_omit_height">180dp</dimen>
+    <dimen name="gragh_current_time_height">28dp</dimen>
+    <dimen name="omit_width">80dp</dimen>
+    <dimen name="omit_height">80dp</dimen>
+
 
 
 </resources>

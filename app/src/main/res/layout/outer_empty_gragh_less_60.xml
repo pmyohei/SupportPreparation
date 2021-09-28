@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_empty"
+    android:layout_width="@dimen/gragh_width"
+    android:layout_height="wrap_content"
+    android:paddingTop="40dp"
+    android:orientation="vertical">
+
+    <!-- 現在時刻線 -->
+    <include layout="@layout/gragh_current_line_not_arrive" />
+
+    <!-- 現在時刻線までの空白 -->
+    <View
+        android:id="@+id/v_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/frame_gragh_test">
+    </View>
+
+</LinearLayout>

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -182,9 +183,12 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                         //下部ナビゲーションを取得
                         BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
+                        //スナックバーを保持する親ビュー
+                        ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+
                         //UNDOメッセージの表示
                         Snackbar snackbar = Snackbar
-                                .make(rv_task, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                                .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
                                 //アクションボタン押下時の動作
                                 .setAction(R.string.snackbar_undo, new View.OnClickListener() {
                                     @Override
