@@ -70,7 +70,7 @@ public class CreateTaskDialog extends DialogFragment {
         //レイアウトパラメータの取得
         WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
         lp.width   = metrics.widthPixels;                   //横幅=画面サイズ
-        lp.height  = metrics.heightPixels * 2 / 5;                   //横幅=画面サイズ
+        lp.height  = metrics.heightPixels * 2 / 5;          //横幅=画面サイズ
         lp.gravity = Gravity.BOTTOM;                        //位置=画面下部
         //ダイアログのデザインとして設定
         dialog.getWindow().setAttributes(lp);

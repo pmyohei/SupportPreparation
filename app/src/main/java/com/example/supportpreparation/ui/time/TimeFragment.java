@@ -688,7 +688,7 @@ public class TimeFragment extends Fragment {
                 //--省略時間以下
 
                 //空白グラフ
-                v_empty = inflater.inflate(R.layout.outer_empty_gragh_less_60, null);
+                v_empty = inflater.inflate(R.layout.gragh_empty_less_60, null);
                 View v = (View) v_empty.findViewById(R.id.v_empty);
 
                 int height = 0;
@@ -705,7 +705,7 @@ public class TimeFragment extends Fragment {
                 //--省略時間超過
 
                 //空白グラフ
-                v_empty = inflater.inflate(R.layout.outer_empty_gragh_over_60, null);
+                v_empty = inflater.inflate(R.layout.gragh_empty_over_60, null);
             }
 
             //現在時間線の表示
@@ -731,19 +731,23 @@ public class TimeFragment extends Fragment {
             //「現在時刻」から「一番初めのやること開始時間」の時間を計算
             int timeToStart = calcTimeToStartFirstTask();
 
-            int height = 0;
-
             //空白グラフ
-            if ( (0 < timeToStart) && (timeToStart <= GRAGH_OMIT_LINE_MIN) ) {
+            if ( timeToStart <= GRAGH_OMIT_LINE_MIN ) {
                 //--省略時間以下
-                height = getGraghUnitHeight(timeToStart);
-            }
 
-            //高さを更新
-            View v = (View) mRootLayout.findViewById(R.id.v_empty);
-            ViewGroup.LayoutParams params = v.getLayoutParams();
-            params.height = height;
-            v.setLayoutParams(params);
+                int height = 0;
+
+                //時間が0以上なら計算
+                if( timeToStart > 0 ){
+                    height = getGraghUnitHeight(timeToStart);
+                }
+
+                //高さを更新
+                View v = (View) mRootLayout.findViewById(R.id.v_empty);
+                ViewGroup.LayoutParams params = v.getLayoutParams();
+                params.height = height;
+                v.setLayoutParams(params);
+            }
 
             //現在時刻の設定
             Date now = new Date();
@@ -958,10 +962,10 @@ public class TimeFragment extends Fragment {
             long timeToEnd = mStackTaskList.get(idx).getEndCalendar().getTime().getTime() - now.getTime();
             long timeToEndMin = timeToEnd / CONV_MIN_TO_MSEC;
 
-            if ((timeToEnd > 0) && (timeToEndMin == 0)) {
-                //残り時間が秒しかなければ、1分分あるとみなす
-                timeToEndMin = 1;
-            }
+            //分単位変換後の値に、1分分追加
+            //※例えば、残時間 02min30s だったとき、3min分の高さを設定するため。
+            //  10:30 に開始/終了ラインがあり、10:30:50 が現在時刻とすると、10:30 のラインに現在時刻線を重ねるための調整
+            timeToEndMin += 1;
 
             //割り込みやることの高さ
             int taskTime = mStackTaskList.get(idx).getTaskTime();

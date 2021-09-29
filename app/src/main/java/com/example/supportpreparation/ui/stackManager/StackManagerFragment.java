@@ -2,8 +2,6 @@ package com.example.supportpreparation.ui.stackManager;
 
 import static android.content.Context.ALARM_SERVICE;
 
-import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
-
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
@@ -13,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -36,7 +35,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -50,6 +48,7 @@ import com.example.supportpreparation.GroupSelectRecyclerAdapter;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
+import com.example.supportpreparation.SelectAreaScrollListener;
 import com.example.supportpreparation.StackTaskRecyclerAdapter;
 import com.example.supportpreparation.StackTaskTable;
 import com.example.supportpreparation.TaskArrayList;
@@ -72,7 +71,6 @@ public class StackManagerFragment extends Fragment {
     public final static int SELECT_GROUP_AREA_DIV = 3;          //やること選択エリア-横幅分割数
 
     private final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
-    private final int FAB_HIDE_SCROLL_DX   = 12;                //fab非表示スクロール量
 
     private MainActivity mParentActivity;        //親アクティビティ
     private Fragment mFragment;              //本フラグメント
@@ -80,7 +78,7 @@ public class StackManagerFragment extends Fragment {
     private View mRootLayout;            //本フラグメントに設定しているレイアウト
     private AppDatabase mDB;                    //DB
     private LinearLayout mll_stackArea;          //「やること」積み上げ領域
-    private StackTaskTable           mStackTable;                            //スタックテーブル
+    private StackTaskTable mStackTable;                            //スタックテーブル
     private TaskArrayList<TaskTable> mStackTaskList;             //積み上げ「やること」
     private TaskArrayList<TaskTable> mTaskList;              //「やること」
     private StackTaskRecyclerAdapter mStackAreaAdapter;      //積み上げ「やること」アダプタ
@@ -88,8 +86,8 @@ public class StackManagerFragment extends Fragment {
     private TextView mtv_limitDate;          //リミット日のビュー
     private TextView mtv_limitTime;          //リミット時間のビュー
     private Intent mAlarmReceiverIntent;   //アラーム受信クラスのIntent
-    private boolean mIsSelectTask;                         //フラグ-「やること」選択エリア表示中
-    private boolean mIsLimit;                              //フラグ-リミット選択中
+    private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
+    private boolean mIsLimit;                               //フラグ-リミット選択中
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -110,13 +108,14 @@ public class StackManagerFragment extends Fragment {
         mStackTable = mParentActivity.getStackTable();
         //やることリストを取得
         mTaskList = mParentActivity.getTaskData();
-        //フラグ取得
+        //フラグ
         mIsSelectTask = mParentActivity.isSelectTask();
-        mIsLimit      = mStackTable.isLimit();
+        mIsLimit = mStackTable.isLimit();
 
         //ビューを保持
         mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
         mtv_limitDate = (TextView) mRootLayout.findViewById(R.id.tv_limitDate);
+        mfab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
 
         //アラーム受信クラスのIntent
         mAlarmReceiverIntent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
@@ -135,7 +134,8 @@ public class StackManagerFragment extends Fragment {
         setupIvSwitchSelectArea();
 
         //FABの設定
-        setupIvSwitchDirection();
+        setupFabParent();
+        setupFabSwitchDirection();
         setupFabSetAlarm();
 
         return mRootLayout;
@@ -193,7 +193,7 @@ public class StackManagerFragment extends Fragment {
                             String limit = String.format("%02d:%02d", hourOfDay, minute);
                             touchView.setText(limit);
 
-                            if( !mIsLimit){
+                            if (!mIsLimit) {
                                 //リミット指定でないなら、リミット側にも設定(スタックアダプタ参照用)
                                 mtv_limitTime.setText(limit);
                             }
@@ -241,7 +241,7 @@ public class StackManagerFragment extends Fragment {
                             String date = String.format(Locale.JAPANESE, "%04d/%02d/%02d", year, month + 1, dayOfMonth);
                             touchView.setText(date);
 
-                            if( !mIsLimit ){
+                            if (!mIsLimit) {
                                 //リミット指定でないなら、リミット側にも設定(スタックアダプタ参照用)
                                 mtv_limitDate.setText(date);
                             }
@@ -359,7 +359,7 @@ public class StackManagerFragment extends Fragment {
         rv_stackArea.setAdapter(mStackAreaAdapter);
 
         //スタート指定の場合
-        if( !mIsLimit){
+        if (!mIsLimit) {
             //アニメーションを変更
             rv_stackArea.setLayoutAnimation(
                     AnimationUtils.loadLayoutAnimation(mContext, R.anim.layout_anim_que_task)
@@ -370,17 +370,17 @@ public class StackManagerFragment extends Fragment {
 
         //ドラッグアンドドロップ、スワイプの設定(リサイクラービュー)
         ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
-                    @Override
-                    public boolean onMove(@NonNull RecyclerView recyclerView,
-                                          @NonNull RecyclerView.ViewHolder viewHolder,
-                                          @NonNull RecyclerView.ViewHolder target) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
 
-                        //！getAdapterPosition()←非推奨
-                        final int fromPos = viewHolder.getAdapterPosition();
-                        final int toPos = target.getAdapterPosition();
-                        //アイテム移動を通知
-                        mStackAreaAdapter.notifyItemMoved(fromPos, toPos);
-                        Log.i("test", "fromPos=" + fromPos + " toPos=" + toPos);
+                //！getAdapterPosition()←非推奨
+                final int fromPos = viewHolder.getAdapterPosition();
+                final int toPos = target.getAdapterPosition();
+                //アイテム移動を通知
+                mStackAreaAdapter.notifyItemMoved(fromPos, toPos);
+                Log.i("test", "fromPos=" + fromPos + " toPos=" + toPos);
 /*
                         int size = mStackTask.size();
                         for( int i = 0; i < size; i++ ){
@@ -388,74 +388,74 @@ public class StackManagerFragment extends Fragment {
                         }
 */
 
-                        //各開始時間も変更になるため、通知
-                        //mStackAreaAdapter.notifyDataSetChanged();
+                //各開始時間も変更になるため、通知
+                //mStackAreaAdapter.notifyDataSetChanged();
 
-                        return true;
-                    }
+                return true;
+            }
 
-                    @Override
-                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-                        //スワイプされたデータ
-                        final int adapterPosition = viewHolder.getAdapterPosition();
-                        final TaskTable deletedTask = mStackTaskList.get(adapterPosition);
+                //スワイプされたデータ
+                final int adapterPosition = viewHolder.getAdapterPosition();
+                final TaskTable deletedTask = mStackTaskList.get(adapterPosition);
 
-                        //下部ナビゲーションを取得
-                        BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
+                //下部ナビゲーションを取得
+                BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
 
-                        //スナックバーを保持する親ビュー
-                        ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+                //スナックバーを保持する親ビュー
+                ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
 
-                        //UNDOメッセージの表示
-                        Snackbar snackbar = Snackbar
-                                .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
-                                //アクションボタン押下時の動作
-                                .setAction(R.string.snackbar_undo, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                                        mStackTable.insertTask(adapterPosition, deletedTask);
-                                        mStackAreaAdapter.notifyItemInserted(adapterPosition);
+                //UNDOメッセージの表示
+                Snackbar snackbar = Snackbar
+                        .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                        //アクションボタン押下時の動作
+                        .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
+                                mStackTable.insertTask(adapterPosition, deletedTask);
+                                mStackAreaAdapter.notifyItemInserted(adapterPosition);
 
-                                        //表示位置を元に戻した対象の位置へ移動
-                                        rv_stackArea.scrollToPosition(adapterPosition);
+                                //表示位置を元に戻した対象の位置へ移動
+                                rv_stackArea.scrollToPosition(adapterPosition);
 
-                                        //各時間を変更させるため、アダプタへ変更を通知
-                                        mStackAreaAdapter.notifyDataSetChanged();
-                                    }
-                                })
-                                //スナックバークローズ時の動作
-                                .addCallback(new Snackbar.Callback() {
-                                    @Override
-                                    public void onDismissed(Snackbar snackbar, int event) {
-                                        super.onDismissed(snackbar, event);
+                                //各時間を変更させるため、アダプタへ変更を通知
+                                mStackAreaAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        //スナックバークローズ時の動作
+                        .addCallback(new Snackbar.Callback() {
+                            @Override
+                            public void onDismissed(Snackbar snackbar, int event) {
+                                super.onDismissed(snackbar, event);
 
-                                        //アクションバー押下以外で閉じられた場合
-                                        if (event != DISMISS_EVENT_ACTION) {
-                                            //各開始時間を変更させるため、アダプタへ変更を通知
-                                            //mStackAreaAdapter.clearAlarmList();
-                                            //mStackAreaAdapter.notifyDataSetChanged();
-                                        }
-                                    }
-                                })
-                                //下部ナビゲーションの上に表示させるための設定
-                                .setAnchorView(bnv)
-                                .setBackgroundTint(getResources().getColor(R.color.basic))
-                                .setTextColor(getResources().getColor(R.color.white))
-                                .setActionTextColor(getResources().getColor(R.color.white));
+                                //アクションバー押下以外で閉じられた場合
+                                if (event != DISMISS_EVENT_ACTION) {
+                                    //各開始時間を変更させるため、アダプタへ変更を通知
+                                    //mStackAreaAdapter.clearAlarmList();
+                                    //mStackAreaAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        })
+                        //下部ナビゲーションの上に表示させるための設定
+                        .setAnchorView(bnv)
+                        .setBackgroundTint(getResources().getColor(R.color.basic))
+                        .setTextColor(getResources().getColor(R.color.white))
+                        .setActionTextColor(getResources().getColor(R.color.white));
 
-                        //表示
-                        snackbar.show();
+                //表示
+                snackbar.show();
 
-                        //リストから削除し、アダプターへ通知
-                        mStackTable.removeTask(adapterPosition);
-                        //mStackAreaAdapter.notifyItemRemoved(adapterPosition);
+                //リストから削除し、アダプターへ通知
+                mStackTable.removeTask(adapterPosition);
+                //mStackAreaAdapter.notifyItemRemoved(adapterPosition);
 
-                        //各開始時間を変更させるため、アダプタへ変更を通知
-                        mStackAreaAdapter.notifyDataSetChanged();
-                    }
-                }
+                //各開始時間を変更させるため、アダプタへ変更を通知
+                mStackAreaAdapter.notifyDataSetChanged();
+            }
+        }
         );
 
         //リサイクラービューをアタッチ
@@ -470,18 +470,18 @@ public class StackManagerFragment extends Fragment {
         //リミット・スタートのビュー
         LinearLayout ll_startGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_startGroup);
         LinearLayout ll_limitGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_limitGroup);
-        
+
         //選択中の方向に応じた表示
-        if(mIsLimit){
+        if (mIsLimit) {
             //リミットを表示
-            ll_startGroup.setVisibility( View.INVISIBLE );
-            ll_limitGroup.setVisibility( View.VISIBLE );
+            ll_startGroup.setVisibility(View.INVISIBLE);
+            ll_limitGroup.setVisibility(View.VISIBLE);
         } else {
             //スタートを表示
-            ll_startGroup.setVisibility( View.VISIBLE );
-            ll_limitGroup.setVisibility( View.INVISIBLE );
+            ll_startGroup.setVisibility(View.VISIBLE);
+            ll_limitGroup.setVisibility(View.INVISIBLE);
         }
-        
+
         //親アクティビティで保持しているリミット時間を取得
         String limitTime = mStackTable.getTime();
 
@@ -567,7 +567,8 @@ public class StackManagerFragment extends Fragment {
         });
 
         //スクロールリスナーの設定
-        rv_task.addOnScrollListener(new SelectAreaScrollListener());
+        //★備忘★
+        //rv_task.addOnScrollListener(new SelectAreaScrollListener(mfab_setAlarm));
     }
 
     /*
@@ -632,13 +633,13 @@ public class StackManagerFragment extends Fragment {
         });
 
         //スクロールリスナーの設定
-        rv_group.addOnScrollListener(new SelectAreaScrollListener());
+        rv_group.addOnScrollListener(new SelectAreaScrollListener(mfab_setAlarm));
     }
 
     /*
      * 選択エリア切り替えアイコンの設定
      */
-    private void setupIvSwitchSelectArea(){
+    private void setupIvSwitchSelectArea() {
         ImageView iv_selectSwitch = (ImageView) mRootLayout.findViewById(R.id.iv_selectSwitch);
 
         //リサイクラービュー取得
@@ -646,7 +647,7 @@ public class StackManagerFragment extends Fragment {
         RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
 
         //設定アイコンの取得
-        if(mIsSelectTask){
+        if (mIsSelectTask) {
             //やること表示の場合
 
             //やること選択エリアを表示
@@ -710,21 +711,28 @@ public class StackManagerFragment extends Fragment {
     }
 
     /*
-     * ImageView(積み上げ方向変更)の設定
+     * Fab(親)の設定
      */
-    private void setupIvSwitchDirection(){
+    private void setupFabParent() {
 
-        // 開始・リミット変更ボタンの設定
-        ImageView iv_switchDirection = (ImageView) mRootLayout.findViewById(R.id.iv_switchDirection);
+        FloatingActionButton fab_parent = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_parent);
+        fab_parent.setOnClickListener(new ParentFabOnClickListener());
+    }
+
+    /*
+     * Fab(積み上げ方向変更)の設定
+     */
+    private void setupFabSwitchDirection(){
+
+        FloatingActionButton fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
 
         //設定アイコンの取得
         if( !mIsLimit){
-            //スタート指定の場合
-            //アイコン設定
-            iv_switchDirection.setBackgroundResource(R.drawable.ic_switch_que);
+            //スタート指定の場合、初期アイコンを変更
+            fab_switchDirection.setImageResource(R.drawable.ic_switch_direction_limit_32);
         }
 
-        iv_switchDirection.setOnClickListener(new View.OnClickListener() {
+        fab_switchDirection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //スタート側のビュー
@@ -741,7 +749,7 @@ public class StackManagerFragment extends Fragment {
                 LayoutAnimationController anim;
                 int anim_limit;
                 int anim_start;
-                int anim_iv;
+                int anim_fab;
 
                 //フラグ反転
                 mIsLimit = !mIsLimit;
@@ -766,7 +774,7 @@ public class StackManagerFragment extends Fragment {
                     anim_limit = R.anim.limit_down_appear;
                     anim_start = R.anim.start_down_disappear;
                     //アニメーション：切り替えアイコン
-                    anim_iv = R.anim.switch_to_que;
+                    anim_fab = R.anim.switch_to_que;
 
                 } else {
                     //--リミット(true) → スタート(false) へ変更
@@ -785,7 +793,7 @@ public class StackManagerFragment extends Fragment {
                     anim_limit = R.anim.limit_up_disappear;
                     anim_start = R.anim.start_up_appear;
                     //アニメーション：切り替えアイコン
-                    anim_iv = R.anim.switch_to_stack;
+                    anim_fab = R.anim.switch_to_stack;
                 }
 
                 //基準の時間を反転し、積み上げエリアアダプタへ変更通知
@@ -808,7 +816,7 @@ public class StackManagerFragment extends Fragment {
                 animation = AnimationUtils.loadAnimation(mContext, anim_start);
                 ll_startGroup.startAnimation(animation);
 
-                animation = AnimationUtils.loadAnimation(mContext, anim_iv);
+                animation = AnimationUtils.loadAnimation(mContext, anim_fab);
                 view.startAnimation(animation);
             }
         });
@@ -819,7 +827,6 @@ public class StackManagerFragment extends Fragment {
      */
     private void setupFabSetAlarm(){
         // アラーム開始ボタンの設定
-        mfab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
         mfab_setAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -886,7 +893,9 @@ public class StackManagerFragment extends Fragment {
                 //mParentActivity.setStackTaskData(mStackTaskList);
 
                 //メッセージを表示
-                toast.setText("アラームを設定しました");
+                //★備忘★
+                //toast.setText("アラームを設定しました");
+                toast.setText("アラーム実装中");
                 toast.show();
 
                 //-- サポート画面へ移る
@@ -1093,28 +1102,81 @@ public class StackManagerFragment extends Fragment {
     }
 
     /*
-     * ベース日クリックリスナー
+     * 親Fabクリックリスナー
      */
-    private class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy){
-            Log.i("test", "dx=" + dx);
-            //スクロール量が一定量を超えたとき、fabを非表示にする
-            int absDx = Math.abs(dx);
-            if (absDx >= FAB_HIDE_SCROLL_DX) {
-                mfab_setAlarm.hide();
-            }
+    private class ParentFabOnClickListener implements View.OnClickListener {
+
+        //表示フラグ
+        private boolean isShow;
+
+        //子Fab
+        private final FloatingActionButton fab_switchDirection;
+        private final FloatingActionButton fab_cancelAlarm;
+        private final FloatingActionButton fab_setAlarm;
+
+        //アニメーション(表示)
+        Animation showAnimation1;
+        Animation showAnimation2;
+        Animation showAnimation3;
+
+        //アニメーション(非表示)
+        Animation hideAnimation1;
+        Animation hideAnimation2;
+        Animation hideAnimation3;
+
+        /*
+         * コンストラクタ
+         */
+        public ParentFabOnClickListener(){
+
+            isShow = false;
+
+            fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
+            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_cancelAlarm);
+            fab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
+
+            showAnimation1 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_1);
+            showAnimation2 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_2);
+            showAnimation3 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_3);
+
+            hideAnimation1 = AnimationUtils.loadAnimation(mContext, R.anim.hide_child_fab_1);
+            hideAnimation2 = AnimationUtils.loadAnimation(mContext, R.anim.hide_child_fab_2);
+            hideAnimation3 = AnimationUtils.loadAnimation(mContext, R.anim.hide_child_fab_3);
         }
 
         @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState){
-            Log.i("test", "newState=" + newState);
-            //スクロールが完全に停止したとき、fabを表示
-            if( newState == SCROLL_STATE_IDLE ){
-                mfab_setAlarm.show();
+        public void onClick(View view) {
+
+            if( isShow ){
+                //非表示（上から）
+                fab_switchDirection.hide();
+                fab_cancelAlarm.hide();
+                fab_setAlarm.hide();
+
+                fab_switchDirection.startAnimation( hideAnimation1 );
+                fab_cancelAlarm.startAnimation( hideAnimation2 );
+                fab_setAlarm.startAnimation( hideAnimation3 );
+
+                //フラグ切り替え
+                isShow = false;
+
+            } else {
+
+                //表示（下から）
+                fab_setAlarm.show();
+                fab_cancelAlarm.show();
+                fab_switchDirection.show();
+
+                fab_setAlarm.startAnimation( showAnimation1 );
+                fab_cancelAlarm.startAnimation( showAnimation2 );
+                fab_switchDirection.startAnimation( showAnimation3 );
+
+                //フラグ切り替え
+                isShow = true;
             }
         }
     }
+
 
     /*
      * test

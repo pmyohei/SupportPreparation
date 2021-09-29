@@ -31,6 +31,7 @@ import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.GroupRecyclerAdapter;
+import com.example.supportpreparation.SelectAreaScrollListener;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
@@ -56,7 +57,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                                            mGroupDBListener;           //「グループ」DB操作リスナー
 
 
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -73,11 +73,13 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //「グループ」DB操作リスナー
         mGroupDBListener = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
 
-        //「やること」リストを取得
+        //「やること」リスト
         mTaskList = mParentActivity.getTaskData();
+        //「グループ」リスト
+        mGroupList = mParentActivity.getGroupData();
 
-        //「グループ」リストを取得
-        mGroupList       = mParentActivity.getGroupData();
+        //ビュー
+        mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
 
         //グループ内「やること」のアダプタを設定
         for( GroupTable group: mGroupList ){
@@ -94,7 +96,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         displayGroup();
 
         // FloatingActionButton
-        mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -174,6 +175,9 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 return false;
             }
         });
+
+        //スクロールリスナーの設定
+        rv_task.addOnScrollListener(new SelectAreaScrollListener( mFab ));
     }
 
     /*

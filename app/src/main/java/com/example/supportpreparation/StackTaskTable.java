@@ -166,9 +166,7 @@ public class StackTaskTable {
         }
 
         if (isLimit) {
-
-            //最後尾フラグ
-            boolean isLast = true;
+            //最終Index
             int last = mStackTaskList.getLastIdx();
 
             //全やることを更新（後ろから設定）
@@ -177,16 +175,10 @@ public class StackTaskTable {
                 TaskTable task = mStackTaskList.get(i);
 
                 //更新
-                setupStartEndTime(isLast, i, task, baseTime);
-
-                //非最後尾に更新
-                isLast = false;
+                setupStartEndTime(i, task, baseTime);
             }
 
         } else {
-
-            //先頭フラグ
-            boolean isFirst = true;
 
             //全やることを更新（先頭から設定）
             for (int i = 0; i < mStackTaskList.size(); i++) {
@@ -195,10 +187,7 @@ public class StackTaskTable {
                 TaskTable task = mStackTaskList.get(i);
 
                 //更新
-                setupStartEndTime(isFirst, i, task, baseTime);
-
-                //非先頭に更新
-                isFirst = false;
+                setupStartEndTime(i, task, baseTime);
             }
         }
     }
@@ -206,7 +195,7 @@ public class StackTaskTable {
     /*
      * 開始・終了時間の全更新
      */
-    private void setupStartEndTime(boolean isFirst, int idx, TaskTable taskTable, Calendar baseTime) {
+    private void setupStartEndTime(int idx, TaskTable taskTable, Calendar baseTime) {
 
         int taskTime = taskTable.getTaskTime();
 
@@ -216,13 +205,15 @@ public class StackTaskTable {
 
         if (isLimit) {
 
-            if (isFirst) {
-                //追加が１つ目の場合
+            int last = mStackTaskList.getLastIdx();
+
+            if ( idx == last ) {
+                //最後尾の場合
                 //終了時間：ベース時間
                 end = baseTime;
 
             } else {
-                //追加が２つ目以降の場合
+                //最後尾より前の場合
                 //終了時間：１つ前の開始時間
                 end = mStackTaskList.get(idx + 1).getStartCalendar();
             }
@@ -233,15 +224,14 @@ public class StackTaskTable {
 
         } else {
 
-            if (isFirst) {
-                //追加が１つ目の場合
+            if ( idx == 0 ) {
+                //先頭の場合
                 //開始時間：ベース時間
                 start = baseTime;
 
             } else {
-                //追加が２つ目以降の場合
+                //先頭より後の場合
                 //開始時間：１つ前の終了時間
-                int last = mStackTaskList.getLastIdx();
                 start = mStackTaskList.get(idx - 1).getEndCalendar();
             }
 
@@ -277,18 +267,13 @@ public class StackTaskTable {
         }
 
         //時間設定あれば、開始or終了 時間を設定
-        if (!time.equals("--:--")) {
+        if ( !time.equals("--:--") ) {
 
             //ベース時間
             Calendar baseTime = getBaseTimeCalender();
 
-            boolean isFirst = true;
-            if (mStackTaskList.size() > 0) {
-                isFirst = false;
-            }
-
             //開始・終了時間を設定
-            setupStartEndTime(isFirst, addedIdx, taskTable, baseTime);
+            setupStartEndTime(addedIdx, taskTable, baseTime);
         }
     }
 

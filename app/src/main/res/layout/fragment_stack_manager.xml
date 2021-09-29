@@ -10,25 +10,65 @@
 
     <include layout="@layout/manage_stack" />
 
-    <ImageView
-        android:id="@+id/iv_switchDirection"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="@dimen/iv_reverse_margin_top"
-        android:layout_marginEnd="@dimen/iv_reverse_margin_end"
-        android:layout_gravity="end"
-        android:gravity="center_horizontal"
-        android:background="@drawable/ic_switch_stack"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_setAlarm"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/fab_margin_right"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_alarm_margin_bottom"
-        android:layout_marginRight="@dimen/fab_margin_right"
-        app:backgroundTint="@color/white"
-        app:tint="@color/teal_700"
-        app:srcCompat="@drawable/ic_action_bell_32px" />
+        android:orientation="vertical">
+
+        <!-- 子fab -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_switchDirection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabCustomSize="@dimen/fab_child_size"
+            android:layout_marginBottom="@dimen/fab_between"
+            android:layout_gravity="center"
+            android:layoutAnimation="@anim/layout_anim_task_list"
+            android:visibility="gone"
+            app:backgroundTint="@color/white"
+            app:tint="@color/teal_700"
+            app:srcCompat="@drawable/ic_switch_direction_start_32"
+            android:contentDescription="switchDirection" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_cancelAlarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabCustomSize="@dimen/fab_child_size"
+            android:layout_marginBottom="@dimen/fab_between"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:backgroundTint="@color/white"
+            app:tint="@color/teal_700"
+            app:srcCompat="@drawable/ic_alarm_cancel_32"
+            android:contentDescription="cancelAlarm" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_setAlarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabCustomSize="@dimen/fab_child_size"
+            android:layout_marginBottom="@dimen/fab_between"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:backgroundTint="@color/white"
+            app:tint="@color/teal_700"
+            app:srcCompat="@drawable/ic_action_bell_32px"
+            android:contentDescription="setAlarm" />
+
+        <!-- 親fab -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/fab_alarm_margin_bottom"
+            app:backgroundTint="@color/white"
+            app:tint="@color/teal_700"
+            app:srcCompat="@drawable/ic_up_32"
+            android:contentDescription="parent" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
