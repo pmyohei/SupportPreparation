@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="40dp"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8">
+
+        <!-- グラフ -->
+        <ScrollView
+            android:id="@+id/sv_gragh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            tools:ignore="UselessParent">
+
+            <!-- グラフ追加先は動的に生成する
+            <include layout="@layout/gragh_body_top" />
+            <include layout="@layout/gragh_body_bottom" />
+            -->
+
+        </ScrollView>
+
+        <!-- 現在時間線 -->
+        <include layout="@layout/gragh_current_line" />
+
+    </FrameLayout>
+
+    <!-- 終了時刻 -->
+    <LinearLayout
+        android:id="@+id/ll_limitTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="20dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/bg_stack_task_time_line" />
+
+        <TextView
+            android:id="@+id/tv_limitTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/limittime_no_input" />
+
+    </LinearLayout>
+
+    <!-- 下部ナビゲーション分 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_navi_height" />
+
+</LinearLayout>

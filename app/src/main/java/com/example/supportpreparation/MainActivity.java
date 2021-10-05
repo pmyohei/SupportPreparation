@@ -2,6 +2,7 @@ package com.example.supportpreparation;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private TaskArrayList<TaskTable>    mTaskList;                              //「やること」リスト
     private GroupArrayList<GroupTable>  mGroupList;                             //「やることグループ」リスト
     private StackTaskTable              mStackTable;                            //スタックテーブル
+    private StackTaskTable              mAlarmStack;                            //スタックテーブル(アラーム設定)
     private TaskArrayList<TaskTable>    mStackTaskList = new TaskArrayList<>(); //「積み上げやること」リスト
     private String                      mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
     private String                      mLimitTime;                             //リミット-時（"hh:mm"）
@@ -42,6 +44,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
         Log.i("test", "main onSuccessTaskRead");
+    }
+
+    /*
+     *
+     */
+    public static void readDB(){
+
     }
 
     /*
@@ -74,18 +83,30 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
  */
 
     /*
-     * 「スタック」データを取得する・設定
+     * 「スタック」データを取得・設定
      */
     public StackTaskTable getStackTable() {
         return mStackTable;
     }
     public void setStackTable( StackTaskTable stackTable ) {
 
-        //★備忘★テーブルは箇所を参照しているため、この処理は不要
-        mStackTable = stackTable;
-
         //DBを更新
         new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.CREATE, mStackTable).execute();
+    }
+
+    /*
+     * 「スタック」データ(アラーム)を取得・設定
+     */
+    public StackTaskTable getAlarmStack() {
+        return mAlarmStack;
+    }
+    public void setAlarmStack( StackTaskTable alarmStack ) {
+
+        //！スタック画面上で、clone()生成されているため、インスタンスをコピーすることで同期
+        mAlarmStack = alarmStack;
+
+        //DBを更新
+        new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.CREATE, mAlarmStack).execute();
     }
 
     /*
@@ -222,12 +243,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      * 「積み上げやること」
      */
     @Override
-    public void onSuccessStackRead( Integer code, StackTaskTable stack ) {
+    public void onSuccessStackRead( Integer code, StackTaskTable stack, StackTaskTable alarmStack ) {
 
         //DBからデータを取れれば
         if( code == AsyncStackTaskTableOperaion.READ_NORMAL ){
 
             mStackTable = stack;
+            mAlarmStack = alarmStack;
 
             //DBから取得した「積み上げやること」データを保持
             //mStackTaskList = taskList;

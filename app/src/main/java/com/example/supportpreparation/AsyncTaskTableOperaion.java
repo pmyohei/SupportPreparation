@@ -99,8 +99,6 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
             //削除
             deleteTaskData(taskTableDao);
 
-        } else{
-            //do nothing
         }
 
         return ret;

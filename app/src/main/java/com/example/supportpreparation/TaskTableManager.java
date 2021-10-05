@@ -11,6 +11,10 @@ public class TaskTableManager {
 
     //「セットに追加されたやること」の区切文字
     private final static String DELIMITER = " ";
+    public final static Integer ALARM_ON = 1;
+    public final static Integer ALARM_OFF = 0;
+    private final static String ALARM_ON_CHAR = "1";
+    private final static String ALARM_OFF_CHAR = "0";
 
     /*
      * 「やること」追加
@@ -19,7 +23,7 @@ public class TaskTableManager {
     public static String addTaskPidsStr(String toStr, int pid) {
 
         //指定IDが既に含まれているかチェック
-        if( hasPidInStr(toStr, pid) ){
+        if (hasPidInStr(toStr, pid)) {
             //あるなら、追加せず終了
             return null;
         }
@@ -52,15 +56,15 @@ public class TaskTableManager {
      *   指定された「選択済みやること文字列」内に、
      *   指定されたPIDが含まれているか判定する
      */
-    private static boolean hasPidInStr(String str, int pid){
+    private static boolean hasPidInStr(String str, int pid) {
 
         //半角スペースで分割
         String[] pidsStr = str.split(DELIMITER);
 
         //PID分ループ
-        for( String pidStr: pidsStr ){
+        for (String pidStr : pidsStr) {
             //一致するか
-            if( pidStr.equals( Integer.toString(pid) ) ){
+            if (pidStr.equals(Integer.toString(pid))) {
                 //あり
                 return true;
             }
@@ -74,31 +78,34 @@ public class TaskTableManager {
      * 「選択済みやること」リストを文字列として返す。
      * 　※各値の区切りは、指定されたデリミタにて行う。
      */
-    public static String getPidsStr( List<Integer> list) {
+    public static String getPidsStr(TaskArrayList<TaskTable> list) {
 
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
 
-        for( Integer i: list ){
+        for (TaskTable task : list) {
 
-            if( ret.isEmpty() ){
+            //pidを文字列に
+            String tmp = Integer.toString(task.getId());
+
+            if (ret.length() == 0) {
                 //1つ目
-                ret = Integer.toString(i);
+                ret = new StringBuilder(tmp);
             } else {
                 //2つ目は、デリミタ付き。
-                ret = ret + TaskTableManager.DELIMITER + Integer.toString(i);
+                ret.append(DELIMITER).append(tmp);
             }
         }
 
-        return ret;
+        return ret.toString();
     }
 
     /*
-     * 「選択済みやること文字列」のPidをint型配列として返す
+     * 数値文字列（空白区切り）をIntegerのListに変換
      */
-    public static List<Integer> getPidsIntArray(String str) {
+    public static List<Integer> convertIntArray(String str) {
 
         //pidなしなら、終了
-        if( str.isEmpty() ){
+        if (str.isEmpty()) {
             return null;
         }
 
@@ -111,13 +118,60 @@ public class TaskTableManager {
         List<Integer> pids = new ArrayList<>();
 
         //PID分ループ
-        for( String pidStr: pidsStr ){
+        for (String pidStr : pidsStr) {
             Log.i("test", "getPidsIntArray loop pidStr=" + pidStr);
             //pidを整数に変換して、リストに追加
-            pids.add( Integer.parseInt(pidStr) );
+            pids.add(Integer.parseInt(pidStr));
         }
 
         return pids;
+    }
+
+    /*
+     * 数値文字列（空白区切り）をIntegerのListに変換
+     */
+    public static void convertAlarmList(String str, List<Boolean> list ) {
+
+        //文字列なしなら終了
+        if (str.isEmpty()) {
+            return;
+        }
+
+        //半角スペースで分割
+        String[] pidsStr = str.split(DELIMITER);
+
+        //PID分ループ
+        for (String pidStr : pidsStr) {
+            //On/Off
+            boolean onoff = pidStr.equals( TaskTableManager.ALARM_ON_CHAR );
+
+            //リストに追加
+            list.add( onoff );
+        }
+    }
+
+    /*
+     * 「選択済みやること」リストを文字列として返す。
+     * 　※各値の区切りは、指定されたデリミタにて行う。
+     */
+    public static String getAlarmStr( List<Boolean> list) {
+
+        StringBuilder ret = new StringBuilder();
+
+        for( boolean onoff: list ){
+            //設定文字
+            String tmp = ( onoff ? ALARM_ON_CHAR : ALARM_OFF_CHAR);
+
+            if (ret.length() == 0) {
+                //1つ目
+                ret = new StringBuilder( tmp );
+            } else {
+                //2つ目は、デリミタ付き。
+                ret.append( DELIMITER ).append( tmp );
+            }
+        }
+
+        return ret.toString();
     }
 
     /*

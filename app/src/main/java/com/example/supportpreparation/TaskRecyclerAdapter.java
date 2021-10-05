@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,7 +53,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             tv_pid = (TextView) itemView.findViewById(R.id.tv_pid);
             tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
-            ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.v_gragh);
+            ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.ll_taskInfo);
         }
     }
 
@@ -100,7 +101,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public TaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
         int id = getLayoutId();
@@ -112,20 +113,54 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         //drawableファイルを適用
         applyDrawableResorce(view, viewType);
 
-        //-- サイズ指定があれば、サイズを設定
-        //レイアウトパラメータを取得
-        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        //★備考★コード整理
+        //選択エリアなら、正方形の大きさを設定
+        if( mSetting == SETTING.SELECT || mSetting == SETTING.GROUP ){
 
-        //横幅
-        if (mItemWidth != 0) {
-            layoutParams.width = mItemWidth;
-            view.setLayoutParams(layoutParams);
-        }
-        //高さ
-        if (mItemHeight != 0) {
+            //レイアウトパラメータを取得
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
 
-            layoutParams.height = mItemHeight;
-            view.setLayoutParams(layoutParams);
+            //横幅
+            if (mItemWidth != 0) {
+                //追加レイアウトそのものの大きさ
+                layoutParams.width = mItemWidth;
+                view.setLayoutParams(layoutParams);
+            }
+
+            //高さ
+            if (mItemHeight != 0) {
+
+                //layoutParams.height = mItemHeight;
+                //view.setLayoutParams(layoutParams);
+            }
+
+            //正方形のサイズを設定
+            LinearLayout ll_taskDesign = view.findViewById(R.id.ll_taskDesign);
+
+            //レイアウト全体サイズに対して、一定割合をブロックの大きさとする
+            ViewGroup.LayoutParams blockLayoutParams = ll_taskDesign.getLayoutParams();
+            blockLayoutParams.width = (int)(mItemWidth * 0.6);
+            blockLayoutParams.height = (int)(mItemWidth * 0.6);
+
+            ll_taskDesign.setLayoutParams(blockLayoutParams);
+
+        } else {
+            //レイアウトパラメータを取得
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+
+            //横幅
+            if (mItemWidth != 0) {
+                //追加レイアウトそのものの大きさ
+                layoutParams.width = (int)(mItemWidth * 0.8);;
+                view.setLayoutParams(layoutParams);
+            }
+
+            //高さ
+            if (mItemHeight != 0) {
+
+                layoutParams.height = (int)(mItemHeight * 0.8);
+                view.setLayoutParams(layoutParams);
+            }
         }
 
         return new TaskViewHolder(view);
@@ -151,7 +186,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             viewHolder.tv_taskTime.setText(timeStr);
         }
 
-        //クリック処理
+        //クリック時の処理
         if (clickListener != null) {
             viewHolder.ll_taskInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -161,11 +196,12 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             });
         }
 
-        //ドラッグ処理
+        //ロングクリック時の処理
         if (longListener != null) {
             viewHolder.ll_taskInfo.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+                    //リスナーとして設定されたメソッドをコール
                     longListener.onLongClick(view);
                     return true;
                 }
@@ -190,16 +226,17 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     }
 
     /*
-     * アイテム毎のタッチリスナー
+     * タッチリスナーの設定
      */
     public void setOnItemClickListener(View.OnClickListener listener) {
         clickListener = listener;
     }
 
     /*
-     * アイテム毎のドラッグリスナー
+     * ドラッグ（長押し）リスナーの設定
      */
     public void setOnItemLongClickListener(View.OnLongClickListener listener) {
+        //長押しされた時の動作
         longListener = listener;
     }
 
@@ -216,7 +253,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
                 return R.layout.outer_task_for_select;
 
             case GROUP:
-                return R.layout.outer_task_in_group;
+                return R.layout.outer_task_for_select;
 
             default:
                 //ありえないルート
@@ -231,25 +268,26 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void applyDrawableResorce(View view, int time) {
 
-        //適用対象のビューID
+        //適用対象のビューID（角丸四角のビュー）
         int id_view;
+        //drawableファイルID
         int id_drawable;
 
         //表示目的に応じて、IDを取得
         switch (mSetting) {
             case LIST:
-                id_view     = R.id.v_gragh;
+                id_view     = R.id.ll_taskInfo;
                 id_drawable = R.drawable.frame_item_task;
                 break;
 
             case SELECT:
                 id_view     = R.id.ll_taskDesign;
-                id_drawable = R.drawable.frame_item_task;
+                id_drawable = R.drawable.frame_item_task_for_select;
                 break;
 
             case GROUP:
-                id_view     = R.id.v_gragh;
-                id_drawable = R.drawable.frame_item_task_in_group;
+                id_view     = R.id.ll_taskDesign;
+                id_drawable = R.drawable.frame_item_task_for_select;
                 break;
 
             default:

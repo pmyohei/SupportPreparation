@@ -13,11 +13,12 @@
         android:id="@+id/rv_taskList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="@dimen/bottom_navi_height"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:gravity="center"
         android:overScrollMode="never"
         android:layoutAnimation="@anim/layout_anim_task_list"/>
 

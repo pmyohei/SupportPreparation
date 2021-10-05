@@ -14,19 +14,18 @@ import java.util.List;
 @Dao
 public interface StackTaskTableDao {
     /*
-     * ！仕様上、取得できるのは1件のみ
-     * 　(登録数を1件としているため)
+     * 全レコード取得
      */
     @Query("SELECT * FROM stackTaskTable")
     List<StackTaskTable> getAll();
 
     /*
      * 取得：プライマリーキー
-     *   ※未登録の場合、プライマリーキーは「0」が返される（実証）
-     *     ＝プライマリーキーは「１」から割り当てられる
+     *   ※指定されたスタックorアラームのプライマリーキーを取得
+     *   ※未登録の場合、プライマリーキーは「0」が返される（実証）＝プライマリーキーは「１」から割り当てられる
      */
-    //@Query("SELECT id FROM stackTaskTable WHERE set_name=(:setName)")
-    //int getPid(String setName);
+    @Query("SELECT id FROM stackTaskTable WHERE isStack=(:isStack)")
+    int getPid(boolean isStack);
 
     /*
      * 取得：選択済み「やること」文字列
@@ -35,7 +34,26 @@ public interface StackTaskTableDao {
     String getTaskPidsStr(int pid);
 
     /*
-     * 削除：プライマリーキー指定
+     * 更新（全フィールド更新）
+     */
+    @Query("UPDATE stackTaskTable set task_pids_string=(:taskPidsStr), alarmOnOffStr=(:alarmOnOffStr), date=(:date), time=(:time), isLimit=(:isLimit), isStack=(:isStack), onAlarm=(:onAlarm) WHERE id=(:pid)")
+    void update( int pid,
+                 String taskPidsStr,
+                 String alarmOnOffStr,
+                 String date,
+                 String time,
+                 boolean isLimit,
+                 boolean isStack,
+                 boolean onAlarm  );
+
+    /*
+     * 削除：指定「スタック or アラーム」に該当するすべてのレコードを削除
+     */
+    @Query("DELETE FROM stackTaskTable WHERE isStack=(:isStack)")
+    void deleteWithCategory( boolean isStack );
+
+    /*
+     * 削除：すべて
      */
     @Query("DELETE FROM stackTaskTable")
     void deleteAll();

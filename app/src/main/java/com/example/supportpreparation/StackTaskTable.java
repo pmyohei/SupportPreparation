@@ -2,6 +2,7 @@ package com.example.supportpreparation;
 
 //import android.icu.util.Calendar;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -9,8 +10,10 @@ import androidx.room.PrimaryKey;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /*
@@ -20,7 +23,7 @@ import java.util.Locale;
  *     備考：本レコードの最大登録数は「１つ」のみと想定
  */
 @Entity
-public class StackTaskTable {
+public class StackTaskTable implements Cloneable {
     //主キー
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -30,6 +33,9 @@ public class StackTaskTable {
     //　  "pid1 pid2 pid3"
     @ColumnInfo(name = "task_pids_string")
     private String taskPidsStr = "";
+
+    @ColumnInfo(name = "alarmOnOffStr")
+    private String alarmOnOffStr = "";
 
     //リミット日："yyyy/MM/dd"
     @ColumnInfo(name = "date")
@@ -43,15 +49,24 @@ public class StackTaskTable {
     @ColumnInfo(name = "isLimit")
     private boolean isLimit = true;
 
+    //スタックとしてのフィールドか、アラームとしてのフィールドか
+    @ColumnInfo(name = "isStack")
+    private boolean isStack = true;
+
+    //最終時刻のアラーム
+    @ColumnInfo(name = "onAlarm")
+    private boolean onAlarm = true;
+
+
     /*
      * 非レコードフィールド
      */
     @Ignore
     public static int NO_DATA = -1;        //データなし
-
     @Ignore
     private TaskArrayList<TaskTable> mStackTaskList = new TaskArrayList<>();
-
+    @Ignore
+    private List<Boolean> mAlarmOnOffList = new ArrayList<>();
 
     /*
      * コンストラクタ
@@ -60,35 +75,52 @@ public class StackTaskTable {
         this.taskPidsStr = taskPidsStr;
         this.date = date;
         this.time = time;
-    }
 
-    @Ignore
-    public StackTaskTable(StackTaskTable stackTable) {
-        this.taskPidsStr = stackTable.getTaskPidsStr();
-        this.date = stackTable.getDate();
-        this.time = stackTable.getTime();
-        this.isLimit = stackTable.isLimit();
-    }
-
-    @Ignore
-    public StackTaskTable() {
-        //本日の日付
-        Date nowDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        String today = sdf.format(nowDate);
-
-        this.date = today;
-        this.time = "--:--";    //!文字列変更時は注意! R.string.limittime_no_input
+        //初期値はアラームON
+        this.onAlarm = true;
     }
 
     /*
+     *  コンストラクタ
+     *   新規生成用
+     */
+/*
+    @Ignore
+    public StackTaskTable(StackTaskTable stackTable) {
+        this.taskPidsStr = stackTable.getTaskPidsStr();
+        this.alarmOnOffStr = stackTable.getAlarmOnOffStr();
+        this.date = stackTable.getDate();
+        this.time = stackTable.getTime();
+        this.isLimit = stackTable.isLimit();
+        this.isStack = stackTable.isStack();
+        this.onAlarm = stackTable.isOnAlarm();
+    }
+*/
+
+    /*
+     *  コンストラクタ
+     *   空指定用
+     */
+    @Ignore
+    public StackTaskTable( boolean isStack ) {
+        //本日の日付
+        Date nowDate = new Date();
+        this.date = ResourceManager.sdf_Date.format(nowDate);
+        this.time = "--:--";    //!文字列変更時は注意! R.string.limittime_no_input
+
+        this.isStack = isStack;
+    }
+
+
+    /*
+     *
      * getter and setter
+     *
      */
 
     public void setId(int id) {
         this.id = id;
     }
-
     public int getId() {
         return this.id;
     }
@@ -96,18 +128,27 @@ public class StackTaskTable {
     public String getTaskPidsStr() {
         return taskPidsStr;
     }
-
     public void setTaskPidsStr(String taskPidsStr) {
         this.taskPidsStr = taskPidsStr;
     }
 
-    /*
-     * ベース日
-     */
+    public String getAlarmOnOffStr() {
+        return alarmOnOffStr;
+    }
+    public void setAlarmOnOffStr(String alarmOnOffStr) {
+        this.alarmOnOffStr = alarmOnOffStr;
+    }
+
+    public boolean isOnAlarm(){
+        return onAlarm;
+    }
+    public void setOnAlarm( boolean onAlarm){
+        this.onAlarm = onAlarm;
+    }
+
     public String getDate() {
         return date;
     }
-
     public void setDate(String date) {
         this.date = date;
 
@@ -115,13 +156,9 @@ public class StackTaskTable {
         allUpdateStartEndTime();
     }
 
-    /*
-     * ベース時間
-     */
     public String getTime() {
         return time;
     }
-
     public void setTime(String time) {
         this.time = time;
 
@@ -129,29 +166,61 @@ public class StackTaskTable {
         allUpdateStartEndTime();
     }
 
-    /*
-     * 積まれた「やること」リスト
-     */
     public TaskArrayList<TaskTable> getStackTaskList() {
         return mStackTaskList;
     }
-
-    public void setStackTaskList(TaskArrayList<TaskTable> time) {
-        this.mStackTaskList = time;
+    public void setStackTaskList(TaskArrayList<TaskTable> taskList) {
+        this.mStackTaskList = taskList;
     }
 
-    /*
-     * リミット指定か否か
-     */
+    public List<Boolean> getAlarmOnOffList() {
+        return mAlarmOnOffList;
+    }
+    public void setAlarmOnOffList(List<Boolean>  alarmList) {
+        this.mAlarmOnOffList = alarmList;
+    }
+
     public boolean isLimit() {
-        return isLimit;
+        return this.isLimit;
     }
-
     public void setIsLimit(boolean limit) {
-        isLimit = limit;
+        this.isLimit = limit;
 
         //開始・終了時間の更新
         allUpdateStartEndTime();
+    }
+
+    public boolean isStack() {
+        return this.isStack;
+    }
+    public void setIsStack(boolean stack) {
+        this.isStack = stack;
+    }
+
+
+    @NonNull
+    public Object clone() {
+        try {
+            StackTaskTable cloneObject =(StackTaskTable)super.clone();
+
+            cloneObject.taskPidsStr = new String(taskPidsStr);
+            cloneObject.date = new String(date);
+            cloneObject.time = new String(time);
+            cloneObject.isLimit = isLimit;
+            cloneObject.mStackTaskList = (TaskArrayList<TaskTable>) mStackTaskList.clone();
+            cloneObject.onAlarm = onAlarm;
+
+            //※スタック側と重複しないようにするため、pidは初期値を設定
+            cloneObject.id = 0;
+
+            //※仕様上、cloneの生成は「スタック」→「アラーム」であるため、本フィールドはfalseに設定
+            cloneObject.isStack = false;
+
+            return cloneObject;
+
+        } catch (CloneNotSupportedException ex){
+            return null;
+        }
     }
 
     /*
@@ -254,14 +323,22 @@ public class StackTaskTable {
         //追加されたやることのIndex
         int addedIdx;
 
+        boolean onoff = taskTable.isOnAlarm();
+
         if (isLimit) {
             //リミット指定なら、先頭に追加
             mStackTaskList.add(0, taskTable);
+
+            //アラームOn/Off
+            mAlarmOnOffList.add(0, onoff);
 
             addedIdx = 0;
         } else {
             //スタート指定なら、最後尾に追加
             mStackTaskList.add(taskTable);
+
+            //アラームOn/Off
+            mAlarmOnOffList.add(onoff);
 
             addedIdx = mStackTaskList.getLastIdx();
         }
@@ -284,6 +361,7 @@ public class StackTaskTable {
 
         //挿入
         mStackTaskList.add(idx, taskTable);
+        mAlarmOnOffList.add(idx, taskTable.isOnAlarm() );
 
         //開始・終了時間の更新
         allUpdateStartEndTime();
@@ -294,6 +372,7 @@ public class StackTaskTable {
      */
     public void removeTask(int idx) {
         mStackTaskList.remove(idx);
+        mAlarmOnOffList.remove(idx);
 
         //開始・終了時間の更新
         allUpdateStartEndTime();

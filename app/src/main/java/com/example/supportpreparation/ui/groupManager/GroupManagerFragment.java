@@ -1,5 +1,6 @@
 package com.example.supportpreparation.ui.groupManager;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -42,7 +43,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class GroupManagerFragment extends Fragment implements AsyncGroupTableOperaion.GroupOperationListener {
 
-    private final int NO_SEARCH = -1;                   //未発見
+    private final int           NO_SEARCH = -1;                        //未発見
+    public  final static int    DIV_GROUP_IN_TASK = 3;                 //グループ内やること-横幅分割数
+    public  final static int    DIV_GROUP_IN_TASK_WIDTH = 4;           //グループ内やることブロックの横幅算出値
 
     private MainActivity                   mParentActivity;            //親アクティビティ
     private View                           mRootLayout;                //本フラグメントに設定しているレイアウト
@@ -81,19 +84,9 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //ビュー
         mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
 
-        //グループ内「やること」のアダプタを設定
-        for( GroupTable group: mGroupList ){
-            //アダプタ生成
-            TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
-            TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
-
-            //設定
-            group.setTaskAdapter(adapter);
-        }
-
         //現在登録されている「やること」「グループ」を表示
         setupTaskSelectionArea();
-        displayGroup();
+        setupGroup();
 
         // FloatingActionButton
         mFab.setOnClickListener(new View.OnClickListener() {
@@ -184,7 +177,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
      * 「グループ」の表示
      *    登録済みの「グループ」を全て表示する。
      */
-    private void displayGroup() {
+    private void setupGroup() {
 
         //-- 「グループ」の表示
         //レイアウトからリストビューを取得
@@ -202,8 +195,23 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             @Override
             public boolean onPreDraw() {
 
-                //子アイテムの高さ
-                int height = rv_group.getHeight() * 3 / 4;
+                //グループのサイズ
+                int height = (int)(rv_group.getHeight() * 0.75);
+
+                //グループのリサイクラービューを基準に、横幅を決定
+                //※グループ内やることのリサイクラービューは現時点では取得不可のため
+                int width = rv_group.getWidth() / DIV_GROUP_IN_TASK_WIDTH;
+
+                //グループ内「やること」のアダプタを設定
+                for( GroupTable group: mGroupList ){
+                    //アダプタ生成
+                    //※高さはビューに依存「wrap_contents」
+                    TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
+                    TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, width, 0);
+
+                    //設定
+                    group.setTaskAdapter(adapter);
+                }
 
                 //下部ナビゲーション
                 BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
@@ -382,6 +390,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     public void onSuccessReadGroup(GroupArrayList<GroupTable> groupList) {
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onSuccessCreateGroup(Integer code, GroupTable group) {
         //-- 作成結果をトーストで表示
@@ -410,17 +419,23 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //生成された「グループ」情報をリストに追加
         mGroupList.add( group );
 
+        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+
+        //グループのリサイクラービューを基準に、横幅を決定
+        //※グループ内やることのリサイクラービューは現時点では取得不可のため
+        int size = rv_group.getWidth() / DIV_GROUP_IN_TASK_WIDTH;
+
         //対応するアダプタを生成して、設定
         TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
-        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, 0, 0);
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, size, 0);
         group.setTaskAdapter(adapter);
 
         //アダプタに変更を通知
         mGroupAdapter.notifyDataSetChanged();
 
         //追加された位置へスクロール
-        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
         rv_group.scrollToPosition( mGroupList.size() - 1 );
+
     }
 
     @Override

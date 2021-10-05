@@ -11,6 +11,7 @@
     <include layout="@layout/manage_stack" />
 
     <LinearLayout
+        android:id="@+id/ll_fabGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/fab_margin_right"
@@ -33,7 +34,7 @@
             android:contentDescription="switchDirection" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_cancelAlarm"
+            android:id="@+id/fab_refAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:fabCustomSize="@dimen/fab_child_size"
@@ -42,7 +43,7 @@
             android:visibility="gone"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
-            app:srcCompat="@drawable/ic_alarm_cancel_32"
+            app:srcCompat="@drawable/ic_alarm_ref_32"
             android:contentDescription="cancelAlarm" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -55,7 +56,7 @@
             android:visibility="gone"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
-            app:srcCompat="@drawable/ic_action_bell_32px"
+            app:srcCompat="@drawable/ic_alarm_set_36"
             android:contentDescription="setAlarm" />
 
         <!-- 親fab -->
@@ -66,7 +67,7 @@
             android:layout_marginBottom="@dimen/fab_alarm_margin_bottom"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
-            app:srcCompat="@drawable/ic_up_32"
+            app:srcCompat="@drawable/avd_fab_parent_open"
             android:contentDescription="parent" />
 
     </LinearLayout>

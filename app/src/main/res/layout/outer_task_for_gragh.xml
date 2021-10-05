@@ -30,7 +30,7 @@
 
     <!-- グラフ -->
     <View
-        android:id="@+id/v_gragh"
+        android:id="@+id/ll_taskInfo"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.1"
@@ -53,7 +53,9 @@
             android:gravity="center"
             android:text="やること"
             android:textColor="@color/tx_limit_line"
-            android:textSize="12sp"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             tools:layout_editor_absoluteY="40dp" />
 
         <TextView
@@ -61,9 +63,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="xx"
+            android:text="@string/unit_task_time"
             android:textColor="@color/tx_limit_line"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <!--
         <TextView

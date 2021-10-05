@@ -19,14 +19,15 @@
     <EditText
         android:id="@+id/et_groupName"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:background="@drawable/view_frame_dialog_edittext"
         android:hint="@string/group_name_hint"
         android:textColor="@color/bg_dialog"
@@ -35,20 +36,17 @@
     <TextView
         android:id="@+id/tv_alert"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.1"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center_horizontal"
-        android:text=""
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:textColor="@color/tx_diarog_alart"/>
 
     <Button
         android:id="@+id/bt_entryGroup"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="12dp"
         android:layout_marginLeft="16dp"
@@ -57,7 +55,7 @@
         android:stateListAnimator="@null"
         android:text="@string/dialog_create_btn"
         android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textSize="16sp"
         app:backgroundTint="@color/bg_dialog"/>
 
 </LinearLayout>

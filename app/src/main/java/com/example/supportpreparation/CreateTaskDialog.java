@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,17 +64,12 @@ public class CreateTaskDialog extends DialogFragment {
 
         //ダイアログ取得
         Dialog dialog = getDialog();
+        if( dialog == null ){
+            return;
+        }
 
-        //-- ダイアログデザインの設定
-        //画面メトリクスの取得
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        //レイアウトパラメータの取得
-        WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-        lp.width   = metrics.widthPixels;                   //横幅=画面サイズ
-        lp.height  = metrics.heightPixels * 2 / 5;          //横幅=画面サイズ
-        lp.gravity = Gravity.BOTTOM;                        //位置=画面下部
-        //ダイアログのデザインとして設定
-        dialog.getWindow().setAttributes(lp);
+        //サイズ設定
+        setupDialogSize(dialog);
 
         //---- ビューの設定も本メソッドで行う必要あり（onCreateDialog()内だと落ちる）
         //-- NumberPicker の設定
@@ -156,7 +152,25 @@ public class CreateTaskDialog extends DialogFragment {
             }
         });
 
-        return;
+    }
+
+    /*
+     * ダイアログサイズ設定
+     */
+    private void setupDialogSize( Dialog dialog ){
+
+        Window window= dialog.getWindow();
+
+        //画面メトリクスの取得
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+
+        //レイアウトパラメータ
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width   = metrics.widthPixels;
+        lp.gravity = Gravity.BOTTOM;
+
+        //サイズ設定
+        window.setAttributes(lp);
     }
 
 }

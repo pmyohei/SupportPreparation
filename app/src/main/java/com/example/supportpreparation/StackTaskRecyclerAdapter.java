@@ -15,7 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -462,7 +461,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     private void applyDrawableResorce(View view, int time) {
 
         //適用対象のビューを取得
-        LinearLayout ll = view.findViewById(R.id.v_gragh);
+        LinearLayout ll = view.findViewById(R.id.ll_taskInfo);
 
         //表示目的に応じて、drawableリソースを取得
         Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task);;

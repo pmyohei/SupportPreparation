@@ -38,7 +38,7 @@ public interface TaskTableDao {
      *   指定されたプライマリーキーのレコードを更新
      */
     @Query("UPDATE taskTable set task_name=(:taskName), task_time=(:taskTime) WHERE id=(:pid)")
-    int updateByPid(int pid, String taskName, int taskTime);
+    void updateByPid(int pid, String taskName, int taskTime);
 
     /*
      * 削除：プライマリーキー指定

@@ -32,6 +32,9 @@ public class TaskTable {
     private Calendar mStartCalendar;        //開始時間のカレンダー
     @Ignore
     private Calendar mEndCalendar;          //終了時間のカレンダー
+    @Ignore
+    private boolean mOnAlarm;               //アラームON
+                                            //※本データはDB保存しない。保存はStackTable側で行う
 
     /*
      * コンストラクタ
@@ -40,6 +43,9 @@ public class TaskTable {
         this.id       = pid;
         this.taskName = taskName;
         this.taskTime = taskTime;
+
+        //設定されるまでOFF
+        mOnAlarm = false;
     }
 
     /*
@@ -48,6 +54,9 @@ public class TaskTable {
     public TaskTable(String taskName, int taskTime) {
         this.taskName = taskName;
         this.taskTime = taskTime;
+
+        //設定されるまでOFF
+        mOnAlarm = false;
     }
 
     public void setId(int id) {
@@ -83,6 +92,13 @@ public class TaskTable {
     }
     public void setEndCalendar(Calendar calender) {
         this.mEndCalendar = calender;
+    }
+
+    public boolean isOnAlarm(){
+        return mOnAlarm;
+    }
+    public void setOnAlarm( boolean onAlarm){
+        mOnAlarm = onAlarm;
     }
 
 }

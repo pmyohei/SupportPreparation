@@ -4,18 +4,24 @@ import static android.content.Context.ALARM_SERVICE;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.DragEvent;
@@ -34,8 +40,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +52,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
+import com.example.supportpreparation.CreateSetAlarmDialog;
 import com.example.supportpreparation.GroupArrayList;
 import com.example.supportpreparation.GroupSelectRecyclerAdapter;
 import com.example.supportpreparation.GroupTable;
@@ -68,9 +78,15 @@ import java.util.Locale;
 public class StackManagerFragment extends Fragment {
 
     public final static int SELECT_TASK_AREA_DIV = 4;           //やること選択エリア-横幅分割数
-    public final static int SELECT_GROUP_AREA_DIV = 3;          //やること選択エリア-横幅分割数
+    public final static int SELECT_GROUP_AREA_DIV = 4;          //やること選択エリア-横幅分割数
 
-    private final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
+    public static final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
+    public static final String NOTIFY_SEND_KEY = "notifykey";               //アラームキャンセル最大数
+
+    public enum ALARM_RESULT {
+        NEW_ALARM,                                              //アラーム新規設定
+        UPDATE_ALARM,                                           //アラーム更新
+    }
 
     private MainActivity mParentActivity;        //親アクティビティ
     private Fragment mFragment;              //本フラグメント
@@ -79,6 +95,7 @@ public class StackManagerFragment extends Fragment {
     private AppDatabase mDB;                    //DB
     private LinearLayout mll_stackArea;          //「やること」積み上げ領域
     private StackTaskTable mStackTable;                            //スタックテーブル
+    private StackTaskTable mAlarmStack;                            //アラーム設定されたスタック
     private TaskArrayList<TaskTable> mStackTaskList;             //積み上げ「やること」
     private TaskArrayList<TaskTable> mTaskList;              //「やること」
     private StackTaskRecyclerAdapter mStackAreaAdapter;      //積み上げ「やること」アダプタ
@@ -106,6 +123,7 @@ public class StackManagerFragment extends Fragment {
         mParentActivity = (MainActivity) getActivity();
         //スタック情報取得
         mStackTable = mParentActivity.getStackTable();
+        mAlarmStack = mParentActivity.getAlarmStack();
         //やることリストを取得
         mTaskList = mParentActivity.getTaskData();
         //フラグ
@@ -118,7 +136,7 @@ public class StackManagerFragment extends Fragment {
         mfab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
 
         //アラーム受信クラスのIntent
-        mAlarmReceiverIntent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
+        Intent mAlarmReceiverIntent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
 
         //「リミット日時」の設定
         setupBaseTimeDate();
@@ -137,6 +155,7 @@ public class StackManagerFragment extends Fragment {
         setupFabParent();
         setupFabSwitchDirection();
         setupFabSetAlarm();
+        setupFabRefAlarm();
 
         return mRootLayout;
     }
@@ -149,28 +168,6 @@ public class StackManagerFragment extends Fragment {
         super.onDestroyView();
     }
 
-    /*
-     * 設定中アラームの全キャンセル
-     */
-    private void cancelAllAlarm() {
-
-        //AlarmManagerの取得
-        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-
-        for (int i = 0; i < MAX_ALARM_CANCEL_NUM; i++) {
-            //PendingIntentを取得
-            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), i, mAlarmReceiverIntent, PendingIntent.FLAG_NO_CREATE);
-            if (pendingIntent == null) {
-                //未生成ならキャンセル処理終了
-                break;
-            }
-
-            //アラームキャンセル
-            pendingIntent.cancel();
-            am.cancel(pendingIntent);
-        }
-    }
 
     /*
      * 時間入力ダイアログの生成
@@ -490,7 +487,7 @@ public class StackManagerFragment extends Fragment {
         mtv_limitTime.setOnClickListener(new BaseTimeListener());
 
         //時間設定-スタート
-        TextView tv_startTime = (TextView) mRootLayout.findViewById(R.id.tv_startTime);
+        TextView tv_startTime = (TextView) mRootLayout.findViewById(R.id.tv_alarmTime);
         tv_startTime.setText(limitTime);
         tv_startTime.setOnClickListener(new BaseTimeListener());
 
@@ -531,7 +528,7 @@ public class StackManagerFragment extends Fragment {
             @Override
             public boolean onPreDraw() {
 
-                //RecyclerViewの横幅分割
+                //RecyclerViewのアイテムサイズ
                 int width = rv_task.getWidth() / SELECT_TASK_AREA_DIV;
                 if (width == 0) {
                     //RecyclerViewがGONE中は、アダプタ設定をしない
@@ -539,9 +536,10 @@ public class StackManagerFragment extends Fragment {
                 }
 
                 //アダプタの生成・設定
+                //※高さはビューに依存「wrap_contents」
                 TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
 
-                //ドラッグリスナーの設定
+                //ドラッグリスナーの設定（ロングタッチ時の動作）
                 adapter.setOnItemLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
@@ -566,9 +564,10 @@ public class StackManagerFragment extends Fragment {
             }
         });
 
-        //スクロールリスナーの設定
-        //★備忘★
-        //rv_task.addOnScrollListener(new SelectAreaScrollListener(mfab_setAlarm));
+        //スクロールリスナーの設定（スクロール中はfabを非表示）
+        //※対応しない方針とする
+        //LinearLayout ll_fabGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_fabGroup);
+        //rv_task.addOnScrollListener(new SelectAreaScrollListener( (ViewGroup)ll_fabGroup));
     }
 
     /*
@@ -722,12 +721,12 @@ public class StackManagerFragment extends Fragment {
     /*
      * Fab(積み上げ方向変更)の設定
      */
-    private void setupFabSwitchDirection(){
+    private void setupFabSwitchDirection() {
 
         FloatingActionButton fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
 
         //設定アイコンの取得
-        if( !mIsLimit){
+        if (!mIsLimit) {
             //スタート指定の場合、初期アイコンを変更
             fab_switchDirection.setImageResource(R.drawable.ic_switch_direction_limit_32);
         }
@@ -737,7 +736,7 @@ public class StackManagerFragment extends Fragment {
             public void onClick(View view) {
                 //スタート側のビュー
                 LinearLayout ll_startGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_startGroup);
-                TextView tv_startTime = (TextView) ll_startGroup.findViewById(R.id.tv_startTime);
+                TextView tv_startTime = (TextView) ll_startGroup.findViewById(R.id.tv_alarmTime);
                 TextView tv_startDate = (TextView) ll_startGroup.findViewById(R.id.tv_startDate);
 
                 //リミット側のビュー
@@ -757,16 +756,16 @@ public class StackManagerFragment extends Fragment {
                 mStackTable.setIsLimit(mIsLimit);
                 mParentActivity.setStackTable(mStackTable);
 
-                if(mIsLimit){
+                if (mIsLimit) {
                     //--スタート(false) → リミット(true) へ変更された
 
                     //表示切り替え
-                    ll_startGroup.setVisibility( View.INVISIBLE );
-                    ll_limitGroup.setVisibility( View.VISIBLE );
+                    ll_startGroup.setVisibility(View.INVISIBLE);
+                    ll_limitGroup.setVisibility(View.VISIBLE);
 
                     //設定日時を同期
-                    tv_limitTime.setText( tv_startTime.getText() );
-                    tv_limitDate.setText( tv_startDate.getText() );
+                    tv_limitTime.setText(tv_startTime.getText());
+                    tv_limitDate.setText(tv_startDate.getText());
 
                     //アニメーション：スタックエリア
                     anim = AnimationUtils.loadLayoutAnimation(mContext, R.anim.layout_anim_stack_task);
@@ -780,12 +779,12 @@ public class StackManagerFragment extends Fragment {
                     //--リミット(true) → スタート(false) へ変更
 
                     //表示切り替え
-                    ll_startGroup.setVisibility( View.VISIBLE );
-                    ll_limitGroup.setVisibility( View.INVISIBLE );
+                    ll_startGroup.setVisibility(View.VISIBLE);
+                    ll_limitGroup.setVisibility(View.INVISIBLE);
 
                     //設定日時を同期
-                    tv_startTime.setText( tv_limitTime.getText() );
-                    tv_startDate.setText( tv_limitDate.getText() );
+                    tv_startTime.setText(tv_limitTime.getText());
+                    tv_startDate.setText(tv_limitDate.getText());
 
                     //アニメーション：スタックエリア
                     anim = AnimationUtils.loadLayoutAnimation(mContext, R.anim.layout_anim_que_task);
@@ -802,7 +801,7 @@ public class StackManagerFragment extends Fragment {
 
                 //積み上げ方向（リサイクラービューアイテムの表示位置 上or下）
                 RecyclerView rv_stackArea = (RecyclerView) mRootLayout.findViewById(R.id.rv_stackArea);
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager)rv_stackArea.getLayoutManager();
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) rv_stackArea.getLayoutManager();
 
                 //現在の表示方向を逆にする
                 boolean isStackFromEnd = !(linearLayoutManager.getStackFromEnd());
@@ -825,7 +824,7 @@ public class StackManagerFragment extends Fragment {
     /*
      * FAB(アラーム設定)の設定
      */
-    private void setupFabSetAlarm(){
+    private void setupFabSetAlarm() {
         // アラーム開始ボタンの設定
         mfab_setAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -850,53 +849,8 @@ public class StackManagerFragment extends Fragment {
                     return;
                 }
 
-                //AlarmManagerの取得
-                AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-                if (am == null) {
-                    //メッセージを表示
-                    toast.setText("エラーが発生しました。再度、ボタンを押してください");
-                    toast.show();
-                    return;
-                }
-
-                //設定中アラームの削除
-                cancelAllAlarm();
-                //リクエストコード
-                int requestCode = 0;
-
-                //初めに設定するアラームindexを取得
-                int idx = mStackTaskList.getAlarmFirstArriveIdx();
-                if (idx == TaskArrayList.NO_DATA) {
-                    //すべてのアラームが過ぎてしまっている場合
-                    //※過去のアラームに対して、再度アラームを設定しようとした場合のガード処理
-                    toast.setText("現在時刻よりも後に設定してください");
-                    toast.show();
-                    return;
-                }
-
-                //各「やること」のアラームを設定
-                int size = mStackTaskList.size();
-                for (; idx < size; idx++) {
-                    //★備忘★アラームは、ここだけではなく、ベース時間も追加する必要がある
-                    long millis = mStackTable.getAlarmCalender(idx).getTimeInMillis();
-
-                    //アラームの設定
-                    PendingIntent pending
-                            = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), requestCode, mAlarmReceiverIntent, 0);
-                    am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
-
-                    //リクエストコードを更新
-                    requestCode++;
-                }
-
-                //「積み上げやること」をDBに保存
-                //mParentActivity.setStackTaskData(mStackTaskList);
-
-                //メッセージを表示
-                //★備忘★
-                //toast.setText("アラームを設定しました");
-                toast.setText("アラーム実装中");
-                toast.show();
+                //ダイアログの生成
+                createSetAlarmDialog(mStackTable, true);
 
                 //-- サポート画面へ移る
                 /*
@@ -915,6 +869,195 @@ public class StackManagerFragment extends Fragment {
                 //積み上げられた「やること」を保持
             }
         });
+    }
+
+    /*
+     * FAB(アラーム参照)の設定
+     */
+    private void setupFabRefAlarm() {
+
+        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
+
+        // アラーム参照ボタンの設定
+        fab_refAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //ダイアログの生成
+                createSetAlarmDialog(mAlarmStack, false);
+
+                //test
+                cancelAllAlarm();
+            }
+        });
+    }
+
+
+    /*
+     * アラームダイアログの生成
+     */
+    private void createSetAlarmDialog(StackTaskTable stack, boolean isNew) {
+
+        //FragmentManager生成
+        FragmentManager transaction = getParentFragmentManager();
+
+        //本フラグメント
+        Fragment fragment = transaction.getFragments().get(0);
+
+        //ダイアログを生成
+        DialogFragment dialog = new CreateSetAlarmDialog(fragment, stack, isNew);
+        dialog.show(transaction, "alarm");
+    }
+
+    /*
+     * ダイアログ-アラーム設定結果
+     *   ※「CreateSetAlarmDialog」から呼ばれることを想定
+     */
+    public void OnAlarmSetReturn(boolean isNew) {
+
+        StackTaskTable stackTable;
+
+        if (isNew) {
+            //設定をアラーム情報としてコピー
+            mAlarmStack = (StackTaskTable) mStackTable.clone();
+
+            //DB更新
+            mParentActivity.setStackTable(mStackTable);
+
+            stackTable = mStackTable;
+        } else {
+            stackTable = mAlarmStack;
+        }
+
+        //DB更新
+        mParentActivity.setAlarmStack(mAlarmStack);
+
+        //アラーム設定
+        setupAlarm(stackTable);
+    }
+
+
+    /*
+     * アラーム設定
+     */
+    public void setupAlarm( StackTaskTable stackTable ) {
+
+        //アラーム設定
+        Toast toast = new Toast(mContext);
+
+        //AlarmManagerの取得
+        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+        if (am == null) {
+            //メッセージを表示
+            toast.setText("エラーが発生しました。再度、ボタンを押してください");
+            toast.show();
+            return;
+        }
+
+        //設定中アラームの削除
+        cancelAllAlarm();
+
+        //リクエストコード
+        int requestCode = 0;
+
+        //通知メッセージに付与する接尾文
+        String suffixStr = getString(R.string.notify_task_suffix);
+
+        TaskArrayList<TaskTable> taskList = stackTable.getStackTaskList();
+
+        //各「やること」のアラームを設定
+        for (TaskTable task : taskList) {
+
+            //アラーム対象外なら次へ
+            if (!task.isOnAlarm()) {
+                continue;
+            }
+
+            //アラーム設定時間
+            long millis = task.getStartCalendar().getTimeInMillis();
+
+            //Receiver側へのデータ
+            Intent intent = new Intent(mContext, AlarmBroadcastReceiver.class);
+            intent.putExtra(NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
+
+            //アラームの設定
+            PendingIntent pending
+                    = PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
+            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+
+            //リクエストコードを更新
+            requestCode++;
+        }
+
+        //最終時刻のアラーム設定
+        if (stackTable.isOnAlarm()) {
+            //アラーム設定時間
+            int last    = taskList.getLastIdx();
+            long millis = taskList.get(last).getEndCalendar().getTimeInMillis();
+
+            String message = getString(R.string.notify_final_name);
+
+            //Receiver側へのデータ
+            Intent intent = new Intent(mContext, AlarmBroadcastReceiver.class);
+            intent.putExtra( NOTIFY_SEND_KEY, message);
+
+            //アラームの設定
+            PendingIntent pending
+                    = PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
+            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+        }
+
+        //メッセージを表示
+        toast.setText("通知を設定しました");
+        toast.show();
+    }
+
+    /*
+     * 設定中アラームの全キャンセル
+     */
+    private void cancelAllAlarm() {
+
+        //AlarmManagerの取得
+        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+
+        for (int i = 0; i < MAX_ALARM_CANCEL_NUM; i++) {
+            //PendingIntentを取得
+            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
+            Intent intent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), i, intent, PendingIntent.FLAG_NO_CREATE);
+            if (pendingIntent == null) {
+                //未生成ならキャンセル処理終了
+                Log.i("test", "cancelAllAlarm= + i");
+                break;
+            }
+
+            //アラームキャンセル
+            pendingIntent.cancel();
+            am.cancel(pendingIntent);
+        }
+    }
+
+
+    /*
+     * 設定中アラームの全キャンセル
+     */
+    private void cancelAllAlara() {
+
+        //AlarmManagerの取得
+        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+
+        for (int i = 0; i < MAX_ALARM_CANCEL_NUM; i++) {
+            //PendingIntentを取得
+            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), i, mAlarmReceiverIntent, PendingIntent.FLAG_NO_CREATE);
+            if (pendingIntent == null) {
+                //未生成ならキャンセル処理終了
+                break;
+            }
+
+            //アラームキャンセル
+            pendingIntent.cancel();
+            am.cancel(pendingIntent);
+        }
     }
 
     /*
@@ -955,7 +1098,7 @@ public class StackManagerFragment extends Fragment {
 
                         //グループ内の「やること」をリストへ追加
                         animIdx = addGroupToStackList(dragView);
-                        if( animIdx == -1 ){
+                        if (animIdx == -1) {
                             //何も追加されてなければ、アダプタへの通知はなし
                             break;
                         }
@@ -1002,7 +1145,7 @@ public class StackManagerFragment extends Fragment {
             mStackTable.addTask(task);
 
             //追加アニメーションを適用するIndex
-            int animIdx = (mIsLimit ? 0: (mStackTaskList.size() - 1) );
+            int animIdx = (mIsLimit ? 0 : (mStackTaskList.size() - 1));
 
             return animIdx;
         }
@@ -1010,12 +1153,12 @@ public class StackManagerFragment extends Fragment {
         /*
          * 積まれた「やること」リストに「グループ」を追加
          */
-        private int addGroupToStackList( View dragView ){
+        private int addGroupToStackList(View dragView) {
 
             //グループ内やることがあるかチェック
             TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
             String taskPidsStr = tv_taskInGroup.getText().toString();
-            List<Integer> pids = TaskTableManager.getPidsIntArray(taskPidsStr);
+            List<Integer> pids = TaskTableManager.convertIntArray(taskPidsStr);
             if (pids == null) {
                 //何もないなら、何もせず終了
                 return -1;
@@ -1027,7 +1170,7 @@ public class StackManagerFragment extends Fragment {
             //グループ内の「やること」を積み上げ先のリストに追加する
             int taskNum = pids.size();
 
-            if(mIsLimit){
+            if (mIsLimit) {
                 //グループ内やることを、「逆」から追加
                 int i = taskNum - 1;
                 for (; i >= 0; i--) {
@@ -1050,7 +1193,7 @@ public class StackManagerFragment extends Fragment {
                 animIdx = mStackTaskList.size();
 
                 //グループ内やることを、「頭」から追加
-                for ( int i = 0; i < taskNum; i++) {
+                for (int i = 0; i < taskNum; i++) {
                     Integer pid = pids.get(i);
                     TaskTable task = mTaskList.getTaskByPid(pid);
                     if (task != null) {
@@ -1074,7 +1217,8 @@ public class StackManagerFragment extends Fragment {
             int position = parent.getChildAdapterPosition(view);
             if (position == state.getItemCount() - 1) {
                 //最後の要素の右に、FAB分の空間を設定
-                outRect.right = mfab_setAlarm.getWidth();
+                FloatingActionButton fab_parent = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_parent);
+                outRect.right = fab_parent.getWidth();
             }
         }
     }
@@ -1127,12 +1271,12 @@ public class StackManagerFragment extends Fragment {
         /*
          * コンストラクタ
          */
-        public ParentFabOnClickListener(){
+        public ParentFabOnClickListener() {
 
             isShow = false;
 
             fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
-            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_cancelAlarm);
+            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
             fab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
 
             showAnimation1 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_1);
@@ -1147,36 +1291,121 @@ public class StackManagerFragment extends Fragment {
         @Override
         public void onClick(View view) {
 
-            if( isShow ){
-                //非表示（上から）
+            int iconId;
+
+            if (isShow) {
+                //（上から）非表示にする
                 fab_switchDirection.hide();
                 fab_cancelAlarm.hide();
                 fab_setAlarm.hide();
 
-                fab_switchDirection.startAnimation( hideAnimation1 );
-                fab_cancelAlarm.startAnimation( hideAnimation2 );
-                fab_setAlarm.startAnimation( hideAnimation3 );
+                fab_switchDirection.startAnimation(hideAnimation1);
+                fab_cancelAlarm.startAnimation(hideAnimation2);
+                fab_setAlarm.startAnimation(hideAnimation3);
 
-                //フラグ切り替え
-                isShow = false;
+                iconId = R.drawable.ic_up_32;
 
             } else {
 
-                //表示（下から）
+                //（下から）表示する
                 fab_setAlarm.show();
                 fab_cancelAlarm.show();
                 fab_switchDirection.show();
 
-                fab_setAlarm.startAnimation( showAnimation1 );
-                fab_cancelAlarm.startAnimation( showAnimation2 );
-                fab_switchDirection.startAnimation( showAnimation3 );
+                fab_setAlarm.startAnimation(showAnimation1);
+                fab_cancelAlarm.startAnimation(showAnimation2);
+                fab_switchDirection.startAnimation(showAnimation3);
 
-                //フラグ切り替え
-                isShow = true;
+                iconId = R.drawable.ic_down_32;
             }
+
+            //フラグ切り替え
+            isShow = !isShow;
+
+            //アイコン切り替え
+            ((FloatingActionButton)view).setImageResource(iconId);
         }
     }
 
+    /*
+     * アラーム受信クラス
+     *   Manifestに指定
+     */
+    private static class AlarmBroadcastReceiverOld2 extends BroadcastReceiver {
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("test", "Received");
+
+
+            Log.i("test", "onReceive get test=" + intent.getExtras().getString("test"));
+
+            int i;
+            for (i = 0; i < 255; i++) {
+                //PendingIntentを取得
+                //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), i, intent, PendingIntent.FLAG_NO_CREATE);
+                if (pendingIntent == null) {
+                    //未生成ならキャンセル処理終了
+                    break;
+                }
+            }
+
+            Log.i("test", "Received num=" + i );
+
+            // toast で受け取りを確認
+            //Toast toast = new Toast(context);
+            //toast.setText("時間がきました");
+            //toast.show();
+
+            String channelId = "default";
+            String title = context.getString(R.string.app_name);
+
+            long currentTime = System.currentTimeMillis();
+            SimpleDateFormat dataFormat =
+                    new SimpleDateFormat("HH:mm:ss", Locale.JAPAN);
+            String cTime = dataFormat.format(currentTime);
+
+            // メッセージ　+ 11:22:331
+            String message = "時間になりました。 " + cTime;
+
+            //サウンド
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+            // Notification　Channel 設定
+            NotificationChannel channel = new NotificationChannel(channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
+
+            channel.setDescription(message);
+            channel.enableVibration(true);
+            //channel.canShowBadge();
+            //channel.enableLights(true);
+            //channel.setLightColor(Color.BLUE);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            channel.setSound(defaultSoundUri, null);
+            //channel.setShowBadge(true);
+
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (notificationManager != null) {
+                //通知チャネル生成
+                notificationManager.createNotificationChannel(channel);
+
+                //通知ビルダー
+                Notification notification = new Notification.Builder(context, channelId)
+                        .setContentTitle(title)
+                        .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                        .setContentText(message)
+                        .setAutoCancel(true)                    //ユーザーがこの通知に触れると、この通知が自動的に閉じられる
+                        //.setContentIntent(pendingIntent)
+                        //.setWhen(System.currentTimeMillis())
+                        .build();
+
+                // 通知
+                notificationManager.notify(R.string.app_name, notification);
+            }
+        }
+    }
 
     /*
      * test

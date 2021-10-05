@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,11 +29,14 @@ import com.example.supportpreparation.R;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
+import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 public class TaskManagerFragment extends Fragment implements AsyncTaskTableOperaion.TaskOperationListener {
+
+    public final static int             TASK_COLUMN = 2;            //やること表示列数
 
     private MainActivity                mParentActivity;            //親アクティビティ
     private View                        mRootLayout;                //本フラグメントに設定しているレイアウト
@@ -137,20 +141,42 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //レイアウトからリストビューを取得
         RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
         //グリッド表示の設定
-        rv_task.setLayoutManager(new GridLayoutManager(mContext, 2));
-        //アダプタの生成
-        mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.LIST);
+        rv_task.setLayoutManager(new GridLayoutManager(mContext, TASK_COLUMN));
 
-        //リスナー設定
-        mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
+        //-- アダプタの設定は、サイズが確定してから行う
+        // ビューツリー描画時に呼ばれるリスナーの設定
+        rv_task.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
-            public void onClick(View view) {
-                createEditTaskDialog(view);
+            public boolean onPreDraw() {
+
+                //RecyclerViewの横幅分割
+                int size = rv_task.getWidth() / TASK_COLUMN;
+
+                //アダプタの生成
+                mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.LIST, size, size);
+
+                //RecyclerViewにアダプタを設定
+                rv_task.setAdapter(mTaskAdapter);
+
+                //本リスナーを削除（何度も処理する必要はないため）
+                rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                //リスナー設定
+                mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        createEditTaskDialog(view);
+                    }
+                });
+
+                //アダプタの設定
+                rv_task.setAdapter(mTaskAdapter);
+
+                //描画を中断するため、false
+                return false;
             }
         });
 
-        //アダプタの設定
-        rv_task.setAdapter(mTaskAdapter);
 
         //ドラッグアンドドロップ、スワイプの設定
         ItemTouchHelper helper = new ItemTouchHelper(

@@ -1,6 +1,8 @@
 package com.example.supportpreparation;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /*
  * リソース管理
@@ -13,6 +15,10 @@ public class ResourceManager {
     private static final int TASK_TIME_SHORT       = 10;
     private static final int TASK_TIME_NORMAL      = 30;
     private static final int TASK_TIME_LONG        = 60;
+
+    public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
+    public static final SimpleDateFormat sdf_Date = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPANESE);
+    public static final SimpleDateFormat sdf_Time = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
 
     /*
      * やること時間に応じたカラーIDの取得

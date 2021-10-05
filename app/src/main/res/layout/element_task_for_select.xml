@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center_horizontal">
 
     <TextView
         android:id="@+id/tv_taskName"
@@ -13,16 +13,16 @@
         android:layout_marginTop="8dp"
         android:layout_marginRight="1dp"
         android:layout_marginLeft="1dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:text="Sample"
         android:textColor="@color/tx_select_task"
-        android:textSize="14sp"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="2dp"
         android:orientation="horizontal"
         android:gravity="center">
 

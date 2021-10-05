@@ -32,7 +32,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tv_startTime"
+            android:id="@+id/tv_alarmTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -107,7 +107,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.7"
+        android:layout_weight="0.8"
         android:layout_marginTop="12dp"
         android:orientation="vertical"
         android:gravity="center"

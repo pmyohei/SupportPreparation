@@ -18,11 +18,12 @@
     <dimen name="iv_reverse_margin_end">24dp</dimen>
 
     <!-- やることの四隅のカーブ -->
-    <dimen name="task_corner_radius">60px</dimen>
+    <dimen name="task_select_corner_radius">20dp</dimen>
+    <dimen name="task_corner_radius">32dp</dimen>
 
     <!-- やることの高さ(3次元)-->
-    <dimen name="task_evelation">8px</dimen>
-    <dimen name="group_evelation">16px</dimen>
+    <dimen name="task_evelation">8dp</dimen>
+    <dimen name="group_evelation">16dp</dimen>
 
     <!-- 選択エリア内のやることサイズ-->
     <dimen name="select_task_width">64dp</dimen>
@@ -48,5 +49,8 @@
     <dimen name="omit_height">80dp</dimen>
 
 
+    <!-- 共通 -->
+    <!-- ソース上で決定されるサイズには、この値を暫定として設定 -->
+    <dimen name="_variable_size">20dp</dimen>
 
 </resources>

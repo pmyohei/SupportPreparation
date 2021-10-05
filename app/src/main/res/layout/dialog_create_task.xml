@@ -19,56 +19,56 @@
     <EditText
         android:id="@+id/et_dialogTask"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:background="@drawable/view_frame_dialog_edittext"
         android:hint="@string/task_name_hint"
         android:textColor="@color/bg_dialog"
-        android:textSize="14sp"/>
+        android:textSize="16sp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.6"
-        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <NumberPicker
             android:id="@+id/np_dialogTime100th"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:textColor="@color/bg_dialog"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
         <NumberPicker
             android:id="@+id/np_dialogTime10th"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:textColor="@color/bg_dialog"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
         <NumberPicker
             android:id="@+id/np_dialogTime1th"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:textColor="@color/bg_dialog"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:layout_gravity="bottom"
-            android:textSize="12sp"
-            android:text="min"
+            android:layout_gravity="center"
+            android:textSize="14sp"
+            android:text="@string/unit_task_time"
             android:textColor="@color/bg_dialog" />
 
     </LinearLayout>
@@ -76,20 +76,17 @@
     <TextView
         android:id="@+id/tv_alert"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.1"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center_horizontal"
-        android:text=""
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:textColor="@color/tx_diarog_alart"/>
 
     <Button
         android:id="@+id/bt_entryTask"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="12dp"
         android:layout_marginLeft="16dp"
@@ -98,7 +95,7 @@
         android:stateListAnimator="@null"
         android:text="@string/dialog_create_btn"
         android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textSize="16sp"
         app:backgroundTint="@color/bg_dialog"/>
 
 </LinearLayout>

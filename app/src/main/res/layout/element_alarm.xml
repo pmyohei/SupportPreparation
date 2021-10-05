@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_taskName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TASK"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_alarmTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="2021/04/12 00:00"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <Switch
+        android:id="@+id/sw_alarmOn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="12dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+</LinearLayout>

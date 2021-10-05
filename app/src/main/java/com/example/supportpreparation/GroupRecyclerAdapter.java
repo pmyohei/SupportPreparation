@@ -13,10 +13,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.supportpreparation.ui.groupManager.GroupManagerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -142,17 +144,11 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     public void setTaskInGroup(ViewHolder viewHolder, int idx, int groupPid) {
 
         //レイアウトマネージャの生成・設定
-        LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
-        viewHolder.rv_taskInGroup.setLayoutManager(ll_manager);
-
-        //「やること」の高さ
-        int taskHeight = mItemHeight / 3;
+        viewHolder.rv_taskInGroup.setLayoutManager( new GridLayoutManager(mContext, GroupManagerFragment.DIV_GROUP_IN_TASK) );
 
         //グループ内のやること／アダプタ
         TaskRecyclerAdapter adapter = mGroupList.get(idx).getTaskAdapter();
         TaskArrayList<TaskTable> taskInGroupList = mGroupList.get(idx).getTaskInGroupList();
-
-        Log.i("test", "idx=" + idx);
 
         //アダプタの設定
         viewHolder.rv_taskInGroup.setAdapter(adapter);
@@ -228,7 +224,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                     //--グループに「やること」がドロップされたとき
 
                     //ドラッグしたビューからデータを取得
-                    View dragView = (View) dragEvent.getLocalState();
+                    View dragView        = (View) dragEvent.getLocalState();
                     TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
                     TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
                     TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);

@@ -3,6 +3,10 @@ package com.example.supportpreparation;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +21,7 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
 
     private final int FAB_HIDE_SCROLL_DX   = 12;        //非表示スクロール量
 
+    private ViewGroup mViewGroup;                       //非表示対象のfabの親ビュー
     private FloatingActionButton mFab;                  //非表示対象のfab
 
     /*
@@ -26,12 +31,41 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
         mFab = fab;
     }
 
+    /*
+     * コンストラクタ
+     */
+    public SelectAreaScrollListener(ViewGroup ll){
+        mViewGroup = ll;
+    }
+
     @Override
     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy){
         //スクロール量が一定量を超えたとき、fabを非表示にする
         int absDx = Math.abs(dx);
         if (absDx >= FAB_HIDE_SCROLL_DX) {
-            mFab.hide();
+
+            if( mFab == null ){
+
+                for (int i = 0; i < mViewGroup.getChildCount(); i++) {
+                    //子ビューを取得
+                    View v = mViewGroup.getChildAt(i);
+
+                    if (v instanceof FloatingActionButton) {
+
+                        FloatingActionButton fab = (FloatingActionButton) v;
+
+                        //表示されていないなら、対象外
+                        if( fab.getVisibility() == View.GONE ){
+                            continue;
+                        }
+
+                        fab.hide();
+                    }
+                }
+
+            } else {
+                mFab.hide();
+            }
         }
 
         Log.d("test", "dx=" + dx);
@@ -41,7 +75,29 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
     public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState){
         //スクロールが完全に停止したとき、fabを表示
         if( newState == SCROLL_STATE_IDLE ){
-            mFab.show();
+
+            if( mFab == null ){
+
+                for (int i = 0; i < mViewGroup.getChildCount(); i++) {
+                    //子ビューを取得
+                    View v = mViewGroup.getChildAt(i);
+
+                    if (v instanceof FloatingActionButton) {
+
+                        FloatingActionButton fab = (FloatingActionButton) v;
+
+                        //表示されていないなら、対象外
+                        if( fab.getVisibility() == View.GONE ){
+                            continue;
+                        }
+
+                        fab.show();
+                    }
+                }
+
+            } else {
+                mFab.show();
+            }
         }
 
         Log.d("test", "newState=" + newState);

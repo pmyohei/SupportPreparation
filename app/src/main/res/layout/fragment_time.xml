@@ -42,9 +42,9 @@
             android:id="@+id/tv_plainProgressTask"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="316dp"
             android:text="Sample"
             android:textSize="32sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -101,7 +101,7 @@
         android:layout_gravity="end"
         android:fitsSystemWindows="true">
 
-        <include layout="@layout/navigation_gragh" />
+        <include layout="@layout/gragh_navigation" />
 
     </com.google.android.material.navigation.NavigationView>
 

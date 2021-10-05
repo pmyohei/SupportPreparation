@@ -3,7 +3,6 @@ package com.example.supportpreparation;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -166,7 +165,9 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             //グループに紐づいた「やること」pidを取得
             String tasksStr = groupInfo.getTaskPidsStr();
-            List<Integer> pids = TaskTableManager.getPidsIntArray(tasksStr);
+            List<Integer> pids = TaskTableManager.convertIntArray(tasksStr);
+
+            Log.i("test", "readGroup groupName=" + groupInfo.getGroupName() + " tasksStr=" + tasksStr);
 
             //グループに紐づいた「やること」
             TaskArrayList<TaskTable> tasks = new TaskArrayList<>();
@@ -243,6 +244,8 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
             mNewTaskPidsStr = TaskTableManager.deleteTaskPosInStr(taskPidsStr, mDeleteTaskPos);
 
         }
+
+        Log.i("test", "updateTaskInGroup mNewTaskPidsStr=" + mNewTaskPidsStr);
 
         //選択済みの「やること」を更新
         dao.updateTaskPidsStrByPid(mGroupPid, mNewTaskPidsStr);
