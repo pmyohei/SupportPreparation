@@ -2,16 +2,20 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="@dimen/gragh_width"
+    android:id="@+id/ll_graghInfo"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingStart="40dp"
+    android:paddingEnd="40dp"
     android:orientation="horizontal"
     android:gravity="center">
 
     <!-- 開始時刻 -->
     <LinearLayout
         android:id="@+id/ll_startTime"
-        android:layout_width="@dimen/gragh_timeline_width"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_weight="0.2"
         android:orientation="vertical"
         android:gravity="top">
 
@@ -30,7 +34,7 @@
 
     <!-- グラフ -->
     <View
-        android:id="@+id/ll_taskInfo"
+        android:id="@+id/v_gragh"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.1"
@@ -40,8 +44,9 @@
 
     <!-- やること情報 -->
     <LinearLayout
+        android:id="@+id/ll_taskInfo"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="0.3"
         android:gravity="center"
         android:orientation="vertical">
@@ -65,7 +70,7 @@
             android:gravity="center"
             android:text="@string/unit_task_time"
             android:textColor="@color/tx_limit_line"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <!--
         <TextView

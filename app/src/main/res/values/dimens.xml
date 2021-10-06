@@ -19,26 +19,30 @@
 
     <!-- やることの四隅のカーブ -->
     <dimen name="task_select_corner_radius">20dp</dimen>
+    <dimen name="task_stack_corner_radius">24dp</dimen>
     <dimen name="task_corner_radius">32dp</dimen>
 
     <!-- やることの高さ(3次元)-->
     <dimen name="task_evelation">8dp</dimen>
     <dimen name="group_evelation">16dp</dimen>
 
-    <!-- 選択エリア内のやることサイズ-->
+    <!-- 選択エリア内のやることサイズ
     <dimen name="select_task_width">64dp</dimen>
     <dimen name="select_task_height">64dp</dimen>
-    <!-- 選択エリア内のグループサイズ-->
+    -->
+    <!-- 選択エリア内のグループサイズ
     <dimen name="select_group_width">72dp</dimen>
     <dimen name="select_group_height">64dp</dimen>
+    -->
 
     <!-- リスト内のやることサイズ-->
     <dimen name="list_task_width">160dp</dimen>
     <dimen name="list_task_height">160dp</dimen>
 
-    <!-- 積まれたやることサイズ-->
+    <!-- 積まれたやることサイズ
     <dimen name="stack_task_width">180dp</dimen>
     <dimen name="stack_task_height">100dp</dimen>
+    -->
 
     <!-- グラフ -->
     <dimen name="gragh_width">200dp</dimen>
@@ -51,6 +55,6 @@
 
     <!-- 共通 -->
     <!-- ソース上で決定されるサイズには、この値を暫定として設定 -->
-    <dimen name="_variable_size">20dp</dimen>
+    <dimen name="_variable_size">100dp</dimen>
 
 </resources>

@@ -2,6 +2,8 @@ package com.example.supportpreparation;
 
 //import android.icu.util.Calendar;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -262,7 +264,7 @@ public class StackTaskTable implements Cloneable {
     }
 
     /*
-     * 開始・終了時間の全更新
+     * 開始・終了時間の設定
      */
     private void setupStartEndTime(int idx, TaskTable taskTable, Calendar baseTime) {
 
@@ -307,12 +309,13 @@ public class StackTaskTable implements Cloneable {
             //終了時間：開始時間＋やること時間
             end = (Calendar) start.clone();
             end.add(Calendar.MINUTE, taskTime);
-
         }
 
         //開始・終了時間を設定
         taskTable.setStartCalendar(start);
         taskTable.setEndCalendar(end);
+
+        Log.i("test", "setupStartEndTime start=" + start);
     }
 
     /*

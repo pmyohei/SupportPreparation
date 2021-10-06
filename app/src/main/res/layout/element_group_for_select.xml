@@ -17,6 +17,17 @@
         android:textColor="@color/tx_select_task"
         android:textSize="16sp" />
 
+    <!-- グループ合計時間 -->
+    <!-- ※選択エリアの縦幅をやること側と合わせるため、背景色と同じ文字色で表示（=不可視） -->
+    <TextView
+        android:id="@+id/tv_groupTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="tmp"
+        android:textColor="@color/white"
+        android:textSize="12sp"/>
+
     <!-- グループ内のやること保持用。非表示。 -->
     <TextView
         android:id="@+id/tv_taskInGroup"

@@ -26,10 +26,12 @@
     <string name="select_switch_label_task">やること</string>
     <string name="select_switch_label_group">グループ</string>
 
+    <!-- タイマ画面 -->
     <string name="heading_remaining_time">Limit</string>
     <string name="heading_next">Next</string>
     <string name="waiting">待機中…</string>
     <string name="next_none">ー</string>
+    <string name="contentDescription_iv_openGragh">グラフオープン</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>

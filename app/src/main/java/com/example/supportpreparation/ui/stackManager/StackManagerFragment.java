@@ -2,6 +2,7 @@ package com.example.supportpreparation.ui.stackManager;
 
 import static android.content.Context.ALARM_SERVICE;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Notification;
@@ -77,6 +78,7 @@ import java.util.Locale;
 
 public class StackManagerFragment extends Fragment {
 
+    public final static float STACK_BLOCK_RATIO = 0.4f;         //スタックやることの横サイズ割合
     public final static int SELECT_TASK_AREA_DIV = 4;           //やること選択エリア-横幅分割数
     public final static int SELECT_GROUP_AREA_DIV = 4;          //やること選択エリア-横幅分割数
 
@@ -351,9 +353,29 @@ public class StackManagerFragment extends Fragment {
         ll_manager.setStackFromEnd(mIsLimit);    //表示方向はリミットかスタートかで切り分け
         rv_stackArea.setLayoutManager(ll_manager);
 
-        //アダプタの生成・設定
-        mStackAreaAdapter = new StackTaskRecyclerAdapter(mContext, mStackTable);
-        rv_stackArea.setAdapter(mStackAreaAdapter);
+        //-- アダプタの設定は、サイズが確定してから行う
+        // ビューツリー描画時に呼ばれるリスナーの設定
+        rv_stackArea.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+
+                //RecyclerViewのブロックサイズ
+                int width = (int)(rv_stackArea.getWidth() * STACK_BLOCK_RATIO);
+
+                //アダプタの生成・設定
+                //※高さはビューに依存「wrap_contents」
+                mStackAreaAdapter = new StackTaskRecyclerAdapter(mContext, mStackTable, width);
+
+                //RecyclerViewにアダプタを設定
+                rv_stackArea.setAdapter(mStackAreaAdapter);
+
+                //本リスナーを削除（何度も処理する必要はないため）
+                rv_stackArea.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                //描画を中断するため、false
+                return false;
+            }
+        });
 
         //スタート指定の場合
         if (!mIsLimit) {
@@ -471,12 +493,12 @@ public class StackManagerFragment extends Fragment {
         //選択中の方向に応じた表示
         if (mIsLimit) {
             //リミットを表示
-            ll_startGroup.setVisibility(View.INVISIBLE);
+            ll_startGroup.setVisibility(View.GONE);
             ll_limitGroup.setVisibility(View.VISIBLE);
         } else {
             //スタートを表示
             ll_startGroup.setVisibility(View.VISIBLE);
-            ll_limitGroup.setVisibility(View.INVISIBLE);
+            ll_limitGroup.setVisibility(View.GONE);
         }
 
         //親アクティビティで保持しているリミット時間を取得
@@ -760,7 +782,7 @@ public class StackManagerFragment extends Fragment {
                     //--スタート(false) → リミット(true) へ変更された
 
                     //表示切り替え
-                    ll_startGroup.setVisibility(View.INVISIBLE);
+                    ll_startGroup.setVisibility(View.GONE);
                     ll_limitGroup.setVisibility(View.VISIBLE);
 
                     //設定日時を同期
@@ -780,7 +802,7 @@ public class StackManagerFragment extends Fragment {
 
                     //表示切り替え
                     ll_startGroup.setVisibility(View.VISIBLE);
-                    ll_limitGroup.setVisibility(View.INVISIBLE);
+                    ll_limitGroup.setVisibility(View.GONE);
 
                     //設定日時を同期
                     tv_startTime.setText(tv_limitTime.getText());
@@ -1061,10 +1083,11 @@ public class StackManagerFragment extends Fragment {
     }
 
     /*
-     * ドラッグリスナー
+     * ドラッグリスナー（ビューがドロップされた時の動作）
      *　　「やること」を積み上げエリアにドラッグアンドドロップするときに使用
      */
     private class DragListener implements View.OnDragListener {
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         public boolean onDrag(View view, DragEvent dragEvent) {
             switch (dragEvent.getAction()) {
@@ -1133,16 +1156,18 @@ public class StackManagerFragment extends Fragment {
         private int addTaskToStackList(View dragView) {
 
             //ドロップされたビューからデータを取得
-            TextView tv_pid = dragView.findViewById(R.id.tv_pid);
-            TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
-            TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
+            TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
+            //TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
+            //TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
 
-            int pid = Integer.parseInt(tv_pid.getText().toString());
-            int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
+            int pid      = Integer.parseInt(tv_pid.getText().toString());
+            //int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
 
             //スタックにやることを追加
-            TaskTable task = new TaskTable(pid, tv_taskName.getText().toString(), taskTime);
-            mStackTable.addTask(task);
+            //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
+            TaskTable task = mTaskList.getTaskByPid(pid);
+            //TaskTable task = new TaskTable(pid, tv_taskName.getText().toString(), taskTime);
+            mStackTable.addTask( (TaskTable)task.clone() );
 
             //追加アニメーションを適用するIndex
             int animIdx = (mIsLimit ? 0 : (mStackTaskList.size() - 1));
@@ -1157,8 +1182,8 @@ public class StackManagerFragment extends Fragment {
 
             //グループ内やることがあるかチェック
             TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
-            String taskPidsStr = tv_taskInGroup.getText().toString();
-            List<Integer> pids = TaskTableManager.convertIntArray(taskPidsStr);
+            String   taskPidsStr    = tv_taskInGroup.getText().toString();
+            List<Integer> pids      = TaskTableManager.convertIntArray(taskPidsStr);
             if (pids == null) {
                 //何もないなら、何もせず終了
                 return -1;
@@ -1178,7 +1203,8 @@ public class StackManagerFragment extends Fragment {
                     TaskTable task = mTaskList.getTaskByPid(pid);
                     if (task != null) {
                         //リスト追加
-                        mStackTable.addTask(task);
+                        //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
+                        mStackTable.addTask( (TaskTable)task.clone() );
 
                         //積み上げ数を加算
                         animIdx++;
@@ -1198,7 +1224,8 @@ public class StackManagerFragment extends Fragment {
                     TaskTable task = mTaskList.getTaskByPid(pid);
                     if (task != null) {
                         //リスト追加
-                        mStackTable.addTask(task);
+                        //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
+                        mStackTable.addTask( (TaskTable)task.clone() );
                     }
                 }
             }

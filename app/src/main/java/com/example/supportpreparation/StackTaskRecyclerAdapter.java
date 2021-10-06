@@ -33,6 +33,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     private Context mContext;                   //コンテキスト
     private int mAnimIdx;                       //アニメーション有効Idx
     private int mAddAnimationID;                //やること追加時のアニメーションリソースID
+    private int mItemWidth;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -43,6 +44,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         private TextView tv_pid;
         private TextView tv_taskName;
         private TextView tv_taskTime;
+        private LinearLayout ll_taskInfo;
         private LinearLayout ll_startTime;
         private LinearLayout ll_endTime;
         private TextView tv_taskStartTime;
@@ -58,6 +60,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
             tv_pid = (TextView) itemView.findViewById(R.id.tv_pid);
             tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
+            ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.ll_taskInfo);
             ll_startTime = (LinearLayout) itemView.findViewById(R.id.ll_startTime);
             ll_endTime = (LinearLayout) itemView.findViewById(R.id.ll_endTime);
             tv_taskStartTime = (TextView) itemView.findViewById(R.id.tv_taskStartTime);
@@ -73,10 +76,11 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      *　　 スタート設定の場合でも、設定日時は同期されるため、
      * 　  リミット関連のビューのみの保持で問題なし。
      */
-    public StackTaskRecyclerAdapter(Context context, StackTaskTable stackTable) {
+    public StackTaskRecyclerAdapter(Context context, StackTaskTable stackTable, int width) {
         mStackTable = stackTable;
         mData       = stackTable.getStackTaskList();
         mContext    = context;
+        mItemWidth  = width;
 
         //セットメソッドがコールされたとき、設定する
         mAnimIdx = NO_ANIMATION;
@@ -124,6 +128,13 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(id, viewGroup, false);
 
+        //正方形のサイズを設定
+        LinearLayout ll_taskDesign = view.findViewById(R.id.ll_taskInfo);
+
+        //レイアウト全体サイズに対して、一定割合をブロックの大きさとする
+        ViewGroup.LayoutParams blockLayoutParams = ll_taskDesign.getLayoutParams();
+        blockLayoutParams.width = mItemWidth;
+
         //drawableファイルを適用
         applyDrawableResorce(view, viewType);
 
@@ -154,7 +165,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         if (mIsLimit) {
             //開始時間を表示
             viewHolder.ll_startTime.setVisibility(View.VISIBLE);
-            viewHolder.ll_endTime.setVisibility(View.INVISIBLE);
+            viewHolder.ll_endTime.setVisibility(View.GONE);
 
             //やること開始時間の算出と設定
             //setupTaskStartTime(viewHolder, i);
@@ -176,7 +187,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
         } else {
             //終了時間を表示
-            viewHolder.ll_startTime.setVisibility(View.INVISIBLE);
+            viewHolder.ll_startTime.setVisibility(View.GONE);
             viewHolder.ll_endTime.setVisibility(View.VISIBLE);
 
             //やること開始時間の算出と設定
@@ -464,7 +475,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         LinearLayout ll = view.findViewById(R.id.ll_taskInfo);
 
         //表示目的に応じて、drawableリソースを取得
-        Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task);;
+        Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task_for_stack);
 
         //時間に応じて、色を設定
         int colorId = ResourceManager.getTaskTimeColorId(time);;

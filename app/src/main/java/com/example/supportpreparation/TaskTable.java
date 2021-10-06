@@ -1,4 +1,5 @@
 package com.example.supportpreparation;
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -11,7 +12,7 @@ import java.util.Calendar;
  *   テーブルに相当
  */
 @Entity
-public class TaskTable {
+public class TaskTable  implements Cloneable {
     //主キー
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -101,4 +102,22 @@ public class TaskTable {
         mOnAlarm = onAlarm;
     }
 
+    @NonNull
+    public Object clone() {
+        try {
+            TaskTable cloneObject =(TaskTable)super.clone();
+
+            cloneObject.id = id;
+            cloneObject.taskName = new String(taskName);
+            cloneObject.taskTime = taskTime;
+            cloneObject.mStartCalendar = mStartCalendar;
+            cloneObject.mEndCalendar = mEndCalendar;
+            cloneObject.mOnAlarm = mOnAlarm;
+
+            return cloneObject;
+
+        } catch (CloneNotSupportedException ex){
+            return null;
+        }
+    }
 }

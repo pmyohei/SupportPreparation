@@ -2,6 +2,7 @@ package com.example.supportpreparation.ui.time;
 
 import static com.example.supportpreparation.StackTaskTable.NO_DATA;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -79,7 +81,7 @@ public class TimeFragment extends Fragment {
         //setupSlide();
 
         //グラフの設定
-        setupGragh();
+        setupOpenGragh();
 
         //「やること」の参照インデックス
         mTaskRefIdx = REF_WAITING;
@@ -182,7 +184,7 @@ public class TimeFragment extends Fragment {
     /*
      * グラフの設定
      */
-    public void setupGragh() {
+    public void setupOpenGragh() {
         //NavigationView がオープンされた時のリスナーを設定
         DrawerLayout dl = (DrawerLayout) mRootLayout.findViewById(R.id.dl_time);
         DrawerLayout.DrawerListener listener = new TimeDrawerListener();
@@ -474,10 +476,10 @@ public class TimeFragment extends Fragment {
     private class TimeDrawerListener implements DrawerLayout.DrawerListener {
 
         //--定数（グラフ高さ目安）
-        private final int GRAGH_HEIGHT_1_MIN          = 32;     //
-        private final int GRAGH_HEIGHT_30_MIN         = 160;    //
-        private final int GRAGH_HEIGHT_60_MIN         = 220;    //
-        private final int GRAGH_HEIGHT_120_MIN_OVER   = 440;    //
+        private final int GRAGH_HEIGHT_1_MIN = 32;     //
+        private final int GRAGH_HEIGHT_30_MIN = 160;    //
+        private final int GRAGH_HEIGHT_60_MIN = 220;    //
+        private final int GRAGH_HEIGHT_120_MIN_OVER = 440;    //
 
         //--定数（省略ライン超えした時の空白スペース高さ）
         private final int GRAGH_HEIGHT_OMIT_LINE_OVER = 180; //@dimen/gragh_omit_height の値
@@ -485,7 +487,7 @@ public class TimeFragment extends Fragment {
         private final int GRAGH_HEIGHT_CURRENT_TIME = 28;    //@dimen/gragh_current_time_height の値
 
         private final int GRAGH_HEIGHT_OMIT = ((GRAGH_HEIGHT_OMIT_LINE_OVER * 2) + GRAGH_HEIGHT_OMIT_MARK + GRAGH_HEIGHT_CURRENT_TIME);
-                                                             //合計値
+        //合計値
 
         private final int GRAGH_OMIT_LINE_MIN = 120;
 
@@ -502,10 +504,25 @@ public class TimeFragment extends Fragment {
         //--フィールド変数
         private boolean isCreate = false;
         private int mCurrentState = CURRENT_NOT_DISPLAY;
+        private int mMinHeight;
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerOpened(@NonNull View drawerView) {
+            //現在時間線の描画
+            drawCurrentLine();
+        }
+
+        @Override
+        public void onDrawerClosed(@NonNull View drawerView) {
+        }
+
+        @Override
+        public void onDrawerStateChanged(int newState) {
+            //Log.i("test", "onDrawerStateChanged newState=" + newState);
+
+            //LinearLayout ll_gragh = (LinearLayout) mRootLayout.findViewById(R.id.ll_gragh);
+            //Log.i("test", "ll_gragh getMeasuredHeight=" + ll_gragh.getMeasuredHeight());
         }
 
         @RequiresApi(api = Build.VERSION_CODES.M)
@@ -522,8 +539,8 @@ public class TimeFragment extends Fragment {
             //未生成なら、描画
             if (!isCreate) {
 
-                //グラフ描画
-                setupGragh();
+                //グラフ最小高さ確定待ち処理。確定後、グラフ生成を行う。
+                standByConfirmMinHeight();
 
                 //描画後は、フラグを落とす
                 //※画面が切り替わるまで、描画はしない
@@ -531,19 +548,48 @@ public class TimeFragment extends Fragment {
             }
 
             //現在時間線の描画
-            drawCurrentLine();
+            //drawCurrentLine();
         }
 
-        @Override
-        public void onDrawerClosed(@NonNull View drawerView) {
-        }
+        /*
+         * グラフ最小高さ確定待ち処理
+         */
+        private void standByConfirmMinHeight() {
 
-        @Override
-        public void onDrawerStateChanged(int newState) {
-            //Log.i("test", "onDrawerStateChanged newState=" + newState);
+            LayoutInflater inflater   = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            //LinearLayout ll_gragh = (LinearLayout) mRootLayout.findViewById(R.id.ll_gragh);
-            //Log.i("test", "ll_gragh getMeasuredHeight=" + ll_gragh.getMeasuredHeight());
+            //高さを取得したいビューを一時的に割り当て
+            //※高さ確定後はレイアウトから除外する
+            LinearLayout ll_limitTime = (LinearLayout) mRootLayout.findViewById(R.id.ll_limitTime);
+            View v_rootGragh          = inflater.inflate(R.layout.outer_task_for_gragh, ll_limitTime, true);
+
+            LinearLayout ll_graghInfo = (LinearLayout) v_rootGragh.findViewById(R.id.ll_graghInfo);
+
+            //レイアウト確定を受ける
+            ViewTreeObserver observer = ll_graghInfo.getViewTreeObserver();
+            observer.addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.M)
+                        @Override
+                        public void onGlobalLayout() {
+                            //グラフの最小高さを取得
+                            LinearLayout ll_taskInfo = (LinearLayout) v_rootGragh.findViewById(R.id.ll_taskInfo);
+                            mMinHeight = ll_taskInfo.getHeight();
+
+                            Log.i("test", "mMinHeight=" + mMinHeight);
+
+                            //レイアウト確定後は、不要なので本リスナー削除
+                            ll_graghInfo.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                            //高さ確定後は、レイアウトから除外
+                            ((ViewGroup)v_rootGragh).removeView( ll_graghInfo );
+
+                            //グラフを描画
+                            drawGragh();
+                        }
+                    }
+            );
+            //Log.i("test", "call check ll_taskInfo = " + ll_taskInfo.getHeight());
         }
 
         /*
@@ -576,8 +622,17 @@ public class TimeFragment extends Fragment {
             ScrollView sv_gragh = (ScrollView) mRootLayout.findViewById(R.id.sv_gragh);
             int scrollViewHeight = sv_gragh.getMeasuredHeight();
 
-            Log.i("test", "scrollViewHeight=" + scrollViewHeight);
-            Log.i("test", "graghHeight=" + graghHeight);
+            //test
+            //LinearLayout ll_limitTime = (LinearLayout) mRootLayout.findViewById(R.id.ll_limitTime);
+            //LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            //View v_rootGragh = inflater.inflate(R.layout.outer_task_for_gragh, ll_limitTime, true);
+
+            //LinearLayout ll_taskInfo = (LinearLayout) v_rootGragh.findViewById(R.id.ll_taskInfo);
+            //Log.i("test", "ll_taskInfo Height=" + ll_taskInfo.getMeasuredHeight());
+            //test
+
+            Log.i("test", "scrollView Height=" + scrollViewHeight);
+            Log.i("test", "gragh Height=" + graghHeight);
 
             //グラフの方が高いなら、trueを返す（スクロールする状態）
             return (graghHeight > scrollViewHeight);
@@ -638,7 +693,7 @@ public class TimeFragment extends Fragment {
          * グラフ生成
          */
         @RequiresApi(api = Build.VERSION_CODES.M)
-        private void setupGragh() {
+        private void drawGragh() {
 
             //ScrollView
             ScrollView sv_gragh = (ScrollView) mRootLayout.findViewById(R.id.sv_gragh);
@@ -736,10 +791,8 @@ public class TimeFragment extends Fragment {
 
             //現在時刻の設定
             Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-
             TextView tv_current = v_empty.findViewById(R.id.tv_current);
-            tv_current.setText( sdf.format(now) );
+            tv_current.setText( ResourceManager.sdf_Time.format(now) );
 
             //グラフに追加
             root.addView(v_empty);
@@ -748,7 +801,7 @@ public class TimeFragment extends Fragment {
         /*
          * 現在時刻線から「先頭のやること」の間のスペースを更新
          */
-        private void updateCurrentBetweenSpace() {
+        private void adjustCurrentBetweenSpace() {
 
             //「現在時刻」から「一番初めのやること開始時間」の時間を計算
             int timeToStart = calcTimeToStartFirstTask();
@@ -764,8 +817,14 @@ public class TimeFragment extends Fragment {
                     height = getGraghUnitHeight(timeToStart);
                 }
 
-                //高さを更新
                 View v = (View) mRootLayout.findViewById(R.id.v_empty);
+                if( v == null ){
+                    //※最小高さの取得よりも先に本処理が走った場合、何もしない（フェールセーフ）
+                    Log.i("test", "v_empty is null");
+                    return;
+                }
+
+                //高さを更新
                 ViewGroup.LayoutParams params = v.getLayoutParams();
                 params.height = height;
                 v.setLayoutParams(params);
@@ -773,12 +832,10 @@ public class TimeFragment extends Fragment {
 
             //現在時刻の設定
             Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-
             TextView tv_current = mRootLayout.findViewById(R.id.tv_current);
-            tv_current.setText( sdf.format(now) );
+            tv_current.setText( ResourceManager.sdf_Time.format(now) );
 
-            Log.i("test", "tv_current=" + sdf.format(now));
+            //Log.i("test", "tv_current=" + sdf.format(now));
         }
 
         /*
@@ -791,8 +848,11 @@ public class TimeFragment extends Fragment {
             if (taskTime <= 30) {
                 //--30min以下
 
-                height = GRAGH_HEIGHT_1_MIN;
+                height = mMinHeight;
                 height += (taskTime - 1) * GRAGH_HEIGHT_1_30_PER_MIN;
+
+                //mMinHeightが既にdp単位であるため、変換なし
+                return height;
 
             } else if (taskTime <= 60) {
                 //--60min以下
@@ -812,8 +872,8 @@ public class TimeFragment extends Fragment {
                 height = GRAGH_HEIGHT_120_MIN_OVER;
             }
 
-            Log.i("test", "time=" + taskTime + "height=" + height);
-            Log.i("test", "TypedValue=" + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics()));
+            //Log.i("test", "time=" + taskTime + "  height=" + height);
+            //Log.i("test", "TypedValue=" + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics()));
 
             //高さをdp単位で返す
             return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
@@ -908,6 +968,7 @@ public class TimeFragment extends Fragment {
         private void designGragh(View view, int taskTime) {
 
             //表示目的に応じて、drawableリソースを取得
+            @SuppressLint("UseCompatLoadingForDrawables")
             Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task_for_gragh);
 
             //時間に応じて、色を設定
@@ -915,15 +976,22 @@ public class TimeFragment extends Fragment {
             drawable.setTint(mContext.getColor(colorId));
 
             //drawableの設定
-            View v_gragh = (View) view.findViewById(R.id.ll_taskInfo);
+            View v_gragh = (View) view.findViewById(R.id.v_gragh);
             v_gragh.setBackground(drawable);
 
             //設定する高さの取得
             int height = getGraghUnitHeight(taskTime);
 
+            //
+
+
+            //
+
+
+
             //高さを設定
             ViewGroup.LayoutParams params = v_gragh.getLayoutParams();
-            Log.i("test", "height=" + params.height);
+            Log.i("test", "designGragh height=" + params.height);
             params.height = height;
             v_gragh.setLayoutParams(params);
         }
@@ -962,7 +1030,7 @@ public class TimeFragment extends Fragment {
                 //※割り込みなし（先頭のやることに未到達）の場合
 
                 //更新
-                updateCurrentBetweenSpace();
+                adjustCurrentBetweenSpace();
             }
         }
 

@@ -102,6 +102,17 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
         if (mItemWidth != 0) {
             layoutParams.width = mItemWidth;
             view.setLayoutParams(layoutParams);
+
+            //正方形のサイズを設定
+            LinearLayout ll_groupDesign = view.findViewById(R.id.ll_groupDesign);
+
+            //レイアウト全体サイズに対して、一定割合をブロックの大きさとする
+            ViewGroup.LayoutParams blockLayoutParams = ll_groupDesign.getLayoutParams();
+            blockLayoutParams.width = (int)(mItemWidth * 0.6);
+            blockLayoutParams.height = (int)(mItemWidth * 0.6);
+
+            ll_groupDesign.setLayoutParams(blockLayoutParams);
+
         }
         //高さ
         if (mItemHeight != 0) {
@@ -109,6 +120,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
             layoutParams.height = mItemHeight;
             view.setLayoutParams(layoutParams);
         }
+
 
         return new GroupViewHolder(view);
     }

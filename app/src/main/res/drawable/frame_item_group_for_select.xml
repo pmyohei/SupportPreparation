@@ -8,6 +8,6 @@
         android:color="@color/bg_group" />
     
     <corners
-        android:radius="@dimen/task_corner_radius" />
+        android:radius="@dimen/task_select_corner_radius" />
 
 </shape>

@@ -8,11 +8,9 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="@dimen/select_group_width"
-        android:layout_height="@dimen/select_group_height"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:padding="10dp"
+        android:id="@+id/ll_groupDesign"
+        android:layout_width="@dimen/_variable_size"
+        android:layout_height="@dimen/_variable_size"
         android:gravity="center"
         android:elevation="@dimen/task_evelation"
         android:background="@drawable/frame_item_group_for_select"

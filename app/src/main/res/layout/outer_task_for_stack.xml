@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -30,12 +31,12 @@
     <LinearLayout
         android:id="@+id/ll_endTime"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/stack_task_height"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="bottom"
         app:layout_constraintEnd_toStartOf="@+id/ll_taskInfo"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="invisible">
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tv_taskEndTime"
@@ -51,16 +52,15 @@
 
     <LinearLayout
         android:id="@+id/ll_taskInfo"
-        android:layout_width="@dimen/stack_task_width"
-        android:layout_height="@dimen/stack_task_height"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/frame_item_task"
-        android:clickable="true"
         android:enabled="true"
         android:focusable="true"
         android:orientation="vertical"
         android:paddingTop="4dp"
-        android:paddingBottom="8dp"
+        android:paddingBottom="4dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,9 +77,9 @@
                 android:id="@+id/ll_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/frame_stack_label"
                 android:gravity="center"
                 android:padding="4dp"
-                android:background="@drawable/frame_stack_label"
                 android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -99,40 +99,43 @@
                 android:id="@+id/tv_taskName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="24dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="やること"
                 android:textColor="@color/tx_task"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_label" />
+                app:layout_constraintTop_toBottomOf="@+id/ll_label" />
 
             <TextView
                 android:id="@+id/tv_taskTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="104dp"
+                android:layout_marginEnd="4dp"
                 android:gravity="bottom"
                 android:text="xx"
                 android:textColor="@color/tx_task"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintEnd_toStartOf="@+id/textView2" />
 
             <TextView
+                android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:text="@string/unit_task_time"
                 android:textColor="@color/tx_task"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_taskTime" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- pid保持用。非表示。 -->
             <TextView
@@ -147,6 +150,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
