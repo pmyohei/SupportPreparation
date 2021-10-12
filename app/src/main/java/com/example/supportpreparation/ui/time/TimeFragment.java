@@ -9,13 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -26,8 +24,11 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
+import com.example.supportpreparation.CreateSetAlarmDialog;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.ResourceManager;
@@ -36,9 +37,7 @@ import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskTable;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -58,13 +57,13 @@ public class TimeFragment extends Fragment {
     private final int INTERVAL_FINAL = 60000;        //最終時刻までのインターバル（1min）
 
     //--フィールド
-    private MainActivity mParentActivity;           //親アクティビティ
-    private Fragment mFragment;                     //本フラグメント
-    private Context mContext;                       //コンテキスト（親アクティビティ）
-    private View mRootLayout;                       //本フラグメントに設定しているレイアウト
-    private StackTaskTable mAlarmTable;   //スタック情報
-    private TaskArrayList<TaskTable> mStackTaskList;    //積み上げ「やること」
-    private int mTaskRefIdx;                        //積み上げ「やること」の参照中インデックス
+    private MainActivity mParentActivity;               //親アクティビティ
+    private Fragment mFragment;                         //本フラグメント
+    private Context mContext;                           //コンテキスト（親アクティビティ）
+    private View mRootLayout;                           //本フラグメントに設定しているレイアウト
+    private StackTaskTable           mAlarmStack;       //アラームスタック情報
+    private TaskArrayList<TaskTable> mAlarmStackList;   //アラームスタック情報中の積み上げ「やること」
+    private int mTaskRefIdx;                            //積み上げ「やること」の参照中インデックス
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -80,11 +79,14 @@ public class TimeFragment extends Fragment {
         mParentActivity = (MainActivity) getActivity();
 
         //設定された情報を取得
-        mAlarmTable = mParentActivity.getAlarmStack();
-        mStackTaskList = mAlarmTable.getStackTaskList();
+        mAlarmStack = mParentActivity.getAlarmStack();
+        mAlarmStackList = mAlarmStack.getStackTaskList();
 
         //スライド検知リスナーの設定
         //setupSlide();
+
+        //アラーム参照Fabの設定
+        setupFabRefAlarm();
 
         //Admodの設定
         setupAdmod();
@@ -96,21 +98,21 @@ public class TimeFragment extends Fragment {
         mTaskRefIdx = REF_WAITING;
 
         //やること未スタック
-        int size = mStackTaskList.size();
+        int size = mAlarmStackList.size();
         if (size == 0) {
             //カウントダウンなし
             return mRootLayout;
         }
 
         //指定時刻のDate型を取得
-        Date dateBaseTime = mAlarmTable.getBaseTimeDate();
+        Date dateBaseTime = mAlarmStack.getBaseTimeDate();
         if (dateBaseTime == null) {
             //カウントダウンなし
             return mRootLayout;
         }
 
         //最終時刻
-        Date finalTime = mStackTaskList.get(size - 1).getEndCalendar().getTime();
+        Date finalTime = mAlarmStackList.get(size - 1).getEndCalendar().getTime();
 
         //最終時刻が既に過ぎていた場合
         Date dateNow = new Date();
@@ -120,14 +122,14 @@ public class TimeFragment extends Fragment {
         }
 
         //現在時刻から見て一番初めのやることindex
-        int firstIdx = mAlarmTable.getFirstArriveIdx();
+        int firstIdx = mAlarmStack.getFirstArriveIdx();
         if (firstIdx == NO_DATA) {
             //カウントダウンなし
             return mRootLayout;
         }
 
         //先頭のやることの開始時間
-        TaskTable firstTask = mStackTaskList.get(firstIdx);
+        TaskTable firstTask = mAlarmStackList.get(firstIdx);
         Date dateStart = firstTask.getStartCalendar().getTime();
 
         //カウントダウン数
@@ -188,6 +190,53 @@ public class TimeFragment extends Fragment {
                 return true;
             }
         });
+    }
+
+    /*
+     * FAB(アラーム参照)の設定
+     */
+    private void setupFabRefAlarm() {
+
+        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
+
+        // アラーム参照ボタンの設定
+        fab_refAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //ダイアログの生成
+                createSetAlarmDialog(mAlarmStack);
+
+                //アラームをすべて削除
+                mParentActivity.cancelAllAlarm();
+            }
+        });
+    }
+
+    /*
+     * アラームダイアログの生成
+     */
+    private void createSetAlarmDialog(StackTaskTable stack) {
+
+        //FragmentManager生成
+        FragmentManager transaction = getParentFragmentManager();
+
+        //ダイアログを生成
+        CreateSetAlarmDialog dialog = new CreateSetAlarmDialog(stack);
+
+        //設定ボタン押下時リスナー
+        dialog.setOnSetBtnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //DB更新
+                mParentActivity.setAlarmStack(mAlarmStack);
+
+                //アラーム設定
+                mParentActivity.setupAlarm(mAlarmStack);
+            }
+        });
+
+        dialog.show(transaction, "alarm");
     }
 
     /*
@@ -256,7 +305,7 @@ public class TimeFragment extends Fragment {
 
         //進行中の「やること」まで進める
         int idx = 0;
-        for (TaskTable task : mStackTaskList) {
+        for (TaskTable task : mAlarmStackList) {
 
             //やること時間をmsecに変換し、累計に加算
             long taskmsec = (long) task.getTaskTime() * CONV_MIN_TO_MSEC;
@@ -285,10 +334,10 @@ public class TimeFragment extends Fragment {
 
         int remainMinute = 0;
 
-        int size = mStackTaskList.size();
+        int size = mAlarmStackList.size();
         for (int i = mTaskRefIdx; i < size; i++) {
             //進行中タスク以降の「やること時間」を累計
-            remainMinute += mStackTaskList.get(i).getTaskTime();
+            remainMinute += mAlarmStackList.get(i).getTaskTime();
         }
 
         //進行中やることの開始時刻を算出
@@ -301,7 +350,7 @@ public class TimeFragment extends Fragment {
         long diff = now.getTime() - progressStartTime.getTime();
 
         //進行中やることの時間
-        long taskTime = (long) mStackTaskList.get(mTaskRefIdx).getTaskTime() * CONV_MIN_TO_MSEC;
+        long taskTime = (long) mAlarmStackList.get(mTaskRefIdx).getTaskTime() * CONV_MIN_TO_MSEC;
 
         //残りのやること時間を返す
         return (taskTime - diff);
@@ -329,9 +378,9 @@ public class TimeFragment extends Fragment {
             //進行中の「やること」
             progressTask = waitingStr;
             //次の「やること」
-            nextTask = mStackTaskList.get(0).getTaskName();
+            nextTask = mAlarmStackList.get(0).getTaskName();
 
-        } else if (mTaskRefIdx >= mStackTaskList.size()) {
+        } else if (mTaskRefIdx >= mAlarmStackList.size()) {
             //-- 「やること」全て完了
 
             //進行中の「やること」
@@ -343,20 +392,20 @@ public class TimeFragment extends Fragment {
             //-- 「やること」突入
 
             //進行中の「やること」
-            progressTask = mStackTaskList.get(mTaskRefIdx).getTaskName();
+            progressTask = mAlarmStackList.get(mTaskRefIdx).getTaskName();
 
             //次の「やること」
             int nextIdx = mTaskRefIdx + 1;
-            if (nextIdx < mStackTaskList.size()) {
+            if (nextIdx < mAlarmStackList.size()) {
                 //まだ次の「やること」あり
-                nextTask = mStackTaskList.get(nextIdx).getTaskName();
+                nextTask = mAlarmStackList.get(nextIdx).getTaskName();
             } else {
                 //次の「やること」なし
                 nextTask = noneStr;
             }
 
             //テキストに設定する色を取得
-            int taskTime = mStackTaskList.get(mTaskRefIdx).getTaskTime();
+            int taskTime = mAlarmStackList.get(mTaskRefIdx).getTaskTime();
             colorId = ResourceManager.getTaskTimeColorId(taskTime);
         }
 
@@ -428,13 +477,13 @@ public class TimeFragment extends Fragment {
 
             //表示中の「やること」を更新
             setupDisplayText();
-            if (mTaskRefIdx >= mStackTaskList.size()) {
+            if (mTaskRefIdx >= mAlarmStackList.size()) {
                 //すべて計算したら、終了
                 return;
             }
 
             //タイマーを再設定
-            int taskTime = mStackTaskList.get(mTaskRefIdx).getTaskTime();
+            int taskTime = mAlarmStackList.get(mTaskRefIdx).getTaskTime();
             setNextTimer((long) taskTime * CONV_MIN_TO_MSEC);
         }
 
@@ -525,7 +574,7 @@ public class TimeFragment extends Fragment {
             //Log.i("test", "onDrawerSlide");
 
             //やることを積んでいないなら、描画なし
-            int size = mStackTaskList.size();
+            int size = mAlarmStackList.size();
             if (size == 0) {
                 return;
             }
@@ -613,7 +662,7 @@ public class TimeFragment extends Fragment {
             LinearLayout ll_gragh = v_rootGragh.findViewById(R.id.ll_gragh);
 
             //ベース時間
-            Date dateBaseTime = mAlarmTable.getBaseTimeDate();
+            Date dateBaseTime = mAlarmStack.getBaseTimeDate();
 
             //現在時間と先頭のやることの間のスペースを設定
             setupCurrentBetweenSpace(inflater, ll_gragh, dateBaseTime);
@@ -667,7 +716,7 @@ public class TimeFragment extends Fragment {
             }
 
             //現在時刻がやることに割り込んでいるか否か
-            boolean isInterrupt = mAlarmTable.isInterruptTask();
+            boolean isInterrupt = mAlarmStack.isInterruptTask();
             if (isInterrupt) {
                 //現在時刻状況を「やること到達」に設定
                 return;
@@ -715,7 +764,7 @@ public class TimeFragment extends Fragment {
         private void setupTaskGragh(LayoutInflater inflater, LinearLayout root, Date dateBaseTime) {
 
             //やること分作成
-            int size = mStackTaskList.size();
+            int size = mAlarmStackList.size();
             for (int i = 0; i < size; i++) {
 
                 //追加レイアウト(グラフ)
@@ -725,7 +774,7 @@ public class TimeFragment extends Fragment {
                 setupTaskInfo(v_graghUnit, i, dateBaseTime);
 
                 //グラフにdrawableリソースを設定
-                int taskTime = mStackTaskList.get(i).getTaskTime();
+                int taskTime = mAlarmStackList.get(i).getTaskTime();
                 designGragh(v_graghUnit, taskTime);
 
                 //グラフに追加
@@ -802,7 +851,7 @@ public class TimeFragment extends Fragment {
             //現在時刻
             Date nowTime = new Date();
             //先頭のやることの開始時刻
-            Date startDate = mStackTaskList.get(0).getStartCalendar().getTime();
+            Date startDate = mAlarmStackList.get(0).getStartCalendar().getTime();
 
             //現在時刻との差を計算
             long nowMills   = nowTime.getTime();
@@ -821,7 +870,7 @@ public class TimeFragment extends Fragment {
             TextView tv_limitTime = mRootLayout.findViewById(R.id.tv_limitTime);
 
             //ベース時間チェック
-            Date dateBaseTime = mAlarmTable.getBaseTimeDate();
+            Date dateBaseTime = mAlarmStack.getBaseTimeDate();
             if (dateBaseTime == null) {
                 //未設定なら、未設定文字列を設定
                 String baseTimeStr = mContext.getString(R.string.limittime_no_input);
@@ -830,8 +879,8 @@ public class TimeFragment extends Fragment {
             }
 
             //最後のやることの終了時間を設定
-            int last = mStackTaskList.getLastIdx();
-            Date endDate = mStackTaskList.get(last).getEndCalendar().getTime();
+            int last = mAlarmStackList.getLastIdx();
+            Date endDate = mAlarmStackList.get(last).getEndCalendar().getTime();
 
             tv_limitTime.setText( ResourceManager.sdf_Time.format(endDate));
         }
@@ -841,7 +890,7 @@ public class TimeFragment extends Fragment {
          */
         private void setupTaskInfo(View view, int idx, Date dateBaseTime) {
 
-            TaskTable task = mStackTaskList.get(idx);
+            TaskTable task = mAlarmStackList.get(idx);
 
             //「やること」「やること時間」の設定
             TextView tv_taskName = view.findViewById(R.id.tv_taskName);
@@ -866,7 +915,7 @@ public class TimeFragment extends Fragment {
             }
 
             //終了時間を取得
-            Date convertedDate = mStackTaskList.get(idx).getStartCalendar().getTime();
+            Date convertedDate = mAlarmStackList.get(idx).getStartCalendar().getTime();
 
             //文字列変換
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
@@ -909,7 +958,7 @@ public class TimeFragment extends Fragment {
 
             //最終時刻が既に過ぎている場合
             //※ベース時間未入力の判定は、以下の判定に内包されているため、不要
-            boolean isPassed = mAlarmTable.isAllTaskPassed();
+            boolean isPassed = mAlarmStack.isAllTaskPassed();
             if (isPassed) {
                 //過ぎているなら、最終ラインに描画
                 setMarginCurrentLine(0);
@@ -917,7 +966,7 @@ public class TimeFragment extends Fragment {
             }
 
             //現在時刻がやることに割り込んでいるかどうか
-            boolean isInterrupt = mAlarmTable.isInterruptTask();
+            boolean isInterrupt = mAlarmStack.isInterruptTask();
             if (isInterrupt) {
                 //--割り込みあり
 
@@ -947,18 +996,18 @@ public class TimeFragment extends Fragment {
 
             //割り込み中のIdxを取得
             //※この前に「isInterruptTask()」で割り込みチェックをしているため、NO_DATAは考慮不要
-            int idx = mAlarmTable.getFirstArriveIdx();
+            int idx = mAlarmStack.getFirstArriveIdx();
 
             //割り込みIdxより後の高さを取得
             int height = 0;
-            for (int i = idx + 1; i < mStackTaskList.size(); i++) {
-                int taskTime = mStackTaskList.get(i).getTaskTime();
+            for (int i = idx + 1; i < mAlarmStackList.size(); i++) {
+                int taskTime = mAlarmStackList.get(i).getTaskTime();
                 height += getGraghUnitHeight(taskTime);
             }
 
             //現在時間ー終了時間
             Date now = new Date();
-            long timeToEnd = mStackTaskList.get(idx).getEndCalendar().getTime().getTime() - now.getTime();
+            long timeToEnd = mAlarmStackList.get(idx).getEndCalendar().getTime().getTime() - now.getTime();
             long timeToEndMin = timeToEnd / CONV_MIN_TO_MSEC;
 
             //分単位変換後の値に、1分分追加
@@ -967,7 +1016,7 @@ public class TimeFragment extends Fragment {
             timeToEndMin += 1;
 
             //割り込みやることの高さ
-            int taskTime = mStackTaskList.get(idx).getTaskTime();
+            int taskTime = mAlarmStackList.get(idx).getTaskTime();
             int heightTask = getGraghUnitHeight(taskTime);
 
             //割り込みやることの高さから、残時間分の高さを算出

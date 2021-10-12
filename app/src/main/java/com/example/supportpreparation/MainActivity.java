@@ -1,5 +1,10 @@
 package com.example.supportpreparation;
 
+import static com.example.supportpreparation.ui.stackManager.StackManagerFragment.NOTIFY_SEND_KEY;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
@@ -9,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
@@ -118,6 +124,108 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         BottomNavigationView navView = findViewById(R.id.bnv_nav);
         NavController navController = Navigation.findNavController(this, R.id.fragment_host);
         NavigationUI.setupWithNavController(navView, navController);
+    }
+
+
+    /*
+     * アラーム設定
+     */
+    public void setupAlarm( StackTaskTable stackTable ) {
+
+        //アラーム設定
+        Toast toast = new Toast(this);
+
+        //AlarmManagerの取得
+        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (am == null) {
+            //メッセージを表示
+            toast.setText("エラーが発生しました。再度、ボタンを押してください");
+            toast.show();
+            return;
+        }
+
+        //設定中アラームの削除
+        cancelAllAlarm();
+
+        //リクエストコード
+        int requestCode = 0;
+
+        //通知メッセージに付与する接尾文
+        String suffixStr = getString(R.string.notify_task_suffix);
+
+        TaskArrayList<TaskTable> taskList = stackTable.getStackTaskList();
+
+        //各「やること」のアラームを設定
+        for (TaskTable task : taskList) {
+
+            //アラーム対象外なら次へ
+            if (!task.isOnAlarm()) {
+                continue;
+            }
+
+            //アラーム設定時間
+            long millis = task.getStartCalendar().getTimeInMillis();
+
+            //Receiver側へのデータ
+            Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
+            intent.putExtra(NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
+
+            //アラームの設定
+            PendingIntent pending
+                    = PendingIntent.getBroadcast(this, requestCode, intent, 0);
+            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+
+            //リクエストコードを更新
+            requestCode++;
+        }
+
+        //最終時刻のアラーム設定
+        if (stackTable.isOnAlarm()) {
+            //アラーム設定時間
+            int last    = taskList.getLastIdx();
+            long millis = taskList.get(last).getEndCalendar().getTimeInMillis();
+
+            String message = getString(R.string.notify_final_name);
+
+            //Receiver側へのデータ
+            Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
+            intent.putExtra( NOTIFY_SEND_KEY, message);
+
+            //アラームの設定
+            PendingIntent pending
+                    = PendingIntent.getBroadcast(this, requestCode, intent, 0);
+            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+        }
+
+        //メッセージを表示
+        toast.setText("通知を設定しました");
+        toast.show();
+    }
+
+
+    /*
+     * 設定中アラームの全キャンセル
+     */
+    public void cancelAllAlarm() {
+
+        //AlarmManagerの取得
+        AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        for (int i = 0; i < ResourceManager.MAX_ALARM_CANCEL_NUM; i++) {
+            //PendingIntentを取得
+            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
+            Intent intent = new Intent( getApplicationContext(), AlarmBroadcastReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast( getApplicationContext(), i, intent, PendingIntent.FLAG_NO_CREATE);
+            if (pendingIntent == null) {
+                //未生成ならキャンセル処理終了
+                Log.i("test", "cancelAllAlarm= + i");
+                break;
+            }
+
+            //アラームキャンセル
+            pendingIntent.cancel();
+            am.cancel(pendingIntent);
+        }
     }
 
     /*

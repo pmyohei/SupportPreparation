@@ -1,7 +1,5 @@
 package com.example.supportpreparation;
 
-import static android.view.View.GONE;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -11,7 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +22,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
 
 import java.util.Date;
 import java.util.List;
@@ -41,18 +33,28 @@ import java.util.List;
 public class CreateSetAlarmDialog extends DialogFragment {
 
     private final StackTaskTable mStackTable;
-    private final Fragment mFragment;
+    //private final Fragment mFragment;
     private LayoutInflater mInflater;
-    private final boolean mIsNew;
+    private View.OnClickListener        mClickListener;
+    //private final boolean mIsSetAlarm;
 
     /*
      * コンストラクタ
      */
-    public CreateSetAlarmDialog(Fragment fragment, StackTaskTable stackTable, boolean isNew) {
-        mFragment = fragment;
+    public CreateSetAlarmDialog(StackTaskTable stackTable) {
+        //mFragment = fragment;
         mStackTable = stackTable;
-        mIsNew = isNew;
+        //mIsSetAlarm = isNew;
     }
+
+
+    /*
+     * クリックリスナーの設定
+     */
+    public void setOnSetBtnClickListener(View.OnClickListener listener) {
+        mClickListener = listener;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -132,7 +134,8 @@ public class CreateSetAlarmDialog extends DialogFragment {
                 updateOnAlarm(ll_alarmList);
 
                 //呼び出し元の処理を呼びだす
-                ((StackManagerFragment) mFragment).OnAlarmSetReturn(mIsNew);
+                mClickListener.onClick(v);
+                //((StackManagerFragment) mFragment).OnAlarmSetReturn(mIsNew);
 
                 //閉じる
                 dismiss();

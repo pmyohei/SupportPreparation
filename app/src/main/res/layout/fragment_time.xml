@@ -121,6 +121,19 @@
             app:layout_constraintTop_toBottomOf="@+id/adView"
             app:srcCompat="@drawable/ic_open_gragh_64" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_refAlarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/fab_margin_bottom"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_alarm_ref_32"
+            app:backgroundTint="@color/white"
+            app:tint="@color/teal_700"
+            android:contentDescription="@string/fab_content_ref_alarm" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView

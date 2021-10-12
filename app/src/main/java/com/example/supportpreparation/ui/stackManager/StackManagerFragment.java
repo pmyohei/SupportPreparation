@@ -85,7 +85,6 @@ public class StackManagerFragment extends Fragment {
     public final static int SELECT_TASK_AREA_DIV = 4;           //やること選択エリア-横幅分割数
     public final static int SELECT_GROUP_AREA_DIV = 4;          //やること選択エリア-横幅分割数
 
-    public static final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
     public static final String NOTIFY_SEND_KEY = "notifykey";               //アラームキャンセル最大数
 
     public enum ALARM_RESULT {
@@ -169,7 +168,7 @@ public class StackManagerFragment extends Fragment {
         setupFabParent();
         setupFabSwitchDirection();
         setupFabSetAlarm();
-        setupFabRefAlarm();
+        //setupFabRefAlarm();
 
         //BottomSheetの設定
         setupBottomSheet();
@@ -908,7 +907,7 @@ public class StackManagerFragment extends Fragment {
                 }
 
                 //ダイアログの生成
-                createSetAlarmDialog(mStackTable, true);
+                createSetAlarmDialog(mStackTable);
 
                 //-- サポート画面へ移る
                 /*
@@ -932,6 +931,7 @@ public class StackManagerFragment extends Fragment {
     /*
      * FAB(アラーム参照)の設定
      */
+/*
     private void setupFabRefAlarm() {
 
         FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
@@ -943,11 +943,12 @@ public class StackManagerFragment extends Fragment {
                 //ダイアログの生成
                 createSetAlarmDialog(mAlarmStack, false);
 
-                //test
-                cancelAllAlarm();
+                //アラームを全キャンセル
+                mParentActivity.cancelAllAlarm();
             }
         });
     }
+*/
 
     /*
      * BottomSheetの設定
@@ -1032,147 +1033,34 @@ public class StackManagerFragment extends Fragment {
     /*
      * アラームダイアログの生成
      */
-    private void createSetAlarmDialog(StackTaskTable stack, boolean isNew) {
+    private void createSetAlarmDialog(StackTaskTable stack) {
 
         //FragmentManager生成
         FragmentManager transaction = getParentFragmentManager();
 
-        //本フラグメント
-        Fragment fragment = transaction.getFragments().get(0);
-
         //ダイアログを生成
-        DialogFragment dialog = new CreateSetAlarmDialog(fragment, stack, isNew);
+        CreateSetAlarmDialog dialog = new CreateSetAlarmDialog(stack);
+
+        //設定ボタン押下時リスナー
+        dialog.setOnSetBtnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //設定をアラーム情報としてコピー
+                mAlarmStack = (StackTaskTable) mStackTable.clone();
+
+                //スタック情報変更ON
+                mIsStackChg = true;
+
+                //DB更新
+                mParentActivity.setAlarmStack(mAlarmStack);
+
+                //アラーム設定
+                mParentActivity.setupAlarm(mStackTable);
+            }
+        });
+
         dialog.show(transaction, "alarm");
-    }
-
-    /*
-     * ダイアログ-アラーム設定結果
-     *   ※「CreateSetAlarmDialog」から、処理結果を受け取る
-     */
-    public void OnAlarmSetReturn(boolean isNew) {
-
-        StackTaskTable setStackData;
-
-        if (isNew) {
-            //設定をアラーム情報としてコピー
-            mAlarmStack = (StackTaskTable) mStackTable.clone();
-
-            //DB更新
-            //mParentActivity.setStackTable(mStackTable);
-            mIsStackChg = true;
-
-            setStackData = mStackTable;
-
-        } else {
-            setStackData = mAlarmStack;
-        }
-
-        //DB更新
-        mParentActivity.setAlarmStack(mAlarmStack);
-
-        //アラーム設定
-        setupAlarm(setStackData);
-    }
-
-
-    /*
-     * アラーム設定
-     */
-    public void setupAlarm( StackTaskTable stackTable ) {
-
-        //アラーム設定
-        Toast toast = new Toast(mContext);
-
-        //AlarmManagerの取得
-        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-        if (am == null) {
-            //メッセージを表示
-            toast.setText("エラーが発生しました。再度、ボタンを押してください");
-            toast.show();
-            return;
-        }
-
-        //設定中アラームの削除
-        cancelAllAlarm();
-
-        //リクエストコード
-        int requestCode = 0;
-
-        //通知メッセージに付与する接尾文
-        String suffixStr = getString(R.string.notify_task_suffix);
-
-        TaskArrayList<TaskTable> taskList = stackTable.getStackTaskList();
-
-        //各「やること」のアラームを設定
-        for (TaskTable task : taskList) {
-
-            //アラーム対象外なら次へ
-            if (!task.isOnAlarm()) {
-                continue;
-            }
-
-            //アラーム設定時間
-            long millis = task.getStartCalendar().getTimeInMillis();
-
-            //Receiver側へのデータ
-            Intent intent = new Intent(mContext, AlarmBroadcastReceiver.class);
-            intent.putExtra(NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
-
-            //アラームの設定
-            PendingIntent pending
-                    = PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
-            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
-
-            //リクエストコードを更新
-            requestCode++;
-        }
-
-        //最終時刻のアラーム設定
-        if (stackTable.isOnAlarm()) {
-            //アラーム設定時間
-            int last    = taskList.getLastIdx();
-            long millis = taskList.get(last).getEndCalendar().getTimeInMillis();
-
-            String message = getString(R.string.notify_final_name);
-
-            //Receiver側へのデータ
-            Intent intent = new Intent(mContext, AlarmBroadcastReceiver.class);
-            intent.putExtra( NOTIFY_SEND_KEY, message);
-
-            //アラームの設定
-            PendingIntent pending
-                    = PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
-            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
-        }
-
-        //メッセージを表示
-        toast.setText("通知を設定しました");
-        toast.show();
-    }
-
-    /*
-     * 設定中アラームの全キャンセル
-     */
-    private void cancelAllAlarm() {
-
-        //AlarmManagerの取得
-        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-
-        for (int i = 0; i < MAX_ALARM_CANCEL_NUM; i++) {
-            //PendingIntentを取得
-            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
-            Intent intent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), i, intent, PendingIntent.FLAG_NO_CREATE);
-            if (pendingIntent == null) {
-                //未生成ならキャンセル処理終了
-                Log.i("test", "cancelAllAlarm= + i");
-                break;
-            }
-
-            //アラームキャンセル
-            pendingIntent.cancel();
-            am.cancel(pendingIntent);
-        }
     }
 
 

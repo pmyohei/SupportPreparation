@@ -19,6 +19,9 @@ public class ResourceManager {
     private static final int TASK_TIME_NORMAL      = 30;
     private static final int TASK_TIME_LONG        = 60;
 
+
+    public static final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
+
     public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
     public static final SimpleDateFormat sdf_Date = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPANESE);
     public static final SimpleDateFormat sdf_Time = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
