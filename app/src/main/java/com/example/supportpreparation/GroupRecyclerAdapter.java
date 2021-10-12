@@ -15,21 +15,18 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.supportpreparation.ui.groupManager.GroupManagerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.List;
-
 /*
  * RecyclerViewアダプター：「やることグループ」用
  */
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
 
-    private GroupArrayList<GroupTable>                      mGroupList;
+    private GroupArrayList<GroupTable> mData;
     private Context                                         mContext;
     private int                                             mItemHeight;
     private BottomNavigationView                            mBNV;
@@ -64,26 +61,41 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         }
     }
 
-
     /*
      * コンストラクタ
      */
     public GroupRecyclerAdapter(Context context, GroupArrayList<GroupTable> groupList,
                                 AsyncGroupTableOperaion.GroupOperationListener dbListener, int height,
                                 BottomNavigationView bnv, ConstraintLayout cl_mainContainer) {
-        mContext                = context;
-        mGroupList              = groupList;
-        mItemHeight             = height;
-        mDBListener             = dbListener;
-        mBNV                    = bnv;
-        mcl_mainContainer       = cl_mainContainer;
+        mContext          = context;
+        mData             = groupList;
+        mItemHeight       = height;
+        mDBListener       = dbListener;
+        mBNV              = bnv;
+        mcl_mainContainer = cl_mainContainer;
+    }
+
+
+    /*
+     * ここで返した値が、onCreateViewHolder()の第２引数になる
+     */
+    @Override
+    public int getItemViewType(int position) {
+
+        if (mData.get(position) == null) {
+            //フェールセーフ
+            return 0;
+        }
+
+        return mData.get(position).getTotalTime();
     }
 
     /*
      *　ViewHolderの生成
      */
     @Override
-    public GroupRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public GroupRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.outer_group, viewGroup, false);
@@ -93,6 +105,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         layoutParams.height = mItemHeight;
         view.setLayoutParams(layoutParams);
 
+        //空データなら、非表示
+        if( viewType == ResourceManager.INVALID_MIN ){
+            LinearLayout ll_taskInfo = view.findViewById( R.id.ll_groupInfo );
+            ll_taskInfo.setVisibility( View.INVISIBLE );
+        }
+
         return new ViewHolder(view);
     }
 
@@ -100,19 +118,23 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      * ViewHolderの設定
      */
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
 
         Log.i("test", "group adapter onBindViewHolder i=" + i);
 
+        int totalTime = mData.get(i).getTotalTime();
+        if( totalTime == ResourceManager.INVALID_MIN ){
+            //空データなら設定不要
+            return;
+        }
+
         //文字列変換
-        int groupPid = mGroupList.get(i).getId();
+        int groupPid = mData.get(i).getId();
         String pidStr = Integer.toString(groupPid);
 
         //ビューの設定
         viewHolder.tv_groupPid.setText(pidStr);
-        viewHolder.tv_groupName.setText(mGroupList.get(i).getGroupName());
-
-        //-- グループに紐づいた「やること」
+        viewHolder.tv_groupName.setText(mData.get(i).getGroupName());
 
         //グループ内「やること」の表示設定
         setTaskInGroup(viewHolder, i, groupPid);
@@ -134,7 +156,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public int getItemCount() {
         //表示データ数を返す
-        return mGroupList.size();
+        return mData.size();
     }
 
     /*
@@ -147,8 +169,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         viewHolder.rv_taskInGroup.setLayoutManager( new GridLayoutManager(mContext, GroupManagerFragment.DIV_GROUP_IN_TASK) );
 
         //グループ内のやること／アダプタ
-        TaskRecyclerAdapter adapter = mGroupList.get(idx).getTaskAdapter();
-        TaskArrayList<TaskTable> taskInGroupList = mGroupList.get(idx).getTaskInGroupList();
+        TaskRecyclerAdapter adapter = mData.get(idx).getTaskAdapter();
+        TaskArrayList<TaskTable> taskInGroupList = mData.get(idx).getTaskInGroupList();
 
         //アダプタの設定
         viewHolder.rv_taskInGroup.setAdapter(adapter);
@@ -163,8 +185,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             viewHolder.rv_taskInGroup.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent event) {
-                    mTaskTouchListener.onTouch(view, event);
-                    return false;
+
+                    //設定されたリスナー処理を行う
+                    return mTaskTouchListener.onTouch(view, event);
                 }
             });
         }

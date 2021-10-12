@@ -1,5 +1,7 @@
 package com.example.supportpreparation.ui.taskManager;
 
+import static java.util.Collections.swap;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -29,7 +31,6 @@ import com.example.supportpreparation.R;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
-import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -149,17 +150,14 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
             @Override
             public boolean onPreDraw() {
 
+                //本リスナーを削除（何度も処理する必要はないため）
+                rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
+
                 //RecyclerViewの横幅分割
                 int size = rv_task.getWidth() / TASK_COLUMN;
 
                 //アダプタの生成
                 mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.LIST, size, size);
-
-                //RecyclerViewにアダプタを設定
-                rv_task.setAdapter(mTaskAdapter);
-
-                //本リスナーを削除（何度も処理する必要はないため）
-                rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
 
                 //リスナー設定
                 mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {
@@ -180,20 +178,26 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
         //ドラッグアンドドロップ、スワイプの設定
         ItemTouchHelper helper = new ItemTouchHelper(
-                new ItemTouchHelper.SimpleCallback( ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                new ItemTouchHelper.SimpleCallback( ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
                         ItemTouchHelper.LEFT ){
                     @Override
                     public boolean onMove(@NonNull RecyclerView            recyclerView,
-                                          @NonNull RecyclerView.ViewHolder viewHolder,
+                                          @NonNull RecyclerView.ViewHolder dragged,
                                           @NonNull RecyclerView.ViewHolder target) {
                         //並び替えは要検討
-
+/*
                         //！getAdapterPosition()←非推奨
-                        final int fromPos = viewHolder.getAdapterPosition();
+                        final int fromPos = dragged.getAdapterPosition();
                         final int toPos   = target.getAdapterPosition();
+
+                        Log.i("test", "onMove " + fromPos + " " + toPos);
+
+                        //リスト入れ替え
+                        swap( mTaskList, fromPos, toPos);
+
                         //アイテム移動を通知
                         mTaskAdapter.notifyItemMoved(fromPos, toPos);
-                        Log.i("test", "onMove " + fromPos + " " + toPos);
+*/
 
                         return true;
                     }
@@ -213,6 +217,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                         ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
 
                         //UNDOメッセージの表示
+                        //★備考★クラス化可能
                         Snackbar snackbar = Snackbar
                                 .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
                                 //アクションボタン押下時の動作
@@ -257,7 +262,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
         //リサイクラービューをアタッチ
         helper.attachToRecyclerView(rv_task);
-
     }
 
     /* -------------------
@@ -272,34 +276,26 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     public void onSuccessTaskRead(TaskArrayList<TaskTable> taskList) {
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onSuccessTaskCreate(Integer code, TaskTable taskTable) {
         //-- 生成した「やること」を表示
 
-        //-- 作成結果をトーストで表示
-        //結果メッセージ
-        String message;
-
         //戻り値に応じてトースト表示
         if( code == -1 ){
             //エラーメッセージを表示
-            message = "登録済みです";
-        } else {
-            //正常メッセージを表示
-            message = "登録しました";
-        }
+            String message = "登録済みです";
 
-        //トーストの生成
-        Toast toast = new Toast(mContext);
-        toast.setText(message);
-        toast.show();
+            //トーストの生成
+            Toast toast = new Toast(mContext);
+            toast.setText(message);
+            toast.show();
 
-        if( code == -1 ){
-            //登録済みなら、ここで終了
             return;
         }
 
-        Log.i("test", "onSuccessTaskCreate pid=" + taskTable.getId());
+        //空データ削除
+        mTaskList.removeEmpty();
 
         //生成された「やること」をリストに追加
         mTaskList.add( taskTable );
@@ -313,6 +309,10 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
     @Override
     public void onSuccessTaskDelete(String task, int taskTime) {
+
+        //０件なら、空のデータをリストに入れておく
+        //※選択エリアのサイズを確保するため
+        mTaskList.addEmpty();
     }
 
     /* -------------------

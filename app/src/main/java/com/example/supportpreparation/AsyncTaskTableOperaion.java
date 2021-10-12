@@ -16,16 +16,16 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         UPDATE,         //更新
         DELETE;         //削除
     }
-
-    private AppDatabase mDB;
-    private DB_OPERATION mOperation;
+    
+    private final AppDatabase mDB;
+    private final DB_OPERATION mOperation;
     private String mPreTask;
     private int mPid;
     private int mPreTaskTime;
     private String mNewTaskName;
     private int mNewTaskTime;
     private TaskTable mTaskTable;
-    private TaskArrayList<TaskTable> mTaskList = new TaskArrayList<>();
+    private final TaskArrayList<TaskTable> mTaskList = new TaskArrayList<>();
     private TaskOperationListener mListener;
 
     /*

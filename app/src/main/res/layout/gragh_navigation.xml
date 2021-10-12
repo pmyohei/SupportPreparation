@@ -10,9 +10,10 @@
     android:paddingLeft="20dp">
 
     <FrameLayout
+        android:id="@+id/fl_test"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.8">
+        android:layout_weight="1">
 
         <!-- グラフ -->
         <ScrollView
@@ -23,8 +24,8 @@
             tools:ignore="UselessParent">
 
             <!-- グラフ追加先は動的に生成する
-            <include layout="@layout/gragh_body_top" />
-            <include layout="@layout/gragh_body_bottom" />
+            <include layout="@layout/gragh_parent_topped" />
+            <include layout="@layout/gragh_parent_bottoming" />
             -->
 
         </ScrollView>

@@ -15,7 +15,7 @@ public class GroupTable {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    //「やることセット」名
+    //グループ名
     @ColumnInfo(name = "group_name")
     private String groupName;
 
@@ -24,6 +24,10 @@ public class GroupTable {
     //　  "pid1 pid2 pid3"
     @ColumnInfo(name = "task_pids_string")
     private String taskPidsStr = "";
+
+    //やること合計時間
+    @ColumnInfo(name = "total_time")
+    private int totalTime = 0;
 
     /*
      * 定数
@@ -46,6 +50,17 @@ public class GroupTable {
         mTaskInGroupList   = new TaskArrayList<>();
     }
 
+    @Ignore
+    public GroupTable(String groupName, int totalTime) {
+        this.groupName     = groupName;
+        this.totalTime     = totalTime;
+        mTaskInGroupList   = new TaskArrayList<>();
+    }
+
+    /*
+     * getter/setter
+     */
+
     public void setId(int id) {
         this.id = id;
     }
@@ -65,6 +80,13 @@ public class GroupTable {
     }
     public void setTaskPidsStr(String taskPidsStr) {
         this.taskPidsStr = taskPidsStr;
+    }
+
+    public void setTotalTime(int totalTime) {
+        this.totalTime = totalTime;
+    }
+    public int getTotalTime() {
+        return this.totalTime;
     }
 
     /*

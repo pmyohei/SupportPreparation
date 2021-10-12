@@ -1,56 +1,107 @@
 package com.example.supportpreparation;
 
+import android.graphics.drawable.Animatable2;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity implements AsyncGroupTableOperaion.GroupOperationListener,
                                                                 AsyncTaskTableOperaion.TaskOperationListener,
                                                                 AsyncStackTaskTableOperaion.StackTaskOperationListener {
 
-    private AppDatabase             mDB;                                //DB
+    private AppDatabase mDB;                                //DB
 
     //-- フラグメント間共通データ
-    private TaskArrayList<TaskTable>    mTaskList;                              //「やること」リスト
-    private GroupArrayList<GroupTable>  mGroupList;                             //「やることグループ」リスト
-    private StackTaskTable              mStackTable;                            //スタックテーブル
-    private StackTaskTable              mAlarmStack;                            //スタックテーブル(アラーム設定)
-    private TaskArrayList<TaskTable>    mStackTaskList = new TaskArrayList<>(); //「積み上げやること」リスト
-    private String                      mLimitDate;                             //リミット-日（"yyyy/MM/dd"）
-    private String                      mLimitTime;                             //リミット-時（"hh:mm"）
-    private boolean                     mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
-    private boolean                     mIsLimit;                               //フラグ-リミット選択中
+    private TaskArrayList<TaskTable> mTaskList;                              //「やること」リスト
+    private GroupArrayList<GroupTable> mGroupList;                             //「やることグループ」リスト
+    private StackTaskTable mStackTable;                            //スタックテーブル
+    private StackTaskTable mAlarmStack;                            //スタックテーブル(アラーム設定)
+    private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
 
+    private boolean mSplashEnd;
+    private boolean mReadData;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
 
         //起動時の選択エリアは「やること」
         mIsSelectTask = true;
+        //アニメーション終了OFF
+        mSplashEnd = false;
+        //DB読み込み終了OFF
+        mReadData = false;
 
         //DB操作インスタンスを取得
         mDB = AppDatabaseSingleton.getInstance(this);
         //非同期スレッドにて、読み込み開始
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
+        //スプラッシュ用アニメーション開始
+        startSplashAnimation();
+
         Log.i("test", "main onSuccessTaskRead");
     }
 
     /*
-     *
+     * スプラッシュアニメーション開始
      */
-    public static void readDB(){
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void startSplashAnimation(){
 
+        //アイコンアニメーション
+        ImageView iv_splash = findViewById(R.id.iv_splash);
+        iv_splash.setBackgroundResource(R.drawable.avd_splash);
+        AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) iv_splash.getBackground();
+        rocketAnimation.start();
+
+        rocketAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
+            @Override
+            public void onAnimationEnd(Drawable drawable) {
+                super.onAnimationEnd(drawable);
+
+                mSplashEnd = true;
+
+                //DBの読み取りが完了していれば、レイアウト設定
+                if( mReadData ) {
+                    setupMainLayout();
+                }
+            }
+        });
+    }
+
+    /*
+     * レイアウト設定
+     */
+    private void setupMainLayout(){
+
+        //スプラッシュレイアウトを削除
+        View cl_splash = findViewById(R.id.cl_splash);
+        View v_parent = cl_splash.getRootView();
+        ((ViewGroup)v_parent).removeView( cl_splash );
+
+        //メインのレイアウト設定
+        setContentView(R.layout.activity_main);
+
+        //下部ナビゲーション設定
+        BottomNavigationView navView = findViewById(R.id.bnv_nav);
+        NavController navController = Navigation.findNavController(this, R.id.fragment_host);
+        NavigationUI.setupWithNavController(navView, navController);
     }
 
     /*
@@ -66,21 +117,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public GroupArrayList<GroupTable> getGroupData() {
         return mGroupList;
     }
-
-    /*
-     * 「積み上げやること」データを取得・設定
-
-    public TaskArrayList<TaskTable> getStackTaskData() {
-        return mStackTaskList;
-    }
-    public void setStackTaskData( TaskArrayList<TaskTable> taskList ) {
-        //「積み上げやること」を設定
-        mStackTaskList = taskList;
-
-        //DBを更新
-        new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.CREATE, mStackTaskList, mLimitDate, mLimitTime).execute();
-    }
- */
 
     /*
      * 「スタック」データを取得・設定
@@ -110,27 +146,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     }
 
     /*
-     * 「リミット-日付」を取得・設定
-
-    public String getLimitDate() {
-        return mLimitDate;
-    }
-    public void setLimitDate(String value) {
-        mLimitDate = value;
-    }
-*/
-    /*
-     * 「リミット-時分」を取得・設定
-
-    public String getLimitTime() {
-        return mLimitTime;
-    }
-    public void setLimitTime(String value) {
-        mLimitTime = value;
-    }
-*/
-
-    /*
      * 「フラグ-「やること」選択エリア表示中」を取得・設定
      */
     public boolean isSelectTask() {
@@ -140,22 +155,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         mIsSelectTask = flg;
     }
 
-    /*
-     * 「フラグ-リミット選択中」の取得・設定
-    public boolean isLimit() {
-        return mIsLimit;
-    }
-    public void setFlgLimit(boolean flg) {
-        mIsLimit = flg;
-    }
-    */
+
 
     /*
      *  -------------------------------------------------
      *  インターフェース
      *  -------------------------------------------------
      */
-
 
     /* --------------------------------------
      * 「やること」
@@ -165,36 +171,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void onSuccessTaskRead(TaskArrayList<TaskTable> taskList) {
         //「やること」リストを保持
         mTaskList = taskList;
-/*
-        mTaskTestList = testaList;
-        for( TaskTable task: mTaskTestList ){
-            Log.i("test", "mTaskTestList task=" + task.getTaskName());
-        }
-        Log.i("test", "mTaskTestList getTaskByPid=" + mTaskTestList.getTaskByPid(0));
-        Log.i("test", "mTaskTestList getTotalTaskTime=" + mTaskTestList.getTotalTaskTime());
-        Log.i("test", "mTaskTestList getTopAlarmIndex=" + mTaskTestList.getTopAlarmIndex());
 
-        //test
-        mTaskTestList = new TaskArrayList<>();
-        TaskTable test = new TaskTable("test1", 10 );
-        test.setId(0);
-        mTaskTestList.add( test );
+        //０件なら、空のデータをリストに入れておく
+        //※選択エリアのサイズを確保するため
+        mTaskList.addEmpty();
 
-        TaskTable test1 = new TaskTable("test2", 30 );
-        test1.setId(1);
-        mTaskTestList.add( test1 );
-
-        TaskTable task = mTaskTestList.getTaskByPid(0);
-        if( task != null ){
-            Log.i("test", "mTaskTestList task=" + task.getTaskName());
-        }
-        task = mTaskTestList.getTaskByPid(1);
-        if( task != null ){
-            Log.i("test", "mTaskTestList task=" + task.getTaskName());
-        }
-        //test
-        */
-        
         //「やることセット」
         new AsyncGroupTableOperaion(mDB, this, AsyncGroupTableOperaion.DB_OPERATION.READ).execute();
     }
@@ -219,9 +200,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void onSuccessReadGroup(GroupArrayList<GroupTable> groupList) {
 
         //DBから取得したデータを保持
-        mGroupList       = groupList;
+        mGroupList = groupList;
 
-        //「積み上げやること」
+        //０件なら、空のデータをリストに入れておく
+        //※選択エリアのサイズを確保するため
+        mGroupList.addEmpty();
+
+        //「積み上げやること」の読み込み
         new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.READ).execute();
     }
 
@@ -251,25 +236,16 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             mStackTable = stack;
             mAlarmStack = alarmStack;
 
-            //DBから取得した「積み上げやること」データを保持
-            //mStackTaskList = taskList;
-            //mLimitDate     = stack.getDate();
-            //mLimitTime     = stack.getTime();
-
             Log.i("test", "onSuccessStackRead");
-
-        } else {
-            //データなければ、未入力文字列
-            //mLimitTime = getString(R.string.limittime_no_input);
         }
 
-        //※レイアウトの設定は、データ取得後に行う
-        setContentView(R.layout.activity_main);
+        //フラグON
+        mReadData = true;
 
-        //下部ナビゲーション設定
-        BottomNavigationView navView = findViewById(R.id.bnv_nav);
-        NavController navController = Navigation.findNavController(this, R.id.fragment_host);
-        NavigationUI.setupWithNavController(navView, navController);
+        //スプラッシュアニメーションが終了していれば、レイアウト設定
+        if( mSplashEnd ){
+            setupMainLayout();
+        }
     }
 
     @Override

@@ -43,4 +43,32 @@ public class GroupArrayList<E> extends ArrayList<GroupTable> {
         return null;
     }
 
+    /*
+     * 「空データ」の追加
+     *    リストが０件の場合にのみ行う。
+     */
+    public void addEmpty() {
+
+        if( size() == 0 ){
+            //空なら追加
+            add( new GroupTable("", ResourceManager.INVALID_MIN) );
+        }
+    }
+
+    /*
+     * 「空データ」削除
+     * 　　ない場合は何もしない
+     */
+    public void removeEmpty() {
+
+        //検索
+        for (int i = 0; i < size(); i++) {
+            int time = get(i).getTotalTime();
+            if( time == ResourceManager.INVALID_MIN ){
+                //削除
+                GroupTable group = remove(i);
+            }
+        }
+    }
+
 }

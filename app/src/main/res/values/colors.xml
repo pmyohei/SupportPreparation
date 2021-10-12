@@ -40,7 +40,10 @@
     <!-- 共通 -->
     <color name="basic">#8ac6d1</color>
     <color name="bg_common">#FFF7EB</color>
+    <color name="clear">#00FFFFFF</color>
     <color name="_before_change">#c4c1be</color>    <!-- 動的に変更される前に設定する色 -->
+
+    <color name="bg_appli_icon">#4B6587</color>
 
     <color name="bg_task">#ffb6b9</color>
     <color name="tx_task">#f5f5f5</color>
@@ -77,7 +80,7 @@
 
     <color name="tx_time_not_reached">#716e77</color>
 
-    <color name="bg_current_time_line">#C1FF0202</color>
+    <color name="bg_current_time_line">#80FF0202</color>
     <color name="tx_current_time">#C1FF0202</color>
 
 </resources>

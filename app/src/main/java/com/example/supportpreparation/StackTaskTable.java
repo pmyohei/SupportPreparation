@@ -2,6 +2,8 @@ package com.example.supportpreparation;
 
 //import android.icu.util.Calendar;
 
+import static java.util.Collections.swap;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -374,12 +376,27 @@ public class StackTaskTable implements Cloneable {
      * 「やること」削除
      */
     public void removeTask(int idx) {
+
+        //リストから削除
         mStackTaskList.remove(idx);
         mAlarmOnOffList.remove(idx);
 
         //開始・終了時間の更新
         allUpdateStartEndTime();
     }
+
+    /*
+     * 「やること」入れ替え
+     */
+    public void swapTask(int fromPos, int toPos) {
+
+        swap( mStackTaskList, fromPos, toPos );
+        swap( mAlarmOnOffList, fromPos, toPos );
+
+        //開始・終了時間の更新
+        allUpdateStartEndTime();
+    }
+
 
     /*
      * ベース時間をDateに変換
@@ -507,6 +524,11 @@ public class StackTaskTable implements Cloneable {
 
         //最後のやることの終了時間
         int last = mStackTaskList.getLastIdx();
+        if( last < 0 ){
+            //ベース時間未設定の場合、trueを返却
+            return true;
+        }
+
         Calendar finalCal = mStackTaskList.get(last).getEndCalendar();
         if( finalCal == null ){
             //ベース時間未設定の場合、trueを返却

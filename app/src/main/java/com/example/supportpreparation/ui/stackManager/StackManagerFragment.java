@@ -2,6 +2,8 @@ package com.example.supportpreparation.ui.stackManager;
 
 import static android.content.Context.ALARM_SERVICE;
 
+import static java.util.Collections.swap;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -67,6 +69,7 @@ import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.TaskTableManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -107,6 +110,12 @@ public class StackManagerFragment extends Fragment {
     private Intent mAlarmReceiverIntent;   //アラーム受信クラスのIntent
     private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
     private boolean mIsLimit;                               //フラグ-リミット選択中
+    private boolean mIsStackChg;                               //スタックタスク変更有無
+
+    //BottomSheetBehavior と連動するpadding
+    private int mBasicPadding;
+    private int mExpandedBSHeight;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -137,6 +146,9 @@ public class StackManagerFragment extends Fragment {
         mtv_limitDate = (TextView) mRootLayout.findViewById(R.id.tv_limitDate);
         mfab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
 
+        //スタックタスク未変更
+        mIsStackChg = false;
+
         //アラーム受信クラスのIntent
         Intent mAlarmReceiverIntent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
 
@@ -158,6 +170,9 @@ public class StackManagerFragment extends Fragment {
         setupFabSwitchDirection();
         setupFabSetAlarm();
         setupFabRefAlarm();
+
+        //BottomSheetの設定
+        setupBottomSheet();
 
         return mRootLayout;
     }
@@ -199,7 +214,8 @@ public class StackManagerFragment extends Fragment {
 
                             //共通データとして保持
                             mStackTable.setTime(limit);
-                            mParentActivity.setStackTable(mStackTable);
+                            //mParentActivity.setStackTable(mStackTable);
+                            mIsStackChg = true;
 
                             //やること開始時間を変更
                             mStackAreaAdapter.notifyDataSetChanged();
@@ -247,7 +263,8 @@ public class StackManagerFragment extends Fragment {
 
                             //共通データとして保持
                             mStackTable.setDate(date);
-                            mParentActivity.setStackTable(mStackTable);
+                            //mParentActivity.setStackTable(mStackTable);
+                            mIsStackChg = true;
 
                             //やること開始時間を変更
                             mStackAreaAdapter.notifyDataSetChanged();
@@ -360,7 +377,7 @@ public class StackManagerFragment extends Fragment {
             public boolean onPreDraw() {
 
                 //RecyclerViewのブロックサイズ
-                int width = (int)(rv_stackArea.getWidth() * STACK_BLOCK_RATIO);
+                int width = (int) (rv_stackArea.getWidth() * STACK_BLOCK_RATIO);
 
                 //アダプタの生成・設定
                 //※高さはビューに依存「wrap_contents」
@@ -388,37 +405,42 @@ public class StackManagerFragment extends Fragment {
         //((SimpleItemAnimator) rv_stackArea.getItemAnimator()).setSupportsChangeAnimations(false);
 
         //ドラッグアンドドロップ、スワイプの設定(リサイクラービュー)
-        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
+        ItemTouchHelper helper = new ItemTouchHelper( new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                ItemTouchHelper.LEFT) {
+
+            //入れ替えフラグ
+            private boolean isMove = false;
+
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
 
-                //！getAdapterPosition()←非推奨
+                //★備考★getAdapterPosition()←非推奨
                 final int fromPos = viewHolder.getAdapterPosition();
-                final int toPos = target.getAdapterPosition();
+                final int toPos   = target.getAdapterPosition();
+
+                //リスト入れ替え
+                mStackTable.swapTask(fromPos, toPos);
+
                 //アイテム移動を通知
                 mStackAreaAdapter.notifyItemMoved(fromPos, toPos);
                 Log.i("test", "fromPos=" + fromPos + " toPos=" + toPos);
-/*
-                        int size = mStackTask.size();
-                        for( int i = 0; i < size; i++ ){
-                            mStackAreaAdapter.notifyItemChanged(i);
-                        }
-*/
 
-                //各開始時間も変更になるため、通知
-                //mStackAreaAdapter.notifyDataSetChanged();
+                //フラグON
+                isMove = true;
 
                 return true;
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
                 //スワイプされたデータ
-                final int adapterPosition = viewHolder.getAdapterPosition();
-                final TaskTable deletedTask = mStackTaskList.get(adapterPosition);
+                final int adapterPos = viewHolder.getAdapterPosition();
+                final TaskTable deletedTask = mStackTaskList.get(adapterPos);
 
                 //下部ナビゲーションを取得
                 BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
@@ -434,11 +456,11 @@ public class StackManagerFragment extends Fragment {
                             @Override
                             public void onClick(View view) {
                                 //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                                mStackTable.insertTask(adapterPosition, deletedTask);
-                                mStackAreaAdapter.notifyItemInserted(adapterPosition);
+                                mStackTable.insertTask(adapterPos, deletedTask);
+                                mStackAreaAdapter.notifyItemInserted(adapterPos);
 
-                                //表示位置を元に戻した対象の位置へ移動
-                                rv_stackArea.scrollToPosition(adapterPosition);
+                                //表示位置を、元に戻したアイテム位置へ移動
+                                rv_stackArea.scrollToPosition(adapterPos);
 
                                 //各時間を変更させるため、アダプタへ変更を通知
                                 mStackAreaAdapter.notifyDataSetChanged();
@@ -468,14 +490,41 @@ public class StackManagerFragment extends Fragment {
                 snackbar.show();
 
                 //リストから削除し、アダプターへ通知
-                mStackTable.removeTask(adapterPosition);
-                //mStackAreaAdapter.notifyItemRemoved(adapterPosition);
+                mStackTable.removeTask(adapterPos);
 
                 //各開始時間を変更させるため、アダプタへ変更を通知
                 mStackAreaAdapter.notifyDataSetChanged();
+
+                //フラグOFF
+                isMove = false;
             }
-        }
-        );
+
+            /*
+             * 最終的な処理終了時にコールされる
+             */
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void clearView (@NonNull RecyclerView recyclerView,
+                                   @NonNull RecyclerView.ViewHolder viewHolder){
+
+                //※superをしないと、onSwipで削除したとき、同じデータが非表示になる
+                super.clearView(recyclerView, viewHolder);
+
+                //スタックエリア変更ON
+                //※変更した後、元に戻して結果的に変化なしの可能性もあるが、このメソッドがコールされた時点で変更ありとみなす
+                mIsStackChg = false;
+
+                if( !isMove ){
+                    //onMove終了後でないなら、なにもしない
+                    return;
+                }
+
+                //各開始時間も変更になるため、通知
+                mStackAreaAdapter.notifyDataSetChanged();
+
+                isMove = false;
+            }
+        });
 
         //リサイクラービューをアタッチ
         helper.attachToRecyclerView(rv_stackArea);
@@ -642,7 +691,7 @@ public class StackManagerFragment extends Fragment {
                 //RecyclerViewにアダプタを設定
                 rv_group.setAdapter(adapter);
 
-                //--FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
                 rv_group.addItemDecoration(new SelectAreaItemDecoration());
 
                 //本リスナーを削除（何度も処理する必要はないため）
@@ -776,7 +825,8 @@ public class StackManagerFragment extends Fragment {
                 mIsLimit = !mIsLimit;
                 //親側データと同期
                 mStackTable.setIsLimit(mIsLimit);
-                mParentActivity.setStackTable(mStackTable);
+                //mParentActivity.setStackTable(mStackTable);
+                mIsStackChg = true;
 
                 if (mIsLimit) {
                     //--スタート(false) → リミット(true) へ変更された
@@ -913,6 +963,85 @@ public class StackManagerFragment extends Fragment {
         });
     }
 
+    /*
+     * BottomSheetの設定
+     */
+    private void setupBottomSheet() {
+
+        //BottomSheetBehavior と連動するpadding
+        LinearLayout ll_manageStack = mRootLayout.findViewById(R.id.ll_manageStack);
+
+        //BottomSheet
+        View ll_bottomSheet = mRootLayout.findViewById(R.id.ll_bottomSheet);
+
+        //BottomSheetBehavior
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(ll_bottomSheet);
+
+        //レイアウト確定後、ビューに合わせてサイズ設定
+        ViewTreeObserver observer = ll_bottomSheet.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.M)
+                    @Override
+                    public void onGlobalLayout() {
+
+                        //レイアウト確定後は不要なので、本リスナー削除
+                        ll_bottomSheet.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        //画面上に残したいサイズ
+                        View ll_peek = ll_bottomSheet.findViewById(R.id.ll_peek);
+                        int peekHeight = ll_peek.getHeight();
+
+                        //初期PaddingBottom
+                        mBasicPadding = ll_manageStack.getPaddingBottom() + peekHeight;
+
+                        //BottomSheetの高さ
+                        mExpandedBSHeight = ll_bottomSheet.getHeight();
+
+                        //Padding設定
+                        ll_manageStack.setPadding(
+                                ll_manageStack.getPaddingLeft(),
+                                ll_manageStack.getPaddingTop(),
+                                ll_manageStack.getPaddingRight(),
+                                mBasicPadding + mExpandedBSHeight
+                        );
+
+                        //元々のpadding分（下部ナビゲーション分設定済み）を加味した分をPeekHeightとする
+                        peekHeight += behavior.getPeekHeight();
+
+                        behavior.setPeekHeight(peekHeight);
+                    }
+                }
+        );
+
+        //開いた状態で開始
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        //スライド時の設定
+        behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                //case BottomSheetBehavior.STATE_DRAGGING:
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                //Log.i("test", "slideOffset=" + slideOffset);
+
+                //padding調整値
+                int offset = (int) (mExpandedBSHeight * slideOffset);
+
+                ll_manageStack.setPadding(
+                        ll_manageStack.getPaddingLeft(),
+                        ll_manageStack.getPaddingTop(),
+                        ll_manageStack.getPaddingRight(),
+                        (int) (mBasicPadding + offset)
+                );
+            }
+        });
+    }
 
     /*
      * アラームダイアログの生成
@@ -932,29 +1061,31 @@ public class StackManagerFragment extends Fragment {
 
     /*
      * ダイアログ-アラーム設定結果
-     *   ※「CreateSetAlarmDialog」から呼ばれることを想定
+     *   ※「CreateSetAlarmDialog」から、処理結果を受け取る
      */
     public void OnAlarmSetReturn(boolean isNew) {
 
-        StackTaskTable stackTable;
+        StackTaskTable setStackData;
 
         if (isNew) {
             //設定をアラーム情報としてコピー
             mAlarmStack = (StackTaskTable) mStackTable.clone();
 
             //DB更新
-            mParentActivity.setStackTable(mStackTable);
+            //mParentActivity.setStackTable(mStackTable);
+            mIsStackChg = true;
 
-            stackTable = mStackTable;
+            setStackData = mStackTable;
+
         } else {
-            stackTable = mAlarmStack;
+            setStackData = mAlarmStack;
         }
 
         //DB更新
         mParentActivity.setAlarmStack(mAlarmStack);
 
         //アラーム設定
-        setupAlarm(stackTable);
+        setupAlarm(setStackData);
     }
 
 
@@ -1058,30 +1189,6 @@ public class StackManagerFragment extends Fragment {
         }
     }
 
-
-    /*
-     * 設定中アラームの全キャンセル
-     */
-    private void cancelAllAlara() {
-
-        //AlarmManagerの取得
-        AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-
-        for (int i = 0; i < MAX_ALARM_CANCEL_NUM; i++) {
-            //PendingIntentを取得
-            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(mParentActivity.getApplicationContext(), i, mAlarmReceiverIntent, PendingIntent.FLAG_NO_CREATE);
-            if (pendingIntent == null) {
-                //未生成ならキャンセル処理終了
-                break;
-            }
-
-            //アラームキャンセル
-            pendingIntent.cancel();
-            am.cancel(pendingIntent);
-        }
-    }
-
     /*
      * ドラッグリスナー（ビューがドロップされた時の動作）
      *　　「やること」を積み上げエリアにドラッグアンドドロップするときに使用
@@ -1091,6 +1198,7 @@ public class StackManagerFragment extends Fragment {
         @Override
         public boolean onDrag(View view, DragEvent dragEvent) {
             switch (dragEvent.getAction()) {
+
                 //ドラッグ開始時
                 case DragEvent.ACTION_DRAG_STARTED: {
                     //色を選択中に変更
@@ -1099,8 +1207,12 @@ public class StackManagerFragment extends Fragment {
                     //((TextView)dragView).setTextColor(Color.WHITE);
                     return true;
                 }
+
                 //ドロップ時(ドロップしてドラッグが終了したとき)
                 case DragEvent.ACTION_DROP: {
+
+                    //スタックタスク変更ON
+                    mIsStackChg = true;
 
                     //ドラッグしたビューからデータを取得
                     View dragView = (View) dragEvent.getLocalState();
@@ -1111,7 +1223,7 @@ public class StackManagerFragment extends Fragment {
                     //ドロップされたのが「やること」か「グループ」か
                     TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
                     if (tv_taskInGroup == null) {
-                        //--「やること」がドロップされた場合
+                        //「やること」がドロップされた場合
 
                         //「やること」をリストへ追加
                         animIdx = addTaskToStackList(dragView);
@@ -1235,6 +1347,17 @@ public class StackManagerFragment extends Fragment {
 
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        //フラグメント停止タイミングで、変更があればDB更新
+        if( mIsStackChg ){
+            mParentActivity.setStackTable(mStackTable);
+        }
+    }
+
     /*
      * 選択エリアレイアウト調整用
      */
@@ -1354,85 +1477,7 @@ public class StackManagerFragment extends Fragment {
         }
     }
 
-    /*
-     * アラーム受信クラス
-     *   Manifestに指定
-     */
-    private static class AlarmBroadcastReceiverOld2 extends BroadcastReceiver {
 
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i("test", "Received");
-
-
-            Log.i("test", "onReceive get test=" + intent.getExtras().getString("test"));
-
-            int i;
-            for (i = 0; i < 255; i++) {
-                //PendingIntentを取得
-                //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), i, intent, PendingIntent.FLAG_NO_CREATE);
-                if (pendingIntent == null) {
-                    //未生成ならキャンセル処理終了
-                    break;
-                }
-            }
-
-            Log.i("test", "Received num=" + i );
-
-            // toast で受け取りを確認
-            //Toast toast = new Toast(context);
-            //toast.setText("時間がきました");
-            //toast.show();
-
-            String channelId = "default";
-            String title = context.getString(R.string.app_name);
-
-            long currentTime = System.currentTimeMillis();
-            SimpleDateFormat dataFormat =
-                    new SimpleDateFormat("HH:mm:ss", Locale.JAPAN);
-            String cTime = dataFormat.format(currentTime);
-
-            // メッセージ　+ 11:22:331
-            String message = "時間になりました。 " + cTime;
-
-            //サウンド
-            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-            // Notification　Channel 設定
-            NotificationChannel channel = new NotificationChannel(channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
-
-            channel.setDescription(message);
-            channel.enableVibration(true);
-            //channel.canShowBadge();
-            //channel.enableLights(true);
-            //channel.setLightColor(Color.BLUE);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            channel.setSound(defaultSoundUri, null);
-            //channel.setShowBadge(true);
-
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (notificationManager != null) {
-                //通知チャネル生成
-                notificationManager.createNotificationChannel(channel);
-
-                //通知ビルダー
-                Notification notification = new Notification.Builder(context, channelId)
-                        .setContentTitle(title)
-                        .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                        .setContentText(message)
-                        .setAutoCancel(true)                    //ユーザーがこの通知に触れると、この通知が自動的に閉じられる
-                        //.setContentIntent(pendingIntent)
-                        //.setWhen(System.currentTimeMillis())
-                        .build();
-
-                // 通知
-                notificationManager.notify(R.string.app_name, notification);
-            }
-        }
-    }
 
     /*
      * test

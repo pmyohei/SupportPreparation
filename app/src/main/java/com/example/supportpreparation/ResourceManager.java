@@ -10,6 +10,9 @@ import java.util.Locale;
  */
 public class ResourceManager {
 
+    //やること無効時間
+    public static final int INVALID_MIN = -1;                      //空データとして設定
+
     //やること時間の最高値
     private static final int TASK_TIME_VERY_SHORT  = 5;
     private static final int TASK_TIME_SHORT       = 10;
@@ -27,7 +30,10 @@ public class ResourceManager {
 
         int id;
 
-        if (time <= TASK_TIME_VERY_SHORT) {
+        if( time == INVALID_MIN ){
+            id = R.color.clear;
+
+        } else if (time <= TASK_TIME_VERY_SHORT) {
             id = R.color.bg_task_very_short;
 
         } else if (time <= TASK_TIME_SHORT) {

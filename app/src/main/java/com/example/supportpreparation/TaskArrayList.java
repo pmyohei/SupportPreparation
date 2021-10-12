@@ -16,14 +16,21 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
      *　最後尾のIndexの取得
      */
     public int getLastIdx() {
-        return size() - 1;
+
+        int size = size();
+
+        if (size == 0) {
+            return NO_DATA;
+        }
+
+        return size - 1;
     }
 
-    @Override
+/*    @Override
     public TaskTable remove(int index) {
         super.remove(index);
         return null;
-    }
+    }*/
 
     /*
      * 「やること」取得（Pid指定）
@@ -59,6 +66,34 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
 
         //データなし
         return NO_DATA;
+    }
+
+    /*
+     * 「空データ」の追加
+     *    リストが０件の場合にのみ行う。
+     */
+    public void addEmpty() {
+
+        if( size() == 0 ){
+            //空なら追加
+            add( new TaskTable("", ResourceManager.INVALID_MIN) );
+        }
+    }
+
+    /*
+     * 「空データ」削除
+     * 　　ない場合は何もしない
+     */
+    public void removeEmpty() {
+
+        //検索
+        for (int i = 0; i < size(); i++) {
+            int time = get(i).getTaskTime();
+            if( time == ResourceManager.INVALID_MIN ){
+                //削除
+                TaskTable task = remove(i);
+            }
+        }
     }
 
     /*

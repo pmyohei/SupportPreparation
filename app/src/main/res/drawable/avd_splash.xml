@@ -33,15 +33,15 @@
             <set>
                 <objectAnimator
                     android:propertyName="translateY"
-                    android:duration="500"
-                    android:valueFrom="-50"
+                    android:duration="1000"
+                    android:valueFrom="-200"
                     android:valueTo="50"
                     android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                    android:interpolator="@android:anim/accelerate_interpolator"/>
                 <objectAnimator
                     android:propertyName="translateY"
-                    android:startOffset="500"
-                    android:duration="500"
+                    android:startOffset="1000"
+                    android:duration="1000"
                     android:valueFrom="50"
                     android:valueTo="0"
                     android:valueType="floatType"
@@ -54,26 +54,34 @@
             <set>
                 <objectAnimator
                     android:propertyName="fillAlpha"
-                    android:duration="500"
+                    android:duration="1000"
                     android:valueFrom="0"
                     android:valueTo="1"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
                 <objectAnimator
                     android:propertyName="strokeAlpha"
-                    android:duration="500"
+                    android:duration="1000"
                     android:valueFrom="0"
                     android:valueTo="1"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
                 <objectAnimator
                     android:propertyName="pathData"
-                    android:startOffset="500"
-                    android:duration="500"
-                    android:valueFrom="M 80.615 274.133 C 80.615 270.41 82.129 267.04 84.576 264.6 C 87.024 262.161 90.405 260.652 94.14 260.652 C 146.093 260.652 198.047 260.652 250 260.652 C 301.953 260.652 353.907 260.652 405.86 260.652 C 409.595 260.652 412.976 262.161 415.424 264.6 C 417.871 267.04 419.385 270.41 419.385 274.133 L 419.385 324.367 C 419.385 331.813 413.33 337.848 405.86 337.848 C 353.907 337.848 301.953 337.848 250 337.848 C 198.047 337.848 146.093 337.848 94.14 337.848 C 86.67 337.848 80.615 331.813 80.615 324.367 Z"
-                    android:valueTo="M 80.615 276.287 C 80.621 272.841 82.231 269.593 84.971 267.502 C 87.71 265.411 91.267 264.714 94.593 265.616 C 144.348 279.117 170.946 293.119 248.377 293.119 C 325.945 293.119 354.586 279.157 405.382 265.463 C 408.726 264.562 412.3 265.271 415.046 267.383 C 417.793 269.494 419.397 272.766 419.385 276.23 L 419.385 326.037 C 419.385 332.972 414.649 339.01 407.914 340.663 C 357.615 353.008 330.964 360 252.165 360 C 173.26 360 143.962 352.715 92.188 340.564 C 85.408 338.973 80.615 332.925 80.615 325.96 Z"
+                    android:startOffset="1000"
+                    android:duration="400"
+                    android:valueFrom="M 80.615 274.133 C 80.615 270.41 82.129 267.04 84.576 264.6 C 87.024 262.161 90.405 260.652 94.14 260.652 C 146.093 260.652 198.047 260.652 250 260.652 C 301.953 260.652 353.907 260.652 405.86 260.652 C 409.595 260.652 412.976 262.161 415.424 264.6 C 417.871 267.04 419.385 270.41 419.385 274.133 L 419.385 324.367 C 419.385 328.09 417.871 331.46 415.424 333.9 C 412.976 336.339 409.595 337.848 405.86 337.848 C 353.907 337.848 301.953 337.848 250 337.848 C 198.047 337.848 146.093 337.848 94.14 337.848 C 90.405 337.848 87.024 336.339 84.576 333.9 C 82.129 331.46 80.615 328.09 80.615 324.367 Z"
+                    android:valueTo="M 80.615 272.129 C 80.615 268.728 81.737 265.531 83.674 262.945 C 85.612 260.359 88.365 258.385 91.629 257.429 C 141.284 242.891 167.775 234.566 246.739 234.566 C 325.841 234.566 356.278 243.385 408.185 257.589 C 411.492 258.493 414.292 260.448 416.265 263.034 C 418.238 265.62 419.385 268.836 419.385 272.264 L 419.385 322.366 C 419.38 325.84 417.776 329.117 415.035 331.252 C 412.295 333.386 408.725 334.14 405.356 333.294 C 353.514 320.289 323.339 306.328 245.652 306.328 C 168.335 306.328 143.378 319.436 94.581 332.895 C 91.254 333.812 87.688 333.12 84.946 331.023 C 82.204 328.927 80.602 325.668 80.615 322.216 Z"
                     android:valueType="pathType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator
+                    android:propertyName="pathData"
+                    android:startOffset="1400"
+                    android:duration="600"
+                    android:valueFrom="M 80.615 272.129 C 80.615 268.728 81.737 265.531 83.674 262.945 C 85.612 260.359 88.365 258.385 91.629 257.429 C 141.284 242.891 167.775 234.566 246.739 234.566 C 325.841 234.566 356.278 243.385 408.185 257.589 C 411.492 258.493 414.292 260.448 416.265 263.034 C 418.238 265.62 419.385 268.836 419.385 272.264 L 419.385 322.366 C 419.38 325.84 417.776 329.117 415.035 331.252 C 412.295 333.386 408.725 334.14 405.356 333.294 C 353.514 320.289 323.339 306.328 245.652 306.328 C 168.335 306.328 143.378 319.436 94.581 332.895 C 91.254 333.812 87.688 333.12 84.946 331.023 C 82.204 328.927 80.602 325.668 80.615 322.216 Z"
+                    android:valueTo="M 80.615 276.287 C 80.621 272.841 82.231 269.593 84.971 267.502 C 87.71 265.411 91.267 264.714 94.593 265.616 C 144.348 279.117 170.946 293.119 248.377 293.119 C 325.945 293.119 354.586 279.157 405.382 265.463 C 408.726 264.562 412.3 265.271 415.046 267.383 C 417.793 269.494 419.397 272.766 419.385 276.23 L 419.385 326.037 C 419.385 329.505 418.201 332.748 416.175 335.331 C 414.149 337.914 411.281 339.837 407.914 340.663 C 357.615 353.008 330.964 360 252.165 360 C 173.26 360 143.962 352.715 92.188 340.564 C 88.798 339.769 85.905 337.859 83.859 335.277 C 81.813 332.696 80.615 329.442 80.615 325.96 Z"
+                    android:valueType="pathType"
+                    android:interpolator="@android:anim/accelerate_interpolator"/>
             </set>
         </aapt:attr>
     </target>
@@ -82,20 +90,20 @@
             <set>
                 <objectAnimator
                     android:propertyName="fillAlpha"
-                    android:startOffset="700"
-                    android:duration="500"
+                    android:startOffset="2000"
+                    android:duration="200"
                     android:valueFrom="0"
                     android:valueTo="1"
                     android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                    android:interpolator="@android:anim/accelerate_interpolator"/>
                 <objectAnimator
                     android:propertyName="strokeAlpha"
-                    android:startOffset="700"
-                    android:duration="500"
+                    android:startOffset="2000"
+                    android:duration="200"
                     android:valueFrom="0"
                     android:valueTo="1"
                     android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                    android:interpolator="@android:anim/accelerate_interpolator"/>
             </set>
         </aapt:attr>
     </target>

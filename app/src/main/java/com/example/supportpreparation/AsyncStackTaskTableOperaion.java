@@ -86,15 +86,15 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
      */
     private Integer createStackData(){
 
-        TaskArrayList<TaskTable> mStackTaskList = mStackTable.getStackTaskList();
-        List<Boolean> AlarmOnOffList = mStackTable.getAlarmOnOffList();
+        TaskArrayList<TaskTable> stackTaskList = mStackTable.getStackTaskList();
+        List<Boolean>            alarmOnOffList = mStackTable.getAlarmOnOffList();
 
         //「積み上げやること」の文字列を生成
-        String taskPidsStr = TaskTableManager.getPidsStr(mStackTaskList);
+        String taskPidsStr = TaskTableManager.getPidsStr(stackTaskList);
         mStackTable.setTaskPidsStr( taskPidsStr );
 
         //アラームOn/Off文字列
-        String alarmStr = TaskTableManager.getAlarmStr( AlarmOnOffList );
+        String alarmStr = TaskTableManager.getAlarmStr( alarmOnOffList );
         mStackTable.setAlarmOnOffStr( alarmStr );
 
         //プライマリーキー取得

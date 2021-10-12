@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:orientation="vertical">
 
+    <!-- widthをweightで指定すると、なぜかheightを1dpに設定できないため -->
+    <!-- widthはmatch_parentとする -->
     <View
         android:id="@+id/v_currentLine"
-        android:layout_width="@dimen/gragh_timeline_width"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/bg_current_time_line"
         android:visibility="invisible" />

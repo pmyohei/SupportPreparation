@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cl_stackManage"
@@ -8,56 +9,60 @@
     android:background="@color/white"
     tools:context=".ui.stackManager.StackManagerFragment">
 
-    <include layout="@layout/manage_stack" />
+    <include
+        layout="@layout/manage_stack" />
+
+    <include
+        layout="@layout/select_area_for_stack" />
 
     <LinearLayout
         android:id="@+id/ll_fabGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fab_margin_right"
         android:layout_gravity="bottom|end"
+        android:elevation="@dimen/fab_elevation"
         android:orientation="vertical">
 
         <!-- 子fab -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_switchDirection"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:fabCustomSize="@dimen/fab_child_size"
             android:layout_marginBottom="@dimen/fab_between"
             android:layout_gravity="center"
             android:layoutAnimation="@anim/layout_anim_task_list"
             android:visibility="gone"
+            app:fabCustomSize="@dimen/fab_child_size"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
             app:srcCompat="@drawable/ic_switch_direction_start_32"
-            android:contentDescription="switchDirection" />
+            android:contentDescription="@string/fab_content_switch_direction" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_refAlarm"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:fabCustomSize="@dimen/fab_child_size"
             android:layout_marginBottom="@dimen/fab_between"
             android:layout_gravity="center"
             android:visibility="gone"
+            app:fabCustomSize="@dimen/fab_child_size"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
             app:srcCompat="@drawable/ic_alarm_ref_32"
-            android:contentDescription="cancelAlarm" />
+            android:contentDescription="@string/fab_content_ref_alarm" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_setAlarm"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:fabCustomSize="@dimen/fab_child_size"
             android:layout_marginBottom="@dimen/fab_between"
             android:layout_gravity="center"
             android:visibility="gone"
+            app:fabCustomSize="@dimen/fab_child_size"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
             app:srcCompat="@drawable/ic_alarm_set_36"
-            android:contentDescription="setAlarm" />
+            android:contentDescription="@string/fab_content_set_alarm" />
 
         <!-- 親fab -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -65,10 +70,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/fab_alarm_margin_bottom"
+            android:layout_marginEnd="@dimen/fab_margin_right"
+            android:contentDescription="@string/fab_content_parent"
             app:backgroundTint="@color/white"
             app:tint="@color/teal_700"
-            app:srcCompat="@drawable/avd_fab_parent_open"
-            android:contentDescription="parent" />
+            app:srcCompat="@drawable/avd_fab_parent_open" />
 
     </LinearLayout>
 

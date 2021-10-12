@@ -78,7 +78,12 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
     @Override
     public int getItemViewType(int position) {
 
-        return 0;
+        if (mData.get(position) == null) {
+            //フェールセーフ
+            return 0;
+        }
+
+        return mData.get(position).getTotalTime();
     }
 
     /*
@@ -120,7 +125,12 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
             layoutParams.height = mItemHeight;
             view.setLayoutParams(layoutParams);
         }
-
+        
+        //空データの場合、非表示
+        if( viewType == ResourceManager.INVALID_MIN ){
+            LinearLayout ll_taskInfo = view.findViewById( R.id.ll_groupInfo );
+            ll_taskInfo.setVisibility( View.INVISIBLE );
+        }
 
         return new GroupViewHolder(view);
     }
@@ -132,6 +142,12 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
     @Override
     public void onBindViewHolder(GroupViewHolder viewHolder, final int i) {
 
+        int totalTime = mData.get(i).getTotalTime();
+        if( totalTime == ResourceManager.INVALID_MIN ){
+            //空データなら設定不要
+            return;
+        }
+
         //文字列変換
         String pidStr = Integer.toString(mData.get(i).getId());
 
@@ -142,8 +158,8 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
 
         Log.i("test", "getTaskPidsStr=" + mData.get(i).getTaskPidsStr());
 
-        //ドラッグ処理
-        if (mLongListener != null) {
+        //ドラッグ（ロングタッチ）処理
+        if ( mLongListener != null ) {
             viewHolder.ll_groupInfo.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {

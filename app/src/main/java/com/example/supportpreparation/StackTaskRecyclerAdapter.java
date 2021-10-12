@@ -1,5 +1,6 @@
 package com.example.supportpreparation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -251,8 +252,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
 
         //Dateを文字列変換
         Date setDate = setCalendar.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-        String timeStr  = sdf.format(setDate);
+        String timeStr = ResourceManager.sdf_Time.format(setDate);
 
         //時間設定
         tv_target.setText(timeStr);
@@ -475,6 +475,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         LinearLayout ll = view.findViewById(R.id.ll_taskInfo);
 
         //表示目的に応じて、drawableリソースを取得
+        @SuppressLint("UseCompatLoadingForDrawables")
         Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task_for_stack);
 
         //時間に応じて、色を設定

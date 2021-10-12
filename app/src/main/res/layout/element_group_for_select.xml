@@ -13,9 +13,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginRight="1dp"
         android:layout_marginLeft="1dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:text="Group"
         android:textColor="@color/tx_select_task"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
     <!-- グループ合計時間 -->
     <!-- ※選択エリアの縦幅をやること側と合わせるため、背景色と同じ文字色で表示（=不可視） -->
@@ -25,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:text="tmp"
-        android:textColor="@color/white"
+        android:textColor="@color/clear"
         android:textSize="12sp"/>
 
     <!-- グループ内のやること保持用。非表示。 -->

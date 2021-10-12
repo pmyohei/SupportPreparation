@@ -21,15 +21,15 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
     //-- アダプタ設定対象
     public enum SETTING {
-        LIST,               //「やること」一覧エリア
-        SELECT,             //「やること」選択エリア
-        GROUP,              //「やること」グループ割り当て
+        LIST,                   //「やること」一覧エリア
+        SELECT,                 //「やること」選択エリア
+        IN_GROUP,               //「やること」グループ割り当て
     }
 
     private TaskArrayList<TaskTable> mData;
     private Context mContext;
-    private View.OnClickListener clickListener;
-    private View.OnLongClickListener longListener;
+    private View.OnClickListener mClickListener;
+    private View.OnLongClickListener mLongListener;
     private SETTING mSetting;
     private int mItemWidth;
     private int mItemHeight;
@@ -115,7 +115,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         //★備考★コード整理
         //選択エリアなら、正方形の大きさを設定
-        if( mSetting == SETTING.SELECT || mSetting == SETTING.GROUP ){
+        if( mSetting == SETTING.SELECT || mSetting == SETTING.IN_GROUP){
 
             //レイアウトパラメータを取得
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
@@ -171,7 +171,13 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      * ViewHolderの設定
      */
     @Override
-    public void onBindViewHolder(TaskViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(@NonNull TaskViewHolder viewHolder, final int i) {
+
+        int taskTime = mData.get(i).getTaskTime();
+        if( taskTime == ResourceManager.INVALID_MIN ){
+            //空データなら設定不要
+            return;
+        }
 
         //文字列変換
         String pidStr = Integer.toString(mData.get(i).getId());
@@ -181,28 +187,28 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         viewHolder.tv_taskName.setText(mData.get(i).getTaskName());
 
         //グループ対応
-        if (viewHolder.tv_taskTime != null) {
-            String timeStr = Integer.toString(mData.get(i).getTaskTime());
+        if ( mSetting != SETTING.IN_GROUP ) {
+            String timeStr = Integer.toString( taskTime );
             viewHolder.tv_taskTime.setText(timeStr);
         }
 
         //クリック時の処理
-        if (clickListener != null) {
+        if (mClickListener != null) {
             viewHolder.ll_taskInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    clickListener.onClick(view);
+                    mClickListener.onClick(view);
                 }
             });
         }
 
         //ロングクリック時の処理
-        if (longListener != null) {
+        if ( mLongListener != null ) {
             viewHolder.ll_taskInfo.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     //リスナーとして設定されたメソッドをコール
-                    longListener.onLongClick(view);
+                    mLongListener.onLongClick(view);
                     return true;
                 }
             });
@@ -229,7 +235,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      * タッチリスナーの設定
      */
     public void setOnItemClickListener(View.OnClickListener listener) {
-        clickListener = listener;
+        mClickListener = listener;
     }
 
     /*
@@ -237,7 +243,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      */
     public void setOnItemLongClickListener(View.OnLongClickListener listener) {
         //長押しされた時の動作
-        longListener = listener;
+        mLongListener = listener;
     }
 
     /*
@@ -252,7 +258,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             case SELECT:
                 return R.layout.outer_task_for_select;
 
-            case GROUP:
+            case IN_GROUP:
                 return R.layout.outer_task_for_select;
 
             default:
@@ -285,7 +291,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
                 id_drawable = R.drawable.frame_item_task_for_select;
                 break;
 
-            case GROUP:
+            case IN_GROUP:
                 id_view     = R.id.ll_taskDesign;
                 id_drawable = R.drawable.frame_item_task_for_select;
                 break;
@@ -300,9 +306,18 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         //drawableリソースを生成
         Drawable drawable = mContext.getDrawable( id_drawable );
 
-        //時間に応じて、色を設定
-        int colorId = ResourceManager.getTaskTimeColorId(time);;
-        drawable.setTint(mContext.getColor( colorId ));
+        if( time == ResourceManager.INVALID_MIN ){
+
+            //空データのため、非表示
+            LinearLayout ll_taskInfo = view.findViewById( R.id.ll_taskInfo );
+            ll_taskInfo.setVisibility( View.INVISIBLE );
+
+        } else {
+
+            //時間に応じて、色を設定
+            int colorId = ResourceManager.getTaskTimeColorId(time);;
+            drawable.setTint(mContext.getColor( colorId ));
+        }
 
         ll.setBackground(drawable);
     }

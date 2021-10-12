@@ -6,6 +6,6 @@
         android:color="@color/bg_common" />
 
     <corners
-        android:radius="40dp"/>
+        android:radius="28dp"/>
 
 </shape>

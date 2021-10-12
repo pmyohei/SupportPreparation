@@ -1,5 +1,5 @@
 <resources>
-    <dimen name="fab_margin_right">16dp</dimen>
+    <dimen name="fab_margin_right">8dp</dimen>
     <dimen name="fab_margin_bottom">64dp</dimen>
     <dimen name="fab_alarm_margin_bottom">64dp</dimen>
     <dimen name="fab_switch_margin_bottom">128dp</dimen>
@@ -13,6 +13,10 @@
     <!-- 下部ナビゲーション高さ-->
     <dimen name="bottom_navi_height">60dp</dimen>
 
+    <!-- BottomSheet よりも前に位置する標高 -->
+    <dimen name="select_area_elevation">40dp</dimen>
+    <dimen name="fab_elevation">60dp</dimen>
+
     <!-- スタック画面-ベース時間反転ボタン -->
     <dimen name="iv_reverse_margin_top">240dp</dimen>
     <dimen name="iv_reverse_margin_end">24dp</dimen>
@@ -24,7 +28,7 @@
 
     <!-- やることの高さ(3次元)-->
     <dimen name="task_evelation">8dp</dimen>
-    <dimen name="group_evelation">16dp</dimen>
+    <dimen name="group_evelation">8dp</dimen>
 
     <!-- 選択エリア内のやることサイズ
     <dimen name="select_task_width">64dp</dimen>
@@ -45,10 +49,6 @@
     -->
 
     <!-- グラフ -->
-    <dimen name="gragh_width">200dp</dimen>
-    <dimen name="gragh_timeline_width">90dp</dimen>
-    <dimen name="gragh_omit_height">180dp</dimen>
-    <dimen name="gragh_current_time_height">28dp</dimen>
     <dimen name="omit_width">80dp</dimen>
     <dimen name="omit_height">80dp</dimen>
 

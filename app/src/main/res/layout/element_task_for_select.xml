@@ -13,7 +13,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginRight="1dp"
         android:layout_marginLeft="1dp"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
         android:text="Sample"
         android:textColor="@color/tx_select_task"

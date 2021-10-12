@@ -3,6 +3,7 @@ package com.example.supportpreparation.ui.groupManager;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -38,6 +40,7 @@ import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -84,9 +87,14 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //ビュー
         mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
 
-        //現在登録されている「やること」「グループ」を表示
+        //現在登録されている「グループ」表示
+        setupGroupList();
+
+        //選択エリアのやること
         setupTaskSelectionArea();
-        setupGroup();
+
+        //BottomSheetの設定
+        setupBottomSheet();
 
         // FloatingActionButton
         mFab.setOnClickListener(new View.OnClickListener() {
@@ -107,7 +115,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
 
     /*
-     * 「やること」データを表示エリアにセット
+     * 「やること」データを選択エリアにセット
      */
     private void setupTaskSelectionArea() {
 
@@ -149,7 +157,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //RecyclerViewにアダプタを設定
                 rv_task.setAdapter(adapter);
 
-                //--FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
                 rv_task.addItemDecoration( new RecyclerView.ItemDecoration(){
                     @Override
                     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -177,7 +185,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
      * 「グループ」の表示
      *    登録済みの「グループ」を全て表示する。
      */
-    private void setupGroup() {
+    private void setupGroupList() {
 
         //-- 「グループ」の表示
         //レイアウトからリストビューを取得
@@ -185,8 +193,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager l_manager = new LinearLayoutManager(mContext);
-        //l_manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        //rv_group.setLayoutManager(new GridLayoutManager(mContext, 2));
         rv_group.setLayoutManager(l_manager);
 
         //-- アダプタの設定は、サイズが確定してから行う
@@ -196,7 +202,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             public boolean onPreDraw() {
 
                 //グループのサイズ
-                int height = (int)(rv_group.getHeight() * 0.75);
+                int height = (int)(rv_group.getHeight() * 0.5);
 
                 //グループのリサイクラービューを基準に、横幅を決定
                 //※グループ内やることのリサイクラービューは現時点では取得不可のため
@@ -207,7 +213,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     //アダプタ生成
                     //※高さはビューに依存「wrap_contents」
                     TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
-                    TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, width, 0);
+                    TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.IN_GROUP, width, 0);
 
                     //設定
                     group.setTaskAdapter(adapter);
@@ -234,20 +240,23 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
                 //リスナー設定(やることスクロール)
                 mGroupAdapter.setOnTaskTouchListener(new View.OnTouchListener() {
+                    @SuppressLint("ClickableViewAccessibility")
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
                         //グループの「やること」RecyclerViewがタッチされた時、親であるグループのRecyclerViewのスクロールを停止する
                         //※「やること」側をスクロールさせるため
 
+                        Log.i("timming", "task setOnTaskTouchListener");
+
                         //アクションを取得
                         int action = event.getAction() & MotionEvent.ACTION_MASK;
 
                         if (action == MotionEvent.ACTION_DOWN) {
-                            //タッチ検知されたら、スクロール無効
+                            //タッチ検知されたら、グループ側のリサイクラービューのスクロールを無効化
                             rv_group.requestDisallowInterceptTouchEvent(true);
-                        }
-                        else if (action == MotionEvent.ACTION_UP) {
-                            //タッチアップが検知されたら、スクロール無効
+
+                        } else if (action == MotionEvent.ACTION_UP) {
+                            //タッチアップが検知されたら、グループ側のリサイクラービューのスクロールを有効化
                             rv_group.requestDisallowInterceptTouchEvent(false);
                         }
 
@@ -257,6 +266,19 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
                 //アダプタ設定
                 rv_group.setAdapter(mGroupAdapter);
+
+                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                rv_group.addItemDecoration( new RecyclerView.ItemDecoration(){
+                    //★備考★クラス化できそう
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                        int position = parent.getChildAdapterPosition(view);
+                        if (position == state.getItemCount() - 1) {
+                            //最後の要素の右に空間を設定
+                            outRect.bottom = height;
+                        }
+                    }
+                });
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_group.getViewTreeObserver().removeOnPreDrawListener(this);
@@ -343,8 +365,8 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //リサイクラービューをヘルパーにアタッチ
         helper.attachToRecyclerView(rv_group);
 
-        //ビューが画面中央に固定されるようにする
-        LinearSnapHelper snapHelper = new LinearSnapHelper();
+        //スクロール時、ビューが画面中央に固定されるようにする
+        //LinearSnapHelper snapHelper = new LinearSnapHelper();
         //snapHelper.attachToRecyclerView(rv_group);
     }
 
@@ -383,6 +405,69 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         dialog.show(transaction, "EditGroup");
     }
 
+    /*
+     * BottomSheetの設定
+     */
+    private void setupBottomSheet() {
+
+        //BottomSheet
+        View ll_bottomSheet = mRootLayout.findViewById(R.id.ll_bottomSheet);
+
+        //PeekHeight領域に対して、空のタッチリスナーを設定
+        //※これをしないと、「グループ内やること」とかぶった時、BottomSheetのスクロールが無効になる
+        //※スクロールが無効になるのは、「requestDisallowInterceptTouchEvent」にて制御をしているため。
+        View ll_peek = ll_bottomSheet.findViewById(R.id.ll_peek);
+        ll_peek.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                Log.i("timming", "ll_peek.setOnTouchListener");
+                return true;
+            }
+        });
+
+        //BottomSheetBehavior
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(ll_bottomSheet);
+
+        //レイアウト確定後、ビューに合わせてサイズ設定
+        ViewTreeObserver observer = ll_bottomSheet.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.M)
+                    @Override
+                    public void onGlobalLayout() {
+
+                        //レイアウト確定後は不要なので、本リスナー削除
+                        ll_bottomSheet.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        //画面上に残したいサイズ
+                        int peekHeight = ll_peek.getHeight();
+
+                        //元々のpadding分（下部ナビゲーション分設定済み）を加味した分をPeekHeightとする
+                        peekHeight += behavior.getPeekHeight();
+
+                        behavior.setPeekHeight(peekHeight);
+                    }
+                }
+        );
+
+        //開いた状態で開始
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        //スライド時の設定
+        behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                Log.i("timming", "group onStateChanged");
+            }
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                Log.i("timming", "group onSlide");
+            }
+        });
+    }
+
     /* --------------------------------------
      * 「グループ」
      */
@@ -393,28 +478,22 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onSuccessCreateGroup(Integer code, GroupTable group) {
-        //-- 作成結果をトーストで表示
-        //結果メッセージ
-        String message;
 
         //戻り値に応じてトースト表示
         if( code == -1 ){
             //エラーメッセージを表示
-            message = "登録済みです";
-        } else {
-            //正常メッセージを表示
-            message = "登録しました";
-        }
+            String message = "登録済みです";
 
-        //トーストの生成
-        Toast toast = new Toast(mContext);
-        toast.setText(message);
-        toast.show();
+            //トーストの生成
+            Toast toast = new Toast(mContext);
+            toast.setText(message);
+            toast.show();
 
-        if( code == -1 ){
-            //登録済みなら、ここで終了
             return;
         }
+
+        //空データ削除
+        mGroupList.removeEmpty();
 
         //生成された「グループ」情報をリストに追加
         mGroupList.add( group );
@@ -427,7 +506,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //対応するアダプタを生成して、設定
         TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
-        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.GROUP, size, 0);
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.IN_GROUP, size, 0);
         group.setTaskAdapter(adapter);
 
         //アダプタに変更を通知
@@ -435,11 +514,14 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //追加された位置へスクロール
         rv_group.scrollToPosition( mGroupList.size() - 1 );
-
     }
 
     @Override
     public void onSuccessDeleteGroup(String groupName) {
+
+        //０件なら、空のデータをリストに入れておく
+        //※選択エリアのサイズを確保するため
+        mGroupList.addEmpty();
     }
 
     @Override

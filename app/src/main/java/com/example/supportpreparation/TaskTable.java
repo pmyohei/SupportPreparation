@@ -25,7 +25,6 @@ public class TaskTable  implements Cloneable {
     @ColumnInfo(name = "task_time")
     private int taskTime;
 
-
     /*
      * 非レコードフィールド
      */

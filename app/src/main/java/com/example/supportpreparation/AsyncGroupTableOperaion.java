@@ -138,7 +138,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         }
 
         //DBに追加
-        mNewGroupTable = new GroupTable( mGroupName);
+        mNewGroupTable = new GroupTable( mGroupName );
         dao.insert(mNewGroupTable);
 
         //今追加した「やること」のPIDを新規作成データとして設定
@@ -172,22 +172,20 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
             //グループに紐づいた「やること」
             TaskArrayList<TaskTable> tasks = new TaskArrayList<>();
 
-            //やること未追加なら次へ
-            if( pids == null ) {
-                continue;
-            }
+            //やることがあれば
+            if( pids != null ) {
+                //pid分
+                for( Integer pid: pids ){
+                    //pidに対応する「やること」を取得し、リストに追加
+                    TaskTable task = taskTableDao.getRecord(pid);
+                    if( task != null ){
+                        //--フェールセーフ
+                        //該当する「やること」あり
+                        Log.i("failsafe", "group task is null. pid=" + pid);
 
-            //pid分繰り返し
-            for( Integer pid: pids ){
-                //pidに対応する「やること」を取得し、リストに追加
-                TaskTable task = taskTableDao.getRecord(pid);
-                if( task != null ){
-                    //--フェールセーフ
-                    //該当する「やること」あり
-                    Log.i("failsafe", "group task is null. pid=" + pid);
-
-                    //グループ内「やること」リストに追加
-                    tasks.add(task);
+                        //グループ内「やること」リストに追加
+                        tasks.add(task);
+                    }
                 }
             }
 

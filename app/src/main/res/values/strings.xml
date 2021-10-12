@@ -16,6 +16,12 @@
     <string name="dialog_final_time">最終時刻</string>
 
     <!-- タスク画面 -->
+    <string name="fab_content_switch_direction">ベース時間の方向反転</string>
+    <string name="fab_content_ref_alarm">アラーム参照</string>
+    <string name="fab_content_set_alarm">アラーム設定</string>
+    <string name="fab_content_parent">親</string>
+
+    <!-- タスク画面 -->
     <string name="task_name_hint">やることを入力してください</string>
     <string name="group_name_hint">グループ名を入力してください</string>
     <string name="dialog_create_btn">保存</string>
@@ -41,6 +47,9 @@
     <!-- 通知 -->
     <string name="notify_task_suffix"> の開始時間です</string>
     <string name="notify_final_name">すべてのやることが終了しました</string>
+
+
+
 
 
 </resources>

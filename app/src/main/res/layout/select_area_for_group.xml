@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   android:id="@+id/ll_bottomSheet"
+   android:layout_width="match_parent"
+   android:layout_height="wrap_content"
+   android:paddingBottom="@dimen/bottom_navi_height"
+   android:orientation="vertical"
+   android:gravity="center"
+   android:elevation="40dp"
+   android:background="@drawable/frame_select_area"
+   app:layout_behavior="@string/bottom_sheet_behavior"
+   app:behavior_hideable="false"
+   app:behavior_peekHeight="@dimen/bottom_navi_height">
+
+   <LinearLayout
+       android:id="@+id/ll_peek"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:orientation="vertical">
+
+      <!-- サイズ確保用 -->
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="24dp"
+          android:layout_marginTop="20dp"
+          android:layout_marginBottom="20dp"/>
+
+   </LinearLayout>
+
+   <androidx.recyclerview.widget.RecyclerView
+       android:id="@+id/rv_taskList"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:gravity="center_vertical"
+       android:overScrollMode="never"/>
+
+</LinearLayout>
+
