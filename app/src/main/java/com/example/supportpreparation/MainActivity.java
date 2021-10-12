@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.RequiresApi;
@@ -34,11 +38,16 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private boolean mSplashEnd;
     private boolean mReadData;
 
+    private AdRequest mAdRequest;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        //スプラッシュ用アニメーション開始
+        startSplashAnimation();
 
         //起動時の選択エリアは「やること」
         mIsSelectTask = true;
@@ -47,13 +56,20 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //DB読み込み終了OFF
         mReadData = false;
 
+        //AdMod初期化
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        //
+        mAdRequest = new AdRequest.Builder().build();
+
         //DB操作インスタンスを取得
         mDB = AppDatabaseSingleton.getInstance(this);
         //非同期スレッドにて、読み込み開始
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
-
-        //スプラッシュ用アニメーション開始
-        startSplashAnimation();
 
         Log.i("test", "main onSuccessTaskRead");
     }
@@ -155,6 +171,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         mIsSelectTask = flg;
     }
 
+    /*
+     *  AdRequest取得
+     */
+    public AdRequest getAdRequest(){
+        return mAdRequest;
+    }
 
 
     /*

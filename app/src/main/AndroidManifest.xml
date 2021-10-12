@@ -2,8 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.supportpreparation">
+
     <!-- アラーム設定 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Admodのために追加 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -38,6 +43,12 @@
         <receiver
             android:name=".AlarmBroadcastReceiver"
             android:process=":remote" />
+
+        <!-- AdMob -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admod_app_id"/>
+
     </application>
 
 </manifest>

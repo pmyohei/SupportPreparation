@@ -34,6 +34,11 @@ import com.example.supportpreparation.ResourceManager;
 import com.example.supportpreparation.StackTaskTable;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskTable;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -80,6 +85,9 @@ public class TimeFragment extends Fragment {
 
         //スライド検知リスナーの設定
         //setupSlide();
+
+        //Admodの設定
+        setupAdmod();
 
         //グラフの設定
         setupOpenGragh();
@@ -180,6 +188,16 @@ public class TimeFragment extends Fragment {
                 return true;
             }
         });
+    }
+
+    /*
+     * Admodの設定
+     */
+    public void setupAdmod() {
+
+        AdView adView = mRootLayout.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
     }
 
     /*

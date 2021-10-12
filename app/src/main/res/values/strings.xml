@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SupportPreparation</string>
+    <string name="app_name">Stack Time</string>
     <string name="title_stack">Stack</string>
     <string name="title_task">Task</string>
     <string name="title_group">Group</string>
@@ -48,8 +48,13 @@
     <string name="notify_task_suffix"> の開始時間です</string>
     <string name="notify_final_name">すべてのやることが終了しました</string>
 
+    <!-- Admod -->
+    <string name="admod_app_id">ca-app-pub-8046295810838892~8236388212</string>
 
-
-
+    <!-- リリース時とテスト時で切り替える -->
+    <string name="admod_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- リリース用
+    <string name="admod_id">ca-app-pub-8046295810838892/4349114093</string>
+    -->
 
 </resources>
