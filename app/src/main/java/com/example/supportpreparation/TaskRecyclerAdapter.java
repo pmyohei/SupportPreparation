@@ -232,7 +232,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     }
 
     /*
-     * タッチリスナーの設定
+     * クリックリスナーの設定
      */
     public void setOnItemClickListener(View.OnClickListener listener) {
         mClickListener = listener;

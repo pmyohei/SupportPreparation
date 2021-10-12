@@ -158,6 +158,16 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
 
         Log.i("test", "getTaskPidsStr=" + mData.get(i).getTaskPidsStr());
 
+        //クリック処理
+        if ( mClickListener != null ) {
+            viewHolder.ll_groupInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mClickListener.onClick(view);
+                }
+            });
+        }
+
         //ドラッグ（ロングタッチ）処理
         if ( mLongListener != null ) {
             viewHolder.ll_groupInfo.setOnLongClickListener(new View.OnLongClickListener() {
@@ -168,6 +178,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
                 }
             });
         }
+
     }
 
     /*
@@ -180,10 +191,10 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
     }
 
     /*
-     * アイテム毎のドラッグリスナー
+     * クリックリスナーの設定
      */
-    public void setOnItemLongClickListener(View.OnLongClickListener listener) {
-        mLongListener = listener;
+    public void setOnItemClickListener(View.OnClickListener listener) {
+        mClickListener = listener;
     }
 
     /*

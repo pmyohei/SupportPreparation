@@ -358,9 +358,9 @@ public class StackManagerFragment extends Fragment {
         mStackTaskList = mStackTable.getStackTaskList();
 
         //ドロップリスナーの設定(ドロップ先のビューにセット)
-        DragListener listener = new DragListener();
-        RecyclerView mll_stackArea = mRootLayout.findViewById(R.id.rv_stackArea);
-        mll_stackArea.setOnDragListener(listener);
+        //DragListener listener = new DragListener();
+        //RecyclerView mll_stackArea = mRootLayout.findViewById(R.id.rv_stackArea);
+        //mll_stackArea.setOnDragListener(listener);
 
         //レイアウトからリストビューを取得
         RecyclerView rv_stackArea = (RecyclerView) mRootLayout.findViewById(R.id.rv_stackArea);
@@ -610,16 +610,8 @@ public class StackManagerFragment extends Fragment {
                 //※高さはビューに依存「wrap_contents」
                 TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
 
-                //ドラッグリスナーの設定（ロングタッチ時の動作）
-                adapter.setOnItemLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        //ClipData data = ClipData.newPlainText("text", "text");
-                        view.startDrag(null, new View.DragShadowBuilder(view), (Object) view, 0);
-
-                        return true;
-                    }
-                });
+                //クリックリスナー（クリック時、スタックエリアにクリックアイテムを積み上げる）
+                adapter.setOnItemClickListener(new SelectItemClickListener());
 
                 //RecyclerViewにアダプタを設定
                 rv_task.setAdapter(adapter);
@@ -679,14 +671,8 @@ public class StackManagerFragment extends Fragment {
                 //アダプタの生成・設定
                 GroupSelectRecyclerAdapter adapter = new GroupSelectRecyclerAdapter(mContext, groupList, width, 0);
 
-                //ドラッグリスナーの設定
-                adapter.setOnItemLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        view.startDrag(null, new View.DragShadowBuilder(view), (Object) view, 0);
-                        return true;
-                    }
-                });
+                //クリックリスナー（クリック時、スタックエリアにクリックアイテムを積み上げる）
+                adapter.setOnItemClickListener(new SelectItemClickListener());
 
                 //RecyclerViewにアダプタを設定
                 rv_group.setAdapter(adapter);
@@ -1189,10 +1175,141 @@ public class StackManagerFragment extends Fragment {
         }
     }
 
+
     /*
      * ドラッグリスナー（ビューがドロップされた時の動作）
      *　　「やること」を積み上げエリアにドラッグアンドドロップするときに使用
      */
+    private class SelectItemClickListener implements View.OnClickListener {
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onClick(View view) {
+
+            //スタックタスク変更ON
+            mIsStackChg = true;
+
+            //ドラッグしたビューからデータを取得
+            //View dragView = (View) dragEvent.getLocalState();
+
+            //やること積み上げアニメーションの適用Idx
+            int animIdx;
+
+            //ドロップされたのが「やること」か「グループ」か
+            TextView tv_taskInGroup = view.findViewById(R.id.tv_taskInGroup);
+            if (tv_taskInGroup == null) {
+                //「やること」がドロップされた場合
+
+                //「やること」をリストへ追加
+                animIdx = addTaskToStackList(view);
+
+            } else {
+                //--「グループ」がドロップされた場合
+
+                //グループ内の「やること」をリストへ追加
+                animIdx = addGroupToStackList(view);
+                if (animIdx == -1) {
+                    //何も追加されてなければ、アダプタへの通知はなし
+                    return;
+                }
+            }
+
+            //アダプタへ通知
+            mStackAreaAdapter.setInsertAnimationIdx(animIdx);
+            mStackAreaAdapter.notifyDataSetChanged();
+            //mStackAreaAdapter.notifyItemInserted(0);
+        }
+
+        /*
+         * 積まれた「やること」リストに「やること」を追加
+         * ★備忘★animを返すのは微妙
+         */
+        private int addTaskToStackList(View dragView) {
+
+            //ドロップされたビューからデータを取得
+            TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
+            //TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
+            //TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
+
+            int pid      = Integer.parseInt(tv_pid.getText().toString());
+            //int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
+
+            //スタックにやることを追加
+            //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
+            TaskTable task = mTaskList.getTaskByPid(pid);
+            //TaskTable task = new TaskTable(pid, tv_taskName.getText().toString(), taskTime);
+            mStackTable.addTask( (TaskTable)task.clone() );
+
+            //追加アニメーションを適用するIndex を返す
+            return ( mIsLimit ? 0 : (mStackTaskList.size() - 1) );
+        }
+
+        /*
+         * 積まれた「やること」リストに「グループ」を追加
+         */
+        private int addGroupToStackList(View dragView) {
+
+            //グループ内やることがあるかチェック
+            TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
+            String   taskPidsStr    = tv_taskInGroup.getText().toString();
+            List<Integer> pids      = TaskTableManager.convertIntArray(taskPidsStr);
+            if (pids == null) {
+                //何もないなら、何もせず終了
+                return -1;
+            }
+
+            //追加アニメーションを適用するIndex
+            int animIdx = 0;
+
+            //グループ内の「やること」を積み上げ先のリストに追加する
+            int taskNum = pids.size();
+
+            if (mIsLimit) {
+                //グループ内やることを、「逆」から追加
+                int i = taskNum - 1;
+                for (; i >= 0; i--) {
+                    Integer pid = pids.get(i);
+                    TaskTable task = mTaskList.getTaskByPid(pid);
+                    if (task != null) {
+                        //リスト追加
+                        //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
+                        mStackTable.addTask( (TaskTable)task.clone() );
+
+                        //積み上げ数を加算
+                        animIdx++;
+                    }
+                }
+
+                //積み上げられた最後のIndexを指定するため、-1して調整
+                animIdx -= 1;
+
+            } else {
+                //適用アニメーションは、初めに追加するIndex
+                animIdx = mStackTaskList.size();
+
+                //グループ内やることを、「頭」から追加
+                for (int i = 0; i < taskNum; i++) {
+                    Integer pid = pids.get(i);
+                    TaskTable task = mTaskList.getTaskByPid(pid);
+                    if (task != null) {
+                        //リスト追加
+                        //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
+                        mStackTable.addTask( (TaskTable)task.clone() );
+                    }
+                }
+            }
+
+            return animIdx;
+        }
+
+    }
+
+
+
+    /*
+     * ドラッグリスナー（ビューがドロップされた時の動作）
+     *　　「やること」を積み上げエリアにドラッグアンドドロップするときに使用
+     */
+/*
     private class DragListener implements View.OnDragListener {
         @SuppressLint("NotifyDataSetChanged")
         @Override
@@ -1261,10 +1378,12 @@ public class StackManagerFragment extends Fragment {
             return true;
         }
 
-        /*
+        */
+/*
          * 積まれた「やること」リストに「やること」を追加
          * ★備忘★animを返すのは微妙
-         */
+         *//*
+
         private int addTaskToStackList(View dragView) {
 
             //ドロップされたビューからデータを取得
@@ -1287,9 +1406,11 @@ public class StackManagerFragment extends Fragment {
             return animIdx;
         }
 
-        /*
+        */
+/*
          * 積まれた「やること」リストに「グループ」を追加
-         */
+         *//*
+
         private int addGroupToStackList(View dragView) {
 
             //グループ内やることがあるかチェック
@@ -1346,6 +1467,7 @@ public class StackManagerFragment extends Fragment {
         }
 
     }
+*/
 
 
     @Override
