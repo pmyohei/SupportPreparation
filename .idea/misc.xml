@@ -142,6 +142,7 @@
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_edittext.xml" value="0.259375" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/dialog_frame.xml" value="0.3390625" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_item_group_for_select.xml" value="0.27447916666666666" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/frame_limit_date.xml" value="0.2640625" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_main.xml" value="0.20425724637681159" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_set_manage.xml" value="0.264" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/activity_test.xml" value="0.13541666666666666" />
@@ -150,9 +151,11 @@
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/element_group_for_select.xml" value="0.21693840579710144" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/element_task.xml" value="0.259375" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_dashboard.xml" value="0.14895833333333333" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_group_manager.xml" value="0.17798913043478262" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_home.xml" value="0.20425724637681159" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_notifications.xml" value="0.264" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_stack_manager.xml" value="0.2598958333333333" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_task_manager.xml" value="0.17798913043478262" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/fragment_time.xml" value="0.2598958333333333" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_current_line.xml" value="0.17980072463768115" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/gragh_navigation.xml" value="0.17980072463768115" />

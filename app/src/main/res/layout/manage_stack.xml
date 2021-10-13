@@ -103,7 +103,7 @@
             android:paddingLeft="12dp"
             android:background="@drawable/frame_limit_date"
             android:text="@string/limitdate_no_input"
-            android:textColor="@color/tx_limit_line"
+            android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold" />
 

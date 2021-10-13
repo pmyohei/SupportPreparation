@@ -18,7 +18,8 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="@dimen/fab_margin_bottom"
         android:layout_marginEnd="@dimen/fab_margin_right"
-        app:backgroundTint="@color/white_3"
+        app:backgroundTint="@color/main"
+        app:tint="@color/icon_fab"
         app:srcCompat="@drawable/ic_action_add" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

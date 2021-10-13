@@ -197,14 +197,14 @@ public class TimeFragment extends Fragment {
      */
     private void setupFabRefAlarm() {
 
-        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
+        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_stackTaskClear);
 
         // アラーム参照ボタンの設定
         fab_refAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //ダイアログの生成
-                createSetAlarmDialog(mAlarmStack);
+                createSetAlarmDialog();
 
                 //アラームをすべて削除
                 mParentActivity.cancelAllAlarm();
@@ -215,13 +215,18 @@ public class TimeFragment extends Fragment {
     /*
      * アラームダイアログの生成
      */
-    private void createSetAlarmDialog(StackTaskTable stack) {
+    private void createSetAlarmDialog() {
+
+        //★備考★メッセージを出力する
+        if( mAlarmStack.getStackTaskList().size() == 0 ){
+            return;
+        }
 
         //FragmentManager生成
         FragmentManager transaction = getParentFragmentManager();
 
         //ダイアログを生成
-        CreateSetAlarmDialog dialog = new CreateSetAlarmDialog(stack);
+        CreateSetAlarmDialog dialog = new CreateSetAlarmDialog(mAlarmStack);
 
         //設定ボタン押下時リスナー
         dialog.setOnSetBtnClickListener(new View.OnClickListener() {

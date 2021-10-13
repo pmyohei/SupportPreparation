@@ -59,11 +59,15 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import kotlinx.coroutines.scheduling.Task;
 
 public class StackManagerFragment extends Fragment {
 
@@ -107,24 +111,27 @@ public class StackManagerFragment extends Fragment {
 
         Log.i("test", "StackManagerFragment onCreateView");
 
-        //自身のフラグメントを保持
+        //自身のフラグメント
         mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
         mRootLayout = inflater.inflate(R.layout.fragment_stack_manager, container, false);
         //親アクティビティのコンテキスト
         mContext = mRootLayout.getContext();
-        //DB操作インスタンスを取得
+        //DB操作インスタンス
         mDB = AppDatabaseSingleton.getInstance(mRootLayout.getContext());
         //親アクティビティ
         mParentActivity = (MainActivity) getActivity();
-        //スタック情報取得
+        //スタック情報
         mStackTable = mParentActivity.getStackTable();
         mAlarmStack = mParentActivity.getAlarmStack();
-        //やることリストを取得
+        //やることリスト
         mTaskList = mParentActivity.getTaskData();
         //フラグ
         mIsSelectTask = mParentActivity.isSelectTask();
         mIsLimit = mStackTable.isLimit();
+        //積み上げられた「やること」
+        mStackTaskList = mStackTable.getStackTaskList();
+
 
         //ビューを保持
         mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
@@ -134,8 +141,8 @@ public class StackManagerFragment extends Fragment {
         //スタックタスク未変更
         mIsStackChg = false;
 
-        //アラーム受信クラスのIntent
-        Intent mAlarmReceiverIntent = new Intent(mParentActivity.getApplicationContext(), AlarmBroadcastReceiver.class);
+        //スタックやること情報の同期
+        syncStackTaskData();
 
         //「リミット日時」の設定
         setupBaseTimeDate();
@@ -154,7 +161,7 @@ public class StackManagerFragment extends Fragment {
         setupFabParent();
         setupFabSwitchDirection();
         setupFabSetAlarm();
-        //setupFabRefAlarm();
+        setupFabStackTaskClear();
 
         //BottomSheetの設定
         setupBottomSheet();
@@ -208,7 +215,7 @@ public class StackManagerFragment extends Fragment {
                         } else {
                             //メッセージを表示
                             Toast toast = new Toast(mContext);
-                            toast.setText("現在時刻以降を設定してください");
+                            toast.setText(R.string.toast_input_time_previous);
                             toast.show();
                         }
                     }
@@ -339,9 +346,6 @@ public class StackManagerFragment extends Fragment {
      */
     private void setupStackTaskArea() {
 
-        //積み上げられた「やること」を取得
-        mStackTaskList = mStackTable.getStackTaskList();
-
         //ドロップリスナーの設定(ドロップ先のビューにセット)
         //DragListener listener = new DragListener();
         //RecyclerView mll_stackArea = mRootLayout.findViewById(R.id.rv_stackArea);
@@ -390,7 +394,7 @@ public class StackManagerFragment extends Fragment {
         //((SimpleItemAnimator) rv_stackArea.getItemAnimator()).setSupportsChangeAnimations(false);
 
         //ドラッグアンドドロップ、スワイプの設定(リサイクラービュー)
-        ItemTouchHelper helper = new ItemTouchHelper( new ItemTouchHelper.SimpleCallback(
+        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                 ItemTouchHelper.LEFT) {
 
@@ -404,7 +408,7 @@ public class StackManagerFragment extends Fragment {
 
                 //★備考★getAdapterPosition()←非推奨
                 final int fromPos = viewHolder.getAdapterPosition();
-                final int toPos   = target.getAdapterPosition();
+                final int toPos = target.getAdapterPosition();
 
                 //リスト入れ替え
                 mStackTable.swapTask(fromPos, toPos);
@@ -451,20 +455,6 @@ public class StackManagerFragment extends Fragment {
                                 mStackAreaAdapter.notifyDataSetChanged();
                             }
                         })
-                        //スナックバークローズ時の動作
-                        .addCallback(new Snackbar.Callback() {
-                            @Override
-                            public void onDismissed(Snackbar snackbar, int event) {
-                                super.onDismissed(snackbar, event);
-
-                                //アクションバー押下以外で閉じられた場合
-                                if (event != DISMISS_EVENT_ACTION) {
-                                    //各開始時間を変更させるため、アダプタへ変更を通知
-                                    //mStackAreaAdapter.clearAlarmList();
-                                    //mStackAreaAdapter.notifyDataSetChanged();
-                                }
-                            }
-                        })
                         //下部ナビゲーションの上に表示させるための設定
                         .setAnchorView(bnv)
                         .setBackgroundTint(getResources().getColor(R.color.basic))
@@ -489,8 +479,8 @@ public class StackManagerFragment extends Fragment {
              */
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void clearView (@NonNull RecyclerView recyclerView,
-                                   @NonNull RecyclerView.ViewHolder viewHolder){
+            public void clearView(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder) {
 
                 //※superをしないと、onSwipで削除したとき、同じデータが非表示になる
                 super.clearView(recyclerView, viewHolder);
@@ -499,7 +489,7 @@ public class StackManagerFragment extends Fragment {
                 //※変更した後、元に戻して結果的に変化なしの可能性もあるが、このメソッドがコールされた時点で変更ありとみなす
                 mIsStackChg = false;
 
-                if( !isMove ){
+                if (!isMove) {
                     //onMove終了後でないなら、なにもしない
                     return;
                 }
@@ -514,6 +504,40 @@ public class StackManagerFragment extends Fragment {
         //リサイクラービューをアタッチ
         helper.attachToRecyclerView(rv_stackArea);
     }
+
+    /*
+     * スタック中のやることを、登録されているやること情報と同期させる
+     */
+    private void syncStackTaskData() {
+
+        //削除キュー
+        List<Integer> delList = new ArrayList<>();
+
+        int i = 0;
+        for( TaskTable task: mStackTaskList ){
+
+            int pid = task.getId();
+
+            TaskTable orgTask = mTaskList.getTaskByPid(pid);
+            if( orgTask == null ){
+                //削除済みなら、リストに追加
+                delList.add(i);
+
+            } else {
+                //データ同期（他のフィールドは本フラグメント以外で変更になることはないため、対象外）
+                task.setTaskName( orgTask.getTaskName() );
+                task.setTaskTime( orgTask.getTaskTime() );
+            }
+
+            i++;
+        }
+
+        //削除対象があれば、削除
+        for( Integer idx: delList ){
+            mStackTaskList.remove(idx.intValue() );
+        }
+    }
+
 
     /*
      * 「リミット日時」を設定
@@ -925,26 +949,76 @@ public class StackManagerFragment extends Fragment {
     }
 
     /*
-     * FAB(アラーム参照)の設定
+     * FAB(スタックタスク全削除)の設定
      */
-/*
-    private void setupFabRefAlarm() {
+    private void setupFabStackTaskClear() {
 
-        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
+        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_stackTaskClear);
 
-        // アラーム参照ボタンの設定
         fab_refAlarm.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
-                //ダイアログの生成
-                createSetAlarmDialog(mAlarmStack, false);
 
-                //アラームを全キャンセル
-                mParentActivity.cancelAllAlarm();
+                if( mStackTaskList.size() == 0 ){
+                    //やることが空の場合、何もしない旨のメッセージを表示して終了
+                    Toast toast = new Toast(mContext);
+                    toast.setText(R.string.toast_no_stack_task);
+                    toast.show();
+
+                    return;
+                }
+
+                //スタックされたやることを全て保持
+                TaskArrayList<TaskTable> deletedTaskList = (TaskArrayList<TaskTable>) mStackTaskList.clone();
+
+                //全削除
+                mStackTaskList.clear();
+
+                //下部ナビゲーションを取得
+                BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
+
+                //スナックバーを保持する親ビュー
+                ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+
+                //UNDOメッセージの表示
+                //★備考★他のとまとめられるならまとめたい
+                Snackbar snackbar = Snackbar
+                        .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+                        //アクションボタン押下時の動作
+                        .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                //UNDOが選択されたため、削除されたアイテムを元に戻す
+                                int size = deletedTaskList.size();
+                                for( int i = 0; i < size; i++ ){
+                                    mStackTable.insertTask(i, deletedTaskList.get(i));
+                                    mStackAreaAdapter.notifyItemInserted(i);
+                                }
+
+                                //各時間を変更させるため、アダプタへ変更を通知
+                                mStackAreaAdapter.notifyDataSetChanged();
+
+                                //削除リストをクリア
+                                deletedTaskList.clear();
+                            }
+                        })
+
+                        //下部ナビゲーションの上に表示させるための設定
+                        .setAnchorView(bnv)
+                        .setBackgroundTint(getResources().getColor(R.color.basic))
+                        .setTextColor(getResources().getColor(R.color.white))
+                        .setActionTextColor(getResources().getColor(R.color.white));
+
+                //表示
+                snackbar.show();
+
+                //各開始時間を変更させるため、アダプタへ変更を通知
+                mStackAreaAdapter.notifyDataSetChanged();
             }
         });
     }
-*/
 
     /*
      * BottomSheetの設定
@@ -1061,8 +1135,7 @@ public class StackManagerFragment extends Fragment {
 
 
     /*
-     * ドラッグリスナー（ビューがドロップされた時の動作）
-     *　　「やること」を積み上げエリアにドラッグアンドドロップするときに使用
+     * 選択エリアのやること／グループクリックリスナー
      */
     private class SelectItemClickListener implements View.OnClickListener {
         @SuppressLint("NotifyDataSetChanged")
@@ -1081,13 +1154,13 @@ public class StackManagerFragment extends Fragment {
             //ドロップされたのが「やること」か「グループ」か
             TextView tv_taskInGroup = view.findViewById(R.id.tv_taskInGroup);
             if (tv_taskInGroup == null) {
-                //「やること」がドロップされた場合
+                //「やること」がクリックされた場合
 
                 //「やること」をリストへ追加
                 animIdx = addTaskToStackList(view);
 
             } else {
-                //--「グループ」がドロップされた場合
+                //--「グループ」がクリックされた場合
 
                 //グループ内の「やること」をリストへ追加
                 animIdx = addGroupToStackList(view);
@@ -1432,7 +1505,7 @@ public class StackManagerFragment extends Fragment {
             isShow = false;
 
             fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
-            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
+            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_stackTaskClear);
             fab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
 
             showAnimation1 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_1);

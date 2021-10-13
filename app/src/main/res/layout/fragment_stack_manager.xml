@@ -33,22 +33,22 @@
             android:layoutAnimation="@anim/layout_anim_task_list"
             android:visibility="gone"
             app:fabCustomSize="@dimen/fab_child_size"
-            app:backgroundTint="@color/white"
-            app:tint="@color/teal_700"
+            app:backgroundTint="@color/main"
+            app:tint="@color/icon_fab"
             app:srcCompat="@drawable/ic_switch_direction_start_32"
             android:contentDescription="@string/fab_content_switch_direction" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_refAlarm"
+            android:id="@+id/fab_stackTaskClear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/fab_between"
             android:layout_gravity="center"
             android:visibility="gone"
             app:fabCustomSize="@dimen/fab_child_size"
-            app:backgroundTint="@color/white"
-            app:tint="@color/teal_700"
-            app:srcCompat="@drawable/ic_alarm_ref_32"
+            app:backgroundTint="@color/main"
+            app:tint="@color/icon_fab"
+            app:srcCompat="@drawable/ic_baseline_delete_black_20"
             android:contentDescription="@string/fab_content_ref_alarm" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -59,8 +59,8 @@
             android:layout_gravity="center"
             android:visibility="gone"
             app:fabCustomSize="@dimen/fab_child_size"
-            app:backgroundTint="@color/white"
-            app:tint="@color/teal_700"
+            app:backgroundTint="@color/main"
+            app:tint="@color/icon_fab"
             app:srcCompat="@drawable/ic_alarm_set_36"
             android:contentDescription="@string/fab_content_set_alarm" />
 
@@ -72,8 +72,8 @@
             android:layout_marginBottom="@dimen/fab_alarm_margin_bottom"
             android:layout_marginEnd="@dimen/fab_margin_right"
             android:contentDescription="@string/fab_content_parent"
-            app:backgroundTint="@color/white"
-            app:tint="@color/teal_700"
+            app:backgroundTint="@color/main"
+            app:tint="@color/icon_fab"
             app:srcCompat="@drawable/avd_fab_parent_open" />
 
     </LinearLayout>

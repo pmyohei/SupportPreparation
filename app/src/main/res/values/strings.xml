@@ -15,6 +15,9 @@
     <string name="dialog_alarm_all_off">すべてOFF</string>
     <string name="dialog_final_time">最終時刻</string>
 
+    <string name="toast_input_time_previous">現在時刻以降を設定してください</string>
+    <string name="toast_no_stack_task">「やること」が何も積まれていません</string>
+
     <!-- タスク画面 -->
     <string name="fab_content_switch_direction">ベース時間の方向反転</string>
     <string name="fab_content_ref_alarm">アラーム参照</string>

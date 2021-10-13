@@ -5,7 +5,8 @@
              android:color="@color/titleListTextBackground"/>
     -->
     <!-- 背景色 -->
-    <solid  android:color="@color/bg_limit_date"/>
+    <solid
+        android:color="@color/main"/>
 
     <!-- 角の曲がり具合 -->
     <corners
