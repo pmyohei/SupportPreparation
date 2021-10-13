@@ -186,11 +186,8 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         viewHolder.tv_pid.setText(pidStr);
         viewHolder.tv_taskName.setText(mData.get(i).getTaskName());
 
-        //グループ対応
-        if ( mSetting != SETTING.IN_GROUP ) {
-            String timeStr = Integer.toString( taskTime );
-            viewHolder.tv_taskTime.setText(timeStr);
-        }
+        String timeStr = Integer.toString( taskTime );
+        viewHolder.tv_taskTime.setText(timeStr);
 
         //クリック時の処理
         if (mClickListener != null) {

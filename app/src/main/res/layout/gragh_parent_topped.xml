@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ll_gragh"
+    android:id="@+id/fl_gragh"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_gragh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
+    </LinearLayout>
+
+    <!-- 現在時間線 -->
+    <include
+        layout="@layout/gragh_current_line" />
+
+</FrameLayout>

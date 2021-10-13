@@ -1,18 +1,8 @@
 package com.example.supportpreparation.ui.stackManager;
 
-import static android.content.Context.ALARM_SERVICE;
-
-import static java.util.Collections.swap;
-
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -22,12 +12,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +32,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -788,17 +774,18 @@ public class StackManagerFragment extends Fragment {
         }
 
         fab_switchDirection.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
                 //スタート側のビュー
-                LinearLayout ll_startGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_startGroup);
-                TextView tv_startTime = (TextView) ll_startGroup.findViewById(R.id.tv_alarmTime);
-                TextView tv_startDate = (TextView) ll_startGroup.findViewById(R.id.tv_startDate);
+                LinearLayout ll_startGroup = mRootLayout.findViewById(R.id.ll_startGroup);
+                TextView tv_startTime = ll_startGroup.findViewById(R.id.tv_alarmTime);
+                TextView tv_startDate = ll_startGroup.findViewById(R.id.tv_startDate);
 
                 //リミット側のビュー
-                LinearLayout ll_limitGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_limitGroup);
-                TextView tv_limitTime = (TextView) ll_limitGroup.findViewById(R.id.tv_limitTime);
-                TextView tv_limitDate = (TextView) ll_limitGroup.findViewById(R.id.tv_limitDate);
+                LinearLayout ll_limitGroup = mRootLayout.findViewById(R.id.ll_limitGroup);
+                TextView tv_limitTime = ll_limitGroup.findViewById(R.id.tv_limitTime);
+                TextView tv_limitDate = ll_limitGroup.findViewById(R.id.tv_limitDate);
 
                 //適用するアニメーション
                 LayoutAnimationController anim;
@@ -812,6 +799,8 @@ public class StackManagerFragment extends Fragment {
                 mStackTable.setIsLimit(mIsLimit);
                 //mParentActivity.setStackTable(mStackTable);
                 mIsStackChg = true;
+
+                int iconResId;
 
                 if (mIsLimit) {
                     //--スタート(false) → リミット(true) へ変更された
@@ -830,7 +819,9 @@ public class StackManagerFragment extends Fragment {
                     anim_limit = R.anim.limit_down_appear;
                     anim_start = R.anim.start_down_disappear;
                     //アニメーション：切り替えアイコン
-                    anim_fab = R.anim.switch_to_que;
+                    anim_fab = R.anim.rotation_from_180_to_360;
+
+                    iconResId = R.drawable.ic_switch_direction_start_32;
 
                 } else {
                     //--リミット(true) → スタート(false) へ変更
@@ -849,7 +840,9 @@ public class StackManagerFragment extends Fragment {
                     anim_limit = R.anim.limit_up_disappear;
                     anim_start = R.anim.start_up_appear;
                     //アニメーション：切り替えアイコン
-                    anim_fab = R.anim.switch_to_stack;
+                    anim_fab = R.anim.rotation_from_180_to_360;
+
+                    iconResId = R.drawable.ic_switch_direction_limit_32;
                 }
 
                 //基準の時間を反転し、積み上げエリアアダプタへ変更通知
@@ -857,7 +850,7 @@ public class StackManagerFragment extends Fragment {
                 mStackAreaAdapter.notifyDataSetChanged();
 
                 //積み上げ方向（リサイクラービューアイテムの表示位置 上or下）
-                RecyclerView rv_stackArea = (RecyclerView) mRootLayout.findViewById(R.id.rv_stackArea);
+                RecyclerView rv_stackArea = mRootLayout.findViewById(R.id.rv_stackArea);
                 LinearLayoutManager linearLayoutManager = (LinearLayoutManager) rv_stackArea.getLayoutManager();
 
                 //現在の表示方向を逆にする
@@ -874,6 +867,9 @@ public class StackManagerFragment extends Fragment {
 
                 animation = AnimationUtils.loadAnimation(mContext, anim_fab);
                 view.startAnimation(animation);
+
+                //アイコン変更
+                fab_switchDirection.setImageResource( iconResId );
             }
         });
     }

@@ -9,31 +9,21 @@
     android:paddingRight="20dp"
     android:paddingLeft="20dp">
 
-    <FrameLayout
-        android:id="@+id/fl_test"
+    <!-- グラフ -->
+    <ScrollView
+        android:id="@+id/sv_gragh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        tools:ignore="UselessParent">
 
-        <!-- グラフ -->
-        <ScrollView
-            android:id="@+id/sv_gragh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:overScrollMode="never"
-            tools:ignore="UselessParent">
+        <!-- グラフ追加先は動的に生成する
+        <include layout="@layout/gragh_parent_topped" />
+        <include layout="@layout/gragh_parent_bottoming" />
+        -->
 
-            <!-- グラフ追加先は動的に生成する
-            <include layout="@layout/gragh_parent_topped" />
-            <include layout="@layout/gragh_parent_bottoming" />
-            -->
-
-        </ScrollView>
-
-        <!-- 現在時間線 -->
-        <include layout="@layout/gragh_current_line" />
-
-    </FrameLayout>
+    </ScrollView>
 
     <!-- 終了時刻 -->
     <LinearLayout

@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -24,7 +25,6 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -694,8 +694,8 @@ public class TimeFragment extends Fragment {
                             if (!isScroll) {
 
                                 //一度作ったグラフを削除
-                                LinearLayout ll_gragh = v_rootGragh.findViewById(R.id.ll_gragh);
-                                sv_gragh.removeView(ll_gragh);
+                                FrameLayout fl_gragh = v_rootGragh.findViewById(R.id.fl_gragh);
+                                sv_gragh.removeView(fl_gragh);
 
                                 //下詰めで再度グラフ生成
                                 drawGragh(false);
