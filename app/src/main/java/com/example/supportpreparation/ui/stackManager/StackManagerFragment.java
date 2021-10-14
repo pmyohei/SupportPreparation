@@ -47,6 +47,7 @@ import com.example.supportpreparation.GroupSelectRecyclerAdapter;
 import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
+import com.example.supportpreparation.ResourceManager;
 import com.example.supportpreparation.SelectAreaScrollListener;
 import com.example.supportpreparation.StackTaskRecyclerAdapter;
 import com.example.supportpreparation.StackTaskTable;
@@ -306,8 +307,7 @@ public class StackManagerFragment extends Fragment {
 
         //現在時分
         Date nowDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        String nowDateStr = sdf.format(nowDate);
+        String nowDateStr = ResourceManager.sdf_Date.format(nowDate);
 
         //設定中の日付
         String setDate = mStackTable.getDate();
@@ -321,8 +321,7 @@ public class StackManagerFragment extends Fragment {
         }
 
         //現在時分
-        sdf = new SimpleDateFormat("HH:mm");
-        String nowStr = sdf.format(nowDate);
+        String nowStr = ResourceManager.sdf_Time.format(nowDate);
 
         //設定時分
         String setStr = String.format("%02d:%02d", hourOfDay, minute);

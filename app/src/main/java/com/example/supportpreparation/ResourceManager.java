@@ -23,8 +23,9 @@ public class ResourceManager {
     public static final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
 
     public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
-    public static final SimpleDateFormat sdf_Date = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPANESE);
-    public static final SimpleDateFormat sdf_Time = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
+    public static final SimpleDateFormat sdf_Date        = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPANESE);
+    public static final SimpleDateFormat sdf_Time        = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
+    public static final SimpleDateFormat sdf_TimeSec     = new SimpleDateFormat("HH:mm:ss", Locale.JAPANESE);
 
     /*
      * やること時間に応じたカラーIDの取得

@@ -22,7 +22,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.supportpreparation.AppDatabase;
@@ -43,6 +42,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GroupManagerFragment extends Fragment implements AsyncGroupTableOperaion.GroupOperationListener {
 
@@ -186,6 +188,9 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
      *    登録済みの「グループ」を全て表示する。
      */
     private void setupGroupList() {
+
+        //グループ内のやることの同期
+        syncTaskInGroupData();
 
         //-- 「グループ」の表示
         //レイアウトからリストビューを取得
@@ -368,6 +373,46 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //スクロール時、ビューが画面中央に固定されるようにする
         //LinearSnapHelper snapHelper = new LinearSnapHelper();
         //snapHelper.attachToRecyclerView(rv_group);
+    }
+
+    /*
+     * スタック中のやることを、登録されているやること情報と同期させる
+     */
+    private void syncTaskInGroupData() {
+
+        //削除キュー
+        List<Integer> delList = new ArrayList<>();
+
+        for( GroupTable group: mGroupList ){
+
+            int i = 0;
+            TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
+            for( TaskTable task: taskInGroupList ){
+
+                int pid = task.getId();
+
+                TaskTable orgTask = mTaskList.getTaskByPid(pid);
+                if( orgTask == null ){
+                    //削除済みなら、リストに追加
+                    delList.add(i);
+
+                } else {
+                    //データ同期（他のフィールドは本フラグメント以外で変更になることはないため、対象外）
+                    task.setTaskName( orgTask.getTaskName() );
+                    task.setTaskTime( orgTask.getTaskTime() );
+                }
+
+                i++;
+            }
+
+            //削除対象があれば、削除
+            for( Integer idx: delList ){
+                taskInGroupList.remove(idx.intValue() );
+            }
+
+            //削除キュークリア
+            delList.clear();
+        }
     }
 
     /*

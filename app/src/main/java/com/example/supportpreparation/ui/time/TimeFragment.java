@@ -453,7 +453,6 @@ public class TimeFragment extends Fragment {
     private class NextCountDown extends CountDownTimer {
 
         //カウントダウンフォーマット
-        private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         private final TextView tv_time;
 
         /*
@@ -467,7 +466,7 @@ public class TimeFragment extends Fragment {
 
             //タイムフォーマットのタイムゾーンをUTCに設定
             TimeZone tz = TimeZone.getTimeZone("UTC");
-            sdf.setTimeZone(tz);
+            ResourceManager.sdf_TimeSec.setTimeZone(tz);
         }
 
         @Override
@@ -502,7 +501,7 @@ public class TimeFragment extends Fragment {
             //timerText.setText(String.format("%1$02d:%2$02d.%3$03d", mm, ss, ms));
 
             // 残り時間を表示
-            tv_time.setText(sdf.format(millisUntilFinished));
+            tv_time.setText(ResourceManager.sdf_TimeSec.format(millisUntilFinished));
         }
     }
 
@@ -512,7 +511,6 @@ public class TimeFragment extends Fragment {
     private class FinalCountDown extends CountDownTimer {
 
         //カウントダウンフォーマット
-        private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         private final TextView         tv_time;
 
         /*
@@ -526,20 +524,20 @@ public class TimeFragment extends Fragment {
 
             //タイムフォーマットのタイムゾーンをUTCに設定
             TimeZone tz = TimeZone.getTimeZone("UTC");
-            sdf.setTimeZone(tz);
+            ResourceManager.sdf_Time.setTimeZone(tz);
         }
 
         @Override
         public void onFinish() {
             // 完了
-            tv_time.setText(sdf.format(0));
+            tv_time.setText(ResourceManager.sdf_Time.format(0));
         }
 
         // インターバルで呼ばれる
         @Override
         public void onTick(long millisUntilFinished) {
             // 残り時間を表示
-            tv_time.setText(sdf.format(millisUntilFinished));
+            tv_time.setText(ResourceManager.sdf_Time.format(millisUntilFinished));
         }
     }
 
@@ -923,8 +921,7 @@ public class TimeFragment extends Fragment {
             Date convertedDate = mAlarmStackList.get(idx).getStartCalendar().getTime();
 
             //文字列変換
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-            tv_taskStartTime.setText( sdf.format(convertedDate) );
+            tv_taskStartTime.setText( ResourceManager.sdf_Time.format(convertedDate) );
         }
 
 

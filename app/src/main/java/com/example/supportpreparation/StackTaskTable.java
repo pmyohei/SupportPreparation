@@ -407,10 +407,8 @@ public class StackTaskTable implements Cloneable {
         try {
             //期限日と期限時間を連結
             String baseStr = date + " " + time;
-            //リミット日時をDate型へ変換
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
             //文字列をDate型に変換
-            baseDate = sdf.parse(baseStr);
+            baseDate = ResourceManager.sdf_DateAndTime.parse(baseStr);
 
         } catch (ParseException e) {
             e.printStackTrace();
