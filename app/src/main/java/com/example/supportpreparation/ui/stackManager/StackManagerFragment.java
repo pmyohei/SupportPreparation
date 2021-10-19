@@ -269,7 +269,7 @@ public class StackManagerFragment extends Fragment {
                         } else {
                             //メッセージを表示
                             Toast toast = new Toast(mContext);
-                            toast.setText("本日以降を設定してください");
+                            toast.setText(R.string.toast_not_set_after_now);
                             toast.show();
                         }
                     }
@@ -918,7 +918,7 @@ public class StackManagerFragment extends Fragment {
                 String noInputStr = getString(R.string.limittime_no_input);
                 if (mtv_limitTime.getText().toString().equals(noInputStr)) {
                     //メッセージを表示
-                    toast.setText("時間を設定してください");
+                    toast.setText( R.string.toast_no_set_time );
                     toast.show();
                     return;
                 }
@@ -926,7 +926,7 @@ public class StackManagerFragment extends Fragment {
                 //「やること」未選択の場合
                 if (mStackTaskList.size() == 0) {
                     //メッセージを表示
-                    toast.setText("やることを選択してください");
+                    toast.setText( R.string.toast_no_stack_task );
                     toast.show();
                     return;
                 }

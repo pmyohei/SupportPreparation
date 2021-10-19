@@ -15,8 +15,14 @@
     <string name="dialog_alarm_all_off">すべてOFF</string>
     <string name="dialog_final_time">最終時刻</string>
 
+    <!-- Toast -->
     <string name="toast_input_time_previous">現在時刻以降を設定してください</string>
-    <string name="toast_no_stack_task">「やること」が何も積まれていません</string>
+    <string name="toast_no_stack_task">「やること」を積んでください</string>
+    <string name="toast_no_set_time">時間を設定してください</string>
+    <string name="toast_not_set_after_now">本日以降を設定してください</string>
+    <string name="toast_updated">更新しました</string>
+    <string name="toast_set_notification">通知を設定しました</string>
+    <string name="toast_error_occurred">エラーが発生しました。再度、ボタンを押してください</string>
 
     <!-- タスク画面 -->
     <string name="fab_content_switch_direction">ベース時間の方向反転</string>
@@ -30,8 +36,8 @@
     <string name="dialog_create_btn">保存</string>
 
 
-    <string name="limittime_no_input">--:--</string>
-    <string name="limitdate_no_input">--/--</string>
+    <string name="limittime_no_input">\-\-:\-\-</string>
+    <string name="limitdate_no_input">\-\-/\-\-</string>
     <string name="select_switch_label_task">やること</string>
     <string name="select_switch_label_group">グループ</string>
 
@@ -39,13 +45,14 @@
     <string name="heading_remaining_time">Limit</string>
     <string name="heading_next">Next</string>
     <string name="waiting">待機中…</string>
-    <string name="next_none">ー</string>
+    <string name="next_none">―</string>
     <string name="contentDescription_iv_openGragh">グラフオープン</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>
     <string name="snackbar_delete">削除されました</string>
     <string name="snackbar_undo">元に戻す</string>
+    <string name="no_input">未入力です</string>
 
     <!-- 通知 -->
     <string name="notify_task_suffix"> の開始時間です</string>
@@ -53,16 +60,16 @@
 
     <!-- ガイド-スタック画面 -->
     <string name="guide_stack_1">この画面では、「やること」を積み上げて時間を管理することができます。</string>
-    <string name="guide_stack_2_1">画面の下に表示されている「やること」をタップして、\nやることを積み上げていきましょう。</string>
+    <string name="guide_stack_2_1">画面の下に表示されている「やること」をタップして、やることを積み上げていきましょう。</string>
     <string name="guide_stack_2_2">※「やること」がない場合は、右タブの「Task画面」で作成できます。</string>
-    <string name="guide_stack_3">リミットの日時は、「ーー:ーー」「日付」をタップして設定できます。</string>
+    <string name="guide_stack_3">リミットの日時は、「\-\-:\-\-」「日付」をタップして設定できます。</string>
     <string name="guide_stack_4">設定後は、以下のアイコンを押して通知の設定をしましょう。</string>
-    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。\nカウントは、一番右タブの「Time画面」で確認することができます。</string>
+    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。カウントは、一番右タブの「Time画面」で確認することができます。</string>
     <string name="guide_stack_6">「やりたい」ことを積み上げて、時間を管理しましょう！</string>
 
     <!-- ガイド-タスク画面 -->
     <string name="guide_task_1">この画面では、「やること」を作成することができます。</string>
-    <string name="guide_task_2">右下の＋アイコンで「やること」を作成しましょう。</string>
+    <string name="guide_task_2">右下の「＋アイコン」で「やること」を作成しましょう。</string>
     <string name="guide_task_3">作成した「やること」を変更したい場合は、変更したい「やること」をタップしてください。</string>
     <string name="guide_task_4">不要になった「やること」は、左にスワイプすることで削除することができます。</string>
 

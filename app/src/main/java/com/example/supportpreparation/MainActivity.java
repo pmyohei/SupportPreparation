@@ -71,10 +71,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private StackTaskTable mStackTable;                     //スタックテーブル
     private StackTaskTable mAlarmStack;                     //スタックテーブル(アラーム設定)
     private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
-    private List<Integer> mOpenGuideList;                   //操作案内レイアウトIDリスト(表示)
     private List<List<Integer>> mGuideList;                 //操作案内レイアウトIDリスト(画面毎のすべてのID)
     private AdSize mAdSize;                                 //AdViewのサイズ
-
 
     private boolean mSplashEnd;
     private boolean mReadData;
@@ -161,30 +159,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //広告のロード
         loadAdmod();
 
-        //操作方法の設定
-        setupOperationGuide();
-
-        //ヘルプボタンの設定
-        setupHelp();
-    }
-
-    /*
-     * 操作案内の設定
-     */
-    private void setupOperationGuide() {
-
         //各画面の操作案内のレイアウトIDを保持
         holdGuideList();
 
-        //レイアウトIDリスト
-        mOpenGuideList = new ArrayList<>();
-
-        //アダプタ
-        OperationGuideRecyclerAdapter adapter = new OperationGuideRecyclerAdapter(mOpenGuideList);
-
-        //ViewPager2に割り当て
-        ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
-        vp2_guide.setAdapter(adapter);
+        //ヘルプボタンの設定
+        setupHelp();
     }
 
     /*
@@ -284,17 +263,20 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     @SuppressLint("NotifyDataSetChanged")
     private void openOperationGuide(FRAGMENT_KIND kind) {
 
-        mOpenGuideList.clear();
-
-        //表示するレイアウトを設定
+        //表示するレイアウトリスト
         List<Integer> list = mGuideList.get(kind.getValue());
-        mOpenGuideList.addAll(list);
+
+        //ViewPager2
+        ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
+
+        //アダプタ生成・割り当て
+        //※ガイド表示時、前のガイドで閉じたページ位置から表示されてしまうため、
+        //  アダプタを毎回割り当てる方針としている
+        OperationGuideRecyclerAdapter adapter = new OperationGuideRecyclerAdapter(list);
+        vp2_guide.setAdapter(adapter);
 
         //表示
-        ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
         vp2_guide.setVisibility(View.VISIBLE);
-
-        vp2_guide.getAdapter().notifyDataSetChanged();
     }
 
     /*
@@ -325,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (am == null) {
             //メッセージを表示
-            toast.setText("エラーが発生しました。再度、ボタンを押してください");
+            toast.setText( R.string.toast_error_occurred );
             toast.show();
             return;
         }
@@ -384,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         }
 
         //メッセージを表示
-        toast.setText("通知を設定しました");
+        toast.setText( R.string.toast_set_notification );
         toast.show();
     }
 

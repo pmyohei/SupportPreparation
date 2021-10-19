@@ -126,7 +126,7 @@ public class CreateTaskDialog extends DialogFragment {
                 //-- フォーマットチェック
                 if ((task.isEmpty()) || (time == 0)) {
                     //未入力の場合、エラー表示
-                    ((TextView) dialog.findViewById(R.id.tv_alert)).setText("未入力です");
+                    ((TextView) dialog.findViewById(R.id.tv_alert)).setText( R.string.no_input );
 
                 } else {
                     //正常入力されれば、エラー表示をクリア

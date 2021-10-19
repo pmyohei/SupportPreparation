@@ -92,7 +92,7 @@ public class CreateGroupDialog extends DialogFragment {
                 //-- フォーマットチェック
                 if (groupName.isEmpty()) {
                     //未入力の場合、エラー表示
-                    ((TextView) dialog.findViewById(R.id.tv_alert)).setText("未入力です");
+                    ((TextView) dialog.findViewById(R.id.tv_alert)).setText( R.string.no_input );
 
                 } else {
                     //正常入力されれば、エラー表示をクリア

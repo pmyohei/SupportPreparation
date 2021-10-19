@@ -600,7 +600,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //トーストの生成
         Toast toast = new Toast(mContext);
-        toast.setText("更新しました");
+        toast.setText( R.string.toast_updated );
         toast.show();
     }
 

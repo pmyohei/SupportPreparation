@@ -5,18 +5,31 @@
     <string name="title_group">Group</string>
     <string name="title_time">Time</string>
 
-    <string name="dialog_close">閉じる</string>
+    <string name="dialog_close">Close</string>
 
     <!-- スタック画面 -->
     <string name="label_now"> Now </string>
     <string name="label_finish"> Fin </string>
-    <string name="dialog_alarm_set">アラームを設定</string>
-    <string name="dialog_alarm_all_on">すべてON</string>
-    <string name="dialog_alarm_all_off">すべてOFF</string>
-    <string name="dialog_final_time">最終時刻</string>
+    <string name="dialog_alarm_set">Set Alarm</string>
+    <string name="dialog_alarm_all_on">All ON</string>
+    <string name="dialog_alarm_all_off">All OFF</string>
+    <string name="dialog_final_time">Last time</string>
 
-    <string name="toast_input_time_previous">現在時刻以降を設定してください</string>
-    <string name="toast_no_stack_task">「やること」が何も積まれていません</string>
+    <!-- Toast -->
+    <!-- 現在時刻以降を設定してください -->
+    <string name="toast_input_time_previous">Please set after the current time.</string>
+    <!-- 「やること」を積んでください -->
+    <string name="toast_no_stack_task">No tasks are loaded.</string>
+    <!-- 時間を設定してください -->
+    <string name="toast_no_set_time">Please set the time.</string>
+    <!-- 本日以降を設定してください -->
+    <string name="toast_not_set_after_now">Please set the time after the current time.</string>
+    <!-- 更新しました -->
+    <string name="toast_updated">Updated</string>
+    <!-- 通知を設定しました -->
+    <string name="toast_set_notification">Notification has been set.</string>
+    <!-- エラーが発生しました。再度、ボタンを押してください -->
+    <string name="toast_error_occurred">Error occurred. Please press the button again.</string>
 
     <!-- タスク画面 -->
     <string name="fab_content_switch_direction">ベース時間の方向反転</string>
@@ -25,59 +38,82 @@
     <string name="fab_content_parent">親</string>
 
     <!-- タスク画面 -->
-    <string name="task_name_hint">やることを入力してください</string>
-    <string name="group_name_hint">グループ名を入力してください</string>
-    <string name="dialog_create_btn">保存</string>
+    <string name="task_name_hint">Please enter the task</string>
+    <string name="group_name_hint">Please enter the group name</string>
+    <string name="dialog_create_btn">Save</string>
 
 
-    <string name="limittime_no_input">--:--</string>
-    <string name="limitdate_no_input">--/--</string>
-    <string name="select_switch_label_task">やること</string>
-    <string name="select_switch_label_group">グループ</string>
+    <!-- 「\-;」=「-」 -->
+    <string name="limittime_no_input">\-\-:\-\-</string>
+    <string name="limitdate_no_input">\-\-/\-\-</string>
+    <string name="select_switch_label_task">Task</string>
+    <string name="select_switch_label_group">Group</string>
 
     <!-- タイマ画面 -->
     <string name="heading_remaining_time">Limit</string>
     <string name="heading_next">Next</string>
-    <string name="waiting">待機中…</string>
-    <string name="next_none">ー</string>
-    <string name="contentDescription_iv_openGragh">グラフオープン</string>
+    <string name="waiting">Waiting…</string>
+    <string name="next_none">―</string>
+    <string name="contentDescription_iv_openGragh">Open gragh</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>
-    <string name="snackbar_delete">削除されました</string>
-    <string name="snackbar_undo">元に戻す</string>
+    <string name="snackbar_delete">Task deleted</string>
+    <string name="snackbar_undo">Undo</string>
+    <string name="no_input">Not entered.</string>
 
     <!-- 通知 -->
-    <string name="notify_task_suffix"> の開始時間です</string>
-    <string name="notify_final_name">すべてのやることが終了しました</string>
+    <string name="notify_task_suffix">. It\'s time to start.</string>
+    <string name="notify_final_name">All tasks have finished.</string>
+
 
     <!-- ガイド-スタック画面 -->
-    <string name="guide_stack_1">この画面では、「やること」を積み上げて時間を管理することができます。</string>
-    <string name="guide_stack_2_1">画面の下に表示されている「やること」をタップして、\nやることを積み上げていきましょう。</string>
-    <string name="guide_stack_2_2">※「やること」がない場合は、右タブの「Task画面」で作成できます。</string>
-    <string name="guide_stack_3">リミットの日時は、「ーー:ーー」「日付」をタップして設定できます。</string>
-    <string name="guide_stack_4">設定後は、以下のアイコンを押して通知の設定をしましょう。</string>
-    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。\nカウントは、一番右タブの「Time画面」で確認することができます。</string>
-    <string name="guide_stack_6">「やりたい」ことを積み上げて、時間を管理しましょう！</string>
+    <!-- この画面では、「やること」を積み上げて時間を管理することができます。 -->
+    <string name="guide_stack_1">On this screen, you can manage the time by stacking tasks.</string>
+    <!-- 画面の下に表示されている「やること」をタップして、やることを積み上げていきましょう。 -->
+    <string name="guide_stack_2_1">Please tap the task displayed at the bottom of the screen. Then the task will be added.</string>
+    <!-- ※「やること」がない場合は、右タブの「Task画面」で作成できます。 -->
+    <string name="guide_stack_2_2">* If there is no task, you can create it on the \"Task screen\" on the right tab.</string>
+    <!-- リミットの日時は、「ーー:ーー」「日付」をタップして設定できます。 -->
+    <string name="guide_stack_3">You can set the last time by tapping \"\-\-:\-\-\" and \"Date\".</string>
+    <!-- 設定後は、以下のアイコンを押して通知の設定をしましょう。 -->
+    <string name="guide_stack_4">After setting, press the icon below to set the notification.</string>
+    <!-- 通知の設定をすると時間のカウントが始まります。カウントは、一番右タブの「Time画面」で確認することができます。 -->
+    <string name="guide_stack_5">When you set the notification, the time will start counting. You can check the count on the \"Time screen\" on the far right.</string>
+    <!-- 「やりたい」ことを積み上げて、時間を管理しましょう！ -->
+    <string name="guide_stack_6">Stack up your tasks and manage your time!</string>
 
     <!-- ガイド-タスク画面 -->
-    <string name="guide_task_1">この画面では、「やること」を作成することができます。</string>
-    <string name="guide_task_2">右下の＋アイコンで「やること」を作成しましょう。</string>
-    <string name="guide_task_3">作成した「やること」を変更したい場合は、変更したい「やること」をタップしてください。</string>
-    <string name="guide_task_4">不要になった「やること」は、左にスワイプすることで削除することができます。</string>
+    <!-- この画面では、「やること」を作成することができます。 -->
+    <string name="guide_task_1">You can create tasks on this screen.</string>
+    <!-- 右下の＋アイコンで「やること」を作成しましょう。 -->
+    <string name="guide_task_2">Let\'s create a task with the \"+ icon\" at the bottom right.</string>
+    <!-- 作成した「やること」を変更したい場合は、変更したい「やること」をタップしてください。 -->
+    <string name="guide_task_3">If you want to change the task you created, please tap it.</string>
+    <!-- 不要になった「やること」は、左にスワイプすることで削除することができます。 -->
+    <string name="guide_task_4">Tasks you no longer need can be deleted by swiping left.</string>
 
     <!-- ガイド-グループ画面 -->
-    <string name="guide_group_1">この画面では、「やること」をグルーピングすることができます。</string>
-    <string name="guide_group_2">右下の＋アイコンで「グループ」を作成しましょう。</string>
-    <string name="guide_group_3">作成したグループに「やること」を追加するには、「やること」をドラッグ＆ドロップしてください。</string>
-    <string name="guide_group_4">作成した「グループ」を変更したい場合は、変更したい「グループ」をタップしてください。</string>
-    <string name="guide_group_5">不要になった「グループ」は、左にスワイプすることで削除することができます。</string>
-    <string name="guide_group_6">グループ内の「やること」を削除したい場合も、左にスワイプすることで、そのグループから削除することができます。</string>
+    <!-- この画面では、「やること」をグルーピングすることができます。 -->
+    <string name="guide_group_1">This screen allows you to group tasks.</string>
+    <!-- 右下の＋アイコンで「グループ」を作成しましょう。 -->
+    <string name="guide_group_2">Let\'s create a group with the \"+ icon\" at the bottom right.</string>
+    <!-- 作成したグループに「やること」を追加するには、「やること」をドラッグ＆ドロップしてください。 -->
+    <string name="guide_group_3">To add a task to the group you created, drag and drop the task.</string>
+    <!-- 作成した「グループ」を変更したい場合は、変更したい「グループ」をタップしてください。 -->
+    <string name="guide_group_4">If you want to change the group you created, please tap it.</string>
+    <!-- 不要になった「グループ」は、左にスワイプすることで削除することができます。 -->
+    <string name="guide_group_5">Groups you no longer need can be deleted by swiping left.</string>
+    <!-- グループ内の「やること」を削除したい場合も、左にスワイプすることで、そのグループから削除することができます。 -->
+    <string name="guide_group_6">If you also want to delete a task in a group, swipe left.</string>
 
     <!-- ガイド-タイマ画面 -->
-    <string name="guide_time_1">この画面では、積み上げたやることの時間を確認できます。</string>
-    <string name="guide_time_2">設定中の通知は、右下のアイコンから変更することができます。</string>
-    <string name="guide_time_3">やることの順番や削除をしたい場合は、一番左タブの「Stack画面」からもう一度設定してください。</string>
+    <!-- この画面では、積み上げたやることの時間を確認できます。 -->
+    <string name="guide_time_1">On this screen, you can see the time of the stacked tasks.</string>
+    <!-- 設定中の通知は、右下のアイコンから変更することができます。 -->
+    <string name="guide_time_2">You can change the set notification from the icon at the bottom right.</string>
+    <!-- やることの順番や削除をしたい場合は、一番左タブの「Stack画面」からもう一度設定してください。 -->
+    <string name="guide_time_3">To delete a task or change the order of tasks, set again from the \"Stack screen\" on the far left.</string>
 
     <!-- Admod -->
     <string name="admod_app_id">ca-app-pub-8046295810838892~8236388212</string>
