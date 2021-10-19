@@ -87,7 +87,15 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         mGroupList = mParentActivity.getGroupData();
 
         //ビュー
-        mFab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addSet);
+        mFab = mRootLayout.findViewById(R.id.fab_addSet);
+
+        //ガイドクローズ
+        mParentActivity.closeGuide();
+
+        //Admod非表示
+        mParentActivity.setVisibilityAdmod( View.GONE );
+        //ヘルプボタン表示(タイマ画面でグラフを閉じずに画面移動された時の対策)
+        mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
 
         //現在登録されている「グループ」表示
         setupGroupList();

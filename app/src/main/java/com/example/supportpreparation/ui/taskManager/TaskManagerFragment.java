@@ -66,6 +66,14 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //「やること」操作リスナー
         mTaskListener = (AsyncTaskTableOperaion.TaskOperationListener) mFragment;
 
+        //ガイドクローズ
+        mParentActivity.closeGuide();
+
+        //Admod非表示
+        mParentActivity.setVisibilityAdmod( View.GONE );
+        //ヘルプボタン表示(タイマ画面でグラフを閉じずに画面移動された時の対策)
+        mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
+
         //現在登録されている「やること」を表示
         //displayTask();
         mTaskList = mParentActivity.getTaskData();

@@ -133,7 +133,6 @@ public class StackManagerFragment extends Fragment {
         //積み上げられた「やること」
         mStackTaskList = mStackTable.getStackTaskList();
 
-
         //ビューを保持
         mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
         mtv_limitDate = (TextView) mRootLayout.findViewById(R.id.tv_limitDate);
@@ -142,8 +141,13 @@ public class StackManagerFragment extends Fragment {
         //スタックタスク未変更
         mIsStackChg = false;
 
-        //スタックやること情報の同期
-        syncStackTaskData();
+        //ガイドクローズ
+        mParentActivity.closeGuide();
+
+        //Admod非表示
+        mParentActivity.setVisibilityAdmod( View.GONE );
+        //ヘルプボタン表示(タイマ画面でグラフを閉じずに画面移動された時の対策)
+        mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
 
         //「リミット日時」の設定
         setupBaseTimeDate();
@@ -345,6 +349,9 @@ public class StackManagerFragment extends Fragment {
      */
     private void setupStackTaskArea() {
 
+        //スタックやること情報の同期
+        syncStackTaskData();
+
         //ドロップリスナーの設定(ドロップ先のビューにセット)
         //DragListener listener = new DragListener();
         //RecyclerView mll_stackArea = mRootLayout.findViewById(R.id.rv_stackArea);
@@ -513,30 +520,29 @@ public class StackManagerFragment extends Fragment {
         List<Integer> delList = new ArrayList<>();
 
         int i = 0;
-        for( TaskTable task: mStackTaskList ){
+        for (TaskTable task : mStackTaskList) {
 
             int pid = task.getId();
 
             TaskTable orgTask = mTaskList.getTaskByPid(pid);
-            if( orgTask == null ){
+            if (orgTask == null) {
                 //削除済みなら、リストに追加
                 delList.add(i);
 
             } else {
                 //データ同期（他のフィールドは本フラグメント以外で変更になることはないため、対象外）
-                task.setTaskName( orgTask.getTaskName() );
-                task.setTaskTime( orgTask.getTaskTime() );
+                task.setTaskName(orgTask.getTaskName());
+                task.setTaskTime(orgTask.getTaskTime());
             }
 
             i++;
         }
 
         //削除対象があれば、削除
-        for( Integer idx: delList ){
-            mStackTaskList.remove(idx.intValue() );
+        for (Integer idx : delList) {
+            mStackTaskList.remove(idx.intValue());
         }
     }
-
 
     /*
      * 「リミット日時」を設定
@@ -544,8 +550,8 @@ public class StackManagerFragment extends Fragment {
     private void setupBaseTimeDate() {
 
         //リミット・スタートのビュー
-        LinearLayout ll_startGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_startGroup);
-        LinearLayout ll_limitGroup = (LinearLayout) mRootLayout.findViewById(R.id.ll_limitGroup);
+        LinearLayout ll_startGroup = mRootLayout.findViewById(R.id.ll_startGroup);
+        LinearLayout ll_limitGroup = mRootLayout.findViewById(R.id.ll_limitGroup);
 
         //選択中の方向に応じた表示
         if (mIsLimit) {

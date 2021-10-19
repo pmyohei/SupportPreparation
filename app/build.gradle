@@ -70,6 +70,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.5'
     implementation 'com.android.support:multidex:1.0.3'                 //対策：Cannot fit requested classes in a single dex file
     implementation 'com.google.android.gms:play-services-ads:20.4.0'    //AdMod
+    implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'        //ViewPager2
 
     //--room
     def room_version = "2.3.0"

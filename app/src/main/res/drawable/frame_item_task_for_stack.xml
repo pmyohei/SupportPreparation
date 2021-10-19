@@ -5,6 +5,6 @@
         android:color="@color/_before_change" />
 
     <corners
-        android:radius="@dimen/task_stack_corner_radius" />
+        android:radius="@dimen/corner_radius_task_stack" />
 
 </shape>

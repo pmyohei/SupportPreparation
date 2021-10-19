@@ -7,7 +7,7 @@
     android:layout_margin="12dp"
     android:padding="10dp"
     android:layout_gravity="center"
-    android:elevation="@dimen/task_evelation"
+    android:elevation="@dimen/evelation_task"
     android:background="@drawable/frame_item_task"
     android:clickable="true"
     android:orientation="vertical"

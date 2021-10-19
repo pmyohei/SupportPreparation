@@ -14,7 +14,7 @@
         android:id="@+id/ll_taskDesign"
         android:layout_width="@dimen/_variable_size"
         android:layout_height="@dimen/_variable_size"
-        android:elevation="@dimen/task_evelation"
+        android:elevation="@dimen/evelation_task"
         android:background="@drawable/frame_item_task"
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="vertical"

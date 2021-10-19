@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:elevation="@dimen/group_evelation"
+        android:elevation="@dimen/evelation_group"
         android:enabled="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:background="@drawable/frame_item_group">

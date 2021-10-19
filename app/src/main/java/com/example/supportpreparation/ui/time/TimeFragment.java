@@ -35,14 +35,11 @@ import com.example.supportpreparation.ResourceManager;
 import com.example.supportpreparation.StackTaskTable;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskTable;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class TimeFragment extends Fragment {
@@ -61,7 +58,7 @@ public class TimeFragment extends Fragment {
     private Fragment mFragment;                         //本フラグメント
     private Context mContext;                           //コンテキスト（親アクティビティ）
     private View mRootLayout;                           //本フラグメントに設定しているレイアウト
-    private StackTaskTable           mAlarmStack;       //アラームスタック情報
+    private StackTaskTable mAlarmStack;       //アラームスタック情報
     private TaskArrayList<TaskTable> mAlarmStackList;   //アラームスタック情報中の積み上げ「やること」
     private int mTaskRefIdx;                            //積み上げ「やること」の参照中インデックス
 
@@ -85,14 +82,20 @@ public class TimeFragment extends Fragment {
         //スライド検知リスナーの設定
         //setupSlide();
 
+        //ガイドクローズ
+        mParentActivity.closeGuide();
+
         //アラーム参照Fabの設定
         setupFabRefAlarm();
 
-        //Admodの設定
-        setupAdmod();
+        //Admodの表示
+        mParentActivity.setVisibilityAdmod( View.VISIBLE );
+
+        //Admod分のマージンを設定
+        setupMarginTop();
 
         //グラフの設定
-        setupOpenGragh();
+        setupGragh();
 
         //「やること」の参照インデックス
         mTaskRefIdx = REF_WAITING;
@@ -174,6 +177,48 @@ public class TimeFragment extends Fragment {
         return mRootLayout;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+
+    /*
+     *　layout_marginTopの設定
+     * 　 AdView分のサイズをマージンに追加する
+     */
+    public void setupMarginTop() {
+
+        AdView adView = mParentActivity.findViewById(R.id.adView);
+
+        //レイアウト確定を受ける
+        ViewTreeObserver observer = adView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+
+                        //レイアウト確定後は、不要なので本リスナー削除
+                        adView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        //マージン設定対象
+                        View v_border = mRootLayout.findViewById(R.id.v_border);
+
+                        //AdViewの高さ
+                        int Height = adView.getHeight();
+
+                        //レイアウトパラメータ
+                        ViewGroup.LayoutParams lp = v_border.getLayoutParams();
+                        ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                        mlp.setMargins(mlp.leftMargin, Height, mlp.rightMargin, mlp.bottomMargin);
+
+                        //マージンを設定
+                        v_border.setLayoutParams(mlp);
+                    }
+                }
+        );
+    }
+
     /*
      * スライド検知リスナーの設定
      */
@@ -247,17 +292,19 @@ public class TimeFragment extends Fragment {
     /*
      * Admodの設定
      */
+/*
     public void setupAdmod() {
 
         AdView adView = mRootLayout.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
     }
+*/
 
     /*
      * グラフの設定
      */
-    public void setupOpenGragh() {
+    public void setupGragh() {
         //NavigationView がオープンされた時のリスナーを設定
         DrawerLayout dl = (DrawerLayout) mRootLayout.findViewById(R.id.dl_time);
         DrawerLayout.DrawerListener listener = new TimeDrawerListener();
@@ -549,32 +596,47 @@ public class TimeFragment extends Fragment {
         //--フィールド変数
         private boolean isCreate = false;
         private int mMinHeight;
-        private int mCurrentLineNotArriveHeight;             //レイアウト「現在線(未到達)」の高さ
-
+        private boolean isClose = true;
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerOpened(@NonNull View drawerView) {
+            Log.i("DrawerListener", "onDrawerOpened");
+
             //現在時間線の描画
             drawCurrentLine();
+
+            //クローズOFF
+            isClose = false;
         }
 
         @Override
         public void onDrawerClosed(@NonNull View drawerView) {
+            Log.i("DrawerListener", "onDrawerClosed");
+
+            //広告とヘルプボタンを表示
+            mParentActivity.setVisibilityAdmod(View.VISIBLE);
+            mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
+
+            //クローズON
+            isClose = true;
         }
 
         @Override
         public void onDrawerStateChanged(int newState) {
-            //Log.i("test", "onDrawerStateChanged newState=" + newState);
-
-            //LinearLayout ll_gragh = (LinearLayout) mRootLayout.findViewById(R.id.ll_gragh);
-            //Log.i("test", "ll_gragh getMeasuredHeight=" + ll_gragh.getMeasuredHeight());
+            Log.i("DrawerListener", "onDrawerStateChanged newState=" + newState);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-            //Log.i("test", "onDrawerSlide");
+            Log.i("DrawerListener", "onDrawerSlide");
+
+            if( isClose ){
+                //閉じている状態からのスライドなら、広告とヘルプボタンを非表示
+                mParentActivity.setVisibilityAdmod(View.INVISIBLE);
+                mParentActivity.setVisibilityHelpBtn(View.INVISIBLE);
+            }
 
             //やることを積んでいないなら、描画なし
             int size = mAlarmStackList.size();
@@ -1036,6 +1098,11 @@ public class TimeFragment extends Fragment {
 
             //現在時刻線
             View v_currentLine = (View) mRootLayout.findViewById(R.id.v_currentLine);
+
+            if(v_currentLine == null){
+                //グラフが一度も描画されていない場合、何もしない
+                return;
+            }
 
             //マージン調整用レイアウトパラメータ
             ViewGroup.LayoutParams lp = v_currentLine.getLayoutParams();
