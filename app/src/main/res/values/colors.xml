@@ -92,5 +92,7 @@
     <color name="strk_guide">#CC717171</color>
     <color name="bg_guide">#E6FFFFFF</color>
 
+    <color name="bg_guide_indicator_true">#CC2196F3</color>
+    <color name="bg_guide_indicator_false">#CC717171</color>
 
 </resources>

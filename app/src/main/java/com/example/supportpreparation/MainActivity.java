@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
@@ -29,6 +30,8 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
     private List<List<Integer>> mGuideList;                 //操作案内レイアウトIDリスト(画面毎のすべてのID)
     private AdSize mAdSize;                                 //AdViewのサイズ
+    private FRAGMENT_KIND mPreFrgKind;                       //前回のガイド要求フラグメント種別
 
     private boolean mSplashEnd;
     private boolean mReadData;
@@ -95,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         //広告サイズ初期値
         mAdSize = null;
+
+        //前回のガイド要求フラグメント種別
+        mPreFrgKind = null;
 
         //AdMod初期化
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -229,10 +236,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             @Override
             public void onClick(View v) {
 
-                ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
-                if (vp2_guide.getVisibility() == View.VISIBLE) {
+                LinearLayout ll_guide = findViewById(R.id.ll_guide);
+                if (ll_guide.getVisibility() == View.VISIBLE) {
                     //非表示にして終了
-                    vp2_guide.setVisibility(View.GONE);
+                    ll_guide.setVisibility(View.GONE);
                     return;
                 }
 
@@ -263,20 +270,34 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     @SuppressLint("NotifyDataSetChanged")
     private void openOperationGuide(FRAGMENT_KIND kind) {
 
-        //表示するレイアウトリスト
-        List<Integer> list = mGuideList.get(kind.getValue());
+        //要求元のフラグメントが異なるなら、アダプタ再アタッチ
+        if( mPreFrgKind != kind ){
 
-        //ViewPager2
-        ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
+            //ViewPager2
+            ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
 
-        //アダプタ生成・割り当て
-        //※ガイド表示時、前のガイドで閉じたページ位置から表示されてしまうため、
-        //  アダプタを毎回割り当てる方針としている
-        OperationGuideRecyclerAdapter adapter = new OperationGuideRecyclerAdapter(list);
-        vp2_guide.setAdapter(adapter);
+            //表示するレイアウトリスト
+            List<Integer> list = mGuideList.get(kind.getValue());
+
+            //アダプタ生成・割り当て
+            //※ガイド表示時、前のガイドで閉じたページ位置から表示されてしまうため、
+            //  アダプタを毎回割り当てる方針としている
+            OperationGuideRecyclerAdapter adapter = new OperationGuideRecyclerAdapter(list);
+            vp2_guide.setAdapter(adapter);
+
+            //インジケータの設定
+            TabLayout tabLayout = findViewById(R.id.tab_layout);
+            new TabLayoutMediator(tabLayout, vp2_guide,
+                    (tab, position) -> tab.setText("")
+            ).attach();
+        }
 
         //表示
-        vp2_guide.setVisibility(View.VISIBLE);
+        LinearLayout ll_guide = findViewById(R.id.ll_guide);
+        ll_guide.setVisibility(View.VISIBLE);
+
+        //種別保持
+        mPreFrgKind = kind;
     }
 
     /*
@@ -284,14 +305,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
     public void closeGuide() {
 
-        ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
-        if (vp2_guide == null) {
+        LinearLayout ll_guide = findViewById(R.id.ll_guide);
+        if (ll_guide == null) {
             return;
         }
 
-        if (vp2_guide.getVisibility() == View.VISIBLE) {
+        if (ll_guide.getVisibility() == View.VISIBLE) {
             //非表示
-            vp2_guide.setVisibility(View.GONE);
+            ll_guide.setVisibility(View.GONE);
         }
     }
 

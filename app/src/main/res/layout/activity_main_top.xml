@@ -36,19 +36,42 @@
         app:layout_constraintTop_toBottomOf="@+id/adView"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <!-- ガイド -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vp2_guide"
+    <LinearLayout
+        android:id="@+id/ll_guide"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginStart="16dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/frame_guide"
-        android:elevation="20dp"
+        android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ib_help" />
+        app:layout_constraintTop_toBottomOf="@+id/ib_help">
+
+        <!-- ガイド -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp2_guide"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/frame_guide"
+            android:elevation="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ib_help" />
+
+        <!-- インジケータ -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tabBackground="@drawable/selector_guide_indicator"
+            app:tabGravity="center"
+            app:tabIndicatorHeight="0dp"
+            app:tabIndicatorFullWidth="false"
+            app:tabRippleColor="@null" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
