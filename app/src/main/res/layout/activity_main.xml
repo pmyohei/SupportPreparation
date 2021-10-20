@@ -40,6 +40,6 @@
 
 
     <include
-        layout="@layout/activity_main_ads_guide" />
+        layout="@layout/activity_main_top" />
 
 </FrameLayout>
