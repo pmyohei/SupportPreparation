@@ -14,21 +14,6 @@
         android:layout_height="match_parent"
         tools:context=".ui.time.TimeFragment">
 
-        <!--
-        <com.google.android.gms.ads.AdView
-            ads:adSize="SMART_BANNER"
-            ads:adUnitId="@string/admod_unit_id"
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.494"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
-        -->
-
         <View
             android:id="@+id/v_border"
             android:layout_width="match_parent"
@@ -58,10 +43,23 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="4dp"
-            android:text="00:00"
+            android:text="@string/init_final_timer"
             android:textSize="24sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_plainLastLimit" />
+
+        <TextView
+            android:id="@+id/tv_stoppedNotifyMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/stopped_nofitication_message"
+            android:textSize="24sp"
+            android:textColor="@color/tx_stopped_notification"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/tv_plainProgressTask"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/tv_plainProgressTask"
@@ -69,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/bottom_navi_height"
             android:text="@string/next_none"
-            android:textSize="32sp"
+            android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -80,13 +78,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="00:00"
-            android:textSize="28sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/init_next_timer"
+            android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_plainProgressTask"
-            app:layout_constraintVertical_bias="0.012" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_plainProgressTask" />
+
+        <!-- カウント操作ボタン -->
+        <ImageButton
+            android:id="@+id/ib_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/ic_stop_32"
+            android:elevation="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_progressTime"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <TextView
             android:id="@+id/tv_plainNextTask"

@@ -22,6 +22,7 @@
     <string name="toast_not_set_after_now">本日以降を設定してください</string>
     <string name="toast_updated">更新しました</string>
     <string name="toast_set_notification">通知を設定しました</string>
+    <string name="toast_nothing_notification">設定した通知はありません</string>
     <string name="toast_error_occurred">エラーが発生しました。再度、ボタンを押してください</string>
 
     <!-- タスク画面 -->
@@ -46,7 +47,12 @@
     <string name="heading_next">Next</string>
     <string name="waiting">待機中…</string>
     <string name="next_none">―</string>
+    <string name="init_next_timer">00:00:00</string>
+    <string name="init_final_timer">00:00</string>
     <string name="contentDescription_iv_openGragh">グラフオープン</string>
+    <string name="stopped_timer">\-\-:\-\-:\-\-</string>
+    <string name="stopped_nofitication_message">通知停止中</string>
+    <string name="click_stop_btn">全ての通知を停止しました。再開すると、通知とカウントダウンを再開します。</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>

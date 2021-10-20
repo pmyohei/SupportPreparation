@@ -28,6 +28,8 @@
     <string name="toast_updated">Updated</string>
     <!-- 通知を設定しました -->
     <string name="toast_set_notification">Notification has been set.</string>
+    <!-- 設定した通知はありません-->
+    <string name="toast_nothing_notification">No notification.</string>
     <!-- エラーが発生しました。再度、ボタンを押してください -->
     <string name="toast_error_occurred">Error occurred. Please press the button again.</string>
 
@@ -42,8 +44,6 @@
     <string name="group_name_hint">Please enter the group name</string>
     <string name="dialog_create_btn">Save</string>
 
-
-    <!-- 「\-;」=「-」 -->
     <string name="limittime_no_input">\-\-:\-\-</string>
     <string name="limitdate_no_input">\-\-/\-\-</string>
     <string name="select_switch_label_task">Task</string>
@@ -54,7 +54,12 @@
     <string name="heading_next">Next</string>
     <string name="waiting">Waiting…</string>
     <string name="next_none">―</string>
+    <string name="init_next_timer">00:00:00</string>
+    <string name="init_final_timer">00:00</string>
     <string name="contentDescription_iv_openGragh">Open gragh</string>
+    <string name="stopped_timer">\-\-:\-\-:\-\-</string>
+    <string name="stopped_nofitication_message">Notification stopped</string>
+    <string name="click_stop_btn">All notifications have been stopped. When resumed, notifications and countdown will resume.</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>

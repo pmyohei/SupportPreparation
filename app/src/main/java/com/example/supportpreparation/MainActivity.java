@@ -41,6 +41,8 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AsyncGroupTableOperaion.GroupOperationListener,
@@ -249,8 +251,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                 //メニュー
                 Menu menu = bnv_nav.getMenu();
 
+                //表示中の画面のガイドを表示
                 for (FRAGMENT_KIND kind : FRAGMENT_KIND.values()) {
 
+                    //メニューアイテム
                     MenuItem menuItem = menu.getItem(kind.getValue());
 
                     //選択中のメニューアイテム
@@ -336,19 +340,36 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //設定中アラームの削除
         cancelAllAlarm();
 
+        //最終時刻カレンダー
+        TaskArrayList<TaskTable> taskList = stackTable.getStackTaskList();
+        int last = taskList.getLastIdx();
+        Calendar calender = taskList.get(last).getEndCalendar();
+
+        //現在時刻
+        Date dateNow = new Date();
+
+        //最終時刻が過ぎていれば、アラーム設定はなし
+        if( dateNow.after( calender.getTime() ) ){
+            return;
+        }
+
         //リクエストコード
         int requestCode = 0;
 
         //通知メッセージに付与する接尾文
         String suffixStr = getString(R.string.notify_task_suffix);
 
-        TaskArrayList<TaskTable> taskList = stackTable.getStackTaskList();
-
         //各「やること」のアラームを設定
         for (TaskTable task : taskList) {
 
             //アラーム対象外なら次へ
             if (!task.isOnAlarm()) {
+                continue;
+            }
+
+            //現在時刻を過ぎているアラームなら、設定せず次へ
+            if (dateNow.after( task.getStartCalendar().getTime() )) {
+                Log.i("skip", "skip check task=" + task.getTaskName());
                 continue;
             }
 
@@ -368,11 +389,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             requestCode++;
         }
 
+
         //最終時刻のアラーム設定
-        if (stackTable.isOnAlarm()) {
-            //アラーム設定時間
-            int last = taskList.getLastIdx();
-            long millis = taskList.get(last).getEndCalendar().getTimeInMillis();
+        //アラーム設定あり、かつ、現在時刻の方が前の時間
+        if ( stackTable.isOnAlarm() ) {
 
             String message = getString(R.string.notify_final_name);
 
@@ -380,17 +400,25 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
             intent.putExtra(NOTIFY_SEND_KEY, message);
 
+            long millis = calender.getTimeInMillis();
+
             //アラームの設定
             PendingIntent pending
                     = PendingIntent.getBroadcast(this, requestCode, intent, 0);
             am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+
+            //リクエストコードを更新
+            requestCode++;
         }
 
+        //Toastメッセージ
+        //リクエストコードが増えていなければ、アラームは未設定
+        int stringId = ( (requestCode == 0) ? R.string.toast_nothing_notification: R.string.toast_set_notification );
+
         //メッセージを表示
-        toast.setText( R.string.toast_set_notification );
+        toast.setText( stringId );
         toast.show();
     }
-
 
     /*
      * 設定中アラームの全キャンセル

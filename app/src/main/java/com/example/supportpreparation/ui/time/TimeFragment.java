@@ -15,10 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -61,7 +63,8 @@ public class TimeFragment extends Fragment {
     private StackTaskTable mAlarmStack;       //アラームスタック情報
     private TaskArrayList<TaskTable> mAlarmStackList;   //アラームスタック情報中の積み上げ「やること」
     private int mTaskRefIdx;                            //積み上げ「やること」の参照中インデックス
-
+    private boolean mIsStop;                            //カウントダウン停止フラグ
+    private String mCountDownText;                      //カウントダウン文字列
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -79,6 +82,13 @@ public class TimeFragment extends Fragment {
         mAlarmStack = mParentActivity.getAlarmStack();
         mAlarmStackList = mAlarmStack.getStackTaskList();
 
+        //非停止
+        //★備考★ユーザー状態の保存情報から設定する必要がある
+        mIsStop = false;
+
+        //カウントダウン文字列初期値
+        mCountDownText = mContext.getString(R.string.init_next_timer);
+
         //スライド検知リスナーの設定
         //setupSlide();
 
@@ -89,7 +99,7 @@ public class TimeFragment extends Fragment {
         setupFabRefAlarm();
 
         //Admodの表示
-        mParentActivity.setVisibilityAdmod( View.VISIBLE );
+        mParentActivity.setVisibilityAdmod(View.VISIBLE);
 
         //Admod分のマージンを設定
         setupMarginTop();
@@ -130,6 +140,10 @@ public class TimeFragment extends Fragment {
             //カウントダウンなし
             return mRootLayout;
         }
+
+        //カウントダウン停止ボタンの設定
+        //※この設定は、カウントダウン可能な場合にのみ行う
+        setupStopButton();
 
         //先頭のやることの開始時間
         TaskTable firstTask = mAlarmStackList.get(firstIdx);
@@ -220,6 +234,81 @@ public class TimeFragment extends Fragment {
     }
 
     /*
+     * カウントダウン停止ボタンの設定
+     */
+    public void setupStopButton() {
+
+        //カウントダウン停止ボタン
+        ImageButton ib_stop = mRootLayout.findViewById(R.id.ib_stop);
+        ib_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //親ビュー
+                ViewGroup cl_time = mRootLayout.findViewById(R.id.cl_time);
+
+                //通知停止中のメッセージ
+                TextView tv_stoppedNotifyMsg = mRootLayout.findViewById(R.id.tv_stoppedNotifyMsg);
+
+                //通知停止中メッセージの表示非表示
+                int setVisivity;
+
+                //テキストカラー
+                int colorId;
+
+                //フラグ変更
+                mIsStop = !mIsStop;
+
+                if( mIsStop ){
+                    //停止された場合
+
+                    //最終時刻まで満了した場合、停止処理はなし
+                    if (mTaskRefIdx >= mAlarmStackList.size()) {
+                        //リスナーのこの時点で削除
+                        ib_stop.setOnClickListener(null);
+                        return;
+                    }
+
+                    //メッセージの表示
+                    Toast toast = new Toast(mContext);
+                    toast.setText( R.string.click_stop_btn );
+                    toast.show();
+
+                    //テキストカラーの変更
+                    colorId = R.color.tx_time_not_reached;
+                    changeTextColorInViewGroup(cl_time, colorId);
+
+                    //通知停止中のメッセージ：表示
+                    setVisivity = View.VISIBLE;
+
+                    //カウントダウン中の表示を変更
+                    TextView tv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
+                    tv_progressTime.setText(R.string.stopped_timer);
+
+                    //通知を全キャンセル
+                    mParentActivity.cancelAllAlarm();
+
+                } else {
+                    //再開された場合
+
+                    //戻す色を取得
+                    setupDisplayText();
+
+                    //通知停止中のメッセージ：表示
+                    setVisivity = View.INVISIBLE;
+
+                    //通知の再設定
+                    mParentActivity.setupAlarm( mAlarmStack );
+                }
+
+                //通知停止中メッセージの表示設定
+                tv_stoppedNotifyMsg.setVisibility( setVisivity );
+
+            }
+        });
+    }
+
+    /*
      * スライド検知リスナーの設定
      */
     public void setupSlide() {
@@ -263,7 +352,7 @@ public class TimeFragment extends Fragment {
     private void createSetAlarmDialog() {
 
         //★備考★メッセージを出力する
-        if( mAlarmStack.getStackTaskList().size() == 0 ){
+        if (mAlarmStack.getStackTaskList().size() == 0) {
             return;
         }
 
@@ -467,13 +556,26 @@ public class TimeFragment extends Fragment {
         //「やること」（進行中／次）の表示設定
         TextView tv_progressTask = cl_time.findViewById(R.id.tv_plainProgressTask);
         TextView tv_nextTask = cl_time.findViewById(R.id.tv_nextTask);
+        TextView tv_progressTime = cl_time.findViewById(R.id.tv_progressTime);
+
         tv_progressTask.setText(progressTask);
         tv_nextTask.setText(nextTask);
+        tv_progressTime.setText(mCountDownText);
 
         //テキストカラーの変更
-        for (int i = 0; i < ((ViewGroup) cl_time).getChildCount(); i++) {
+        changeTextColorInViewGroup((ViewGroup) cl_time, colorId);
+    }
+
+    /*
+     * 指定ViewGroup内にあるTextViewの色を変更する
+     */
+    public void changeTextColorInViewGroup(ViewGroup vg, int colorId) {
+
+        //テキストカラーの変更
+        for (int i = 0; i < vg.getChildCount(); i++) {
             //子ビューを取得
-            View v = ((ViewGroup) cl_time).getChildAt(i);
+            View v = vg.getChildAt(i);
+
             //テキストビューのみ対象
             if (v instanceof TextView) {
                 TextView tv = (TextView) v;
@@ -526,10 +628,13 @@ public class TimeFragment extends Fragment {
             //リファレンスのやることへ進める
             mTaskRefIdx++;
 
-            //表示中の「やること」を更新
-            setupDisplayText();
+            //停止中でなければ、「やること」の表示を更新
+            if( !mIsStop ){
+                setupDisplayText();
+            }
+
+            //すべて計算したら、終了
             if (mTaskRefIdx >= mAlarmStackList.size()) {
-                //すべて計算したら、終了
                 return;
             }
 
@@ -541,14 +646,19 @@ public class TimeFragment extends Fragment {
         // インターバルで呼ばれる
         @Override
         public void onTick(long millisUntilFinished) {
-            // 残り時間を分、秒、ミリ秒に分割
+            //残り時間を分、秒、ミリ秒に分割
             //long mm = millisUntilFinished / 1000 / 60;
             //long ss = millisUntilFinished / 1000 % 60;
             //long ms = millisUntilFinished - ss * 1000 - mm * 1000 * 60;
             //timerText.setText(String.format("%1$02d:%2$02d.%3$03d", mm, ss, ms));
 
-            // 残り時間を表示
-            tv_time.setText(ResourceManager.sdf_TimeSec.format(millisUntilFinished));
+            //カウントダウン文字列は保持
+            mCountDownText = ResourceManager.sdf_TimeSec.format(millisUntilFinished);
+
+            //停止中でなければ、残り時間を表示
+            if( !mIsStop ){
+                tv_time.setText( mCountDownText );
+            }
         }
     }
 

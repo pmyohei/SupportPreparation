@@ -293,7 +293,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
             LinearLayout ll = (LinearLayout) ((ViewGroup) ll_alarmList).getChildAt(i);
 
             @SuppressLint("UseSwitchCompatOrMaterialCode")
-            Switch sw_alarmOn = (Switch) ll.findViewById(R.id.sw_alarmOn);
+            Switch sw_alarmOn = ll.findViewById(R.id.sw_alarmOn);
             boolean isChecked = sw_alarmOn.isChecked();
 
             if( i == lastIdx ){
