@@ -30,8 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
+        android:padding="4dp"
         android:background="@drawable/selector_help_icon"
-        android:elevation="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adView"
         tools:ignore="SpeakableTextPresentCheck" />
@@ -43,6 +43,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:padding="16dp"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
@@ -57,7 +58,6 @@
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:padding="8dp"
-            android:elevation="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ib_help" />

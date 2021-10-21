@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_stackManage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.taskManager.TaskManagerFragment">
+
+    <include
+        layout="@layout/manage_timer" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_refAlarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:layout_marginEnd="@dimen/fab_margin_right"
+        app:srcCompat="@drawable/ic_alarm_ref_32"
+        app:backgroundTint="@color/main"
+        app:tint="@color/icon_fab"
+        android:contentDescription="@string/fab_content_ref_notification" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -39,7 +39,7 @@
             android:contentDescription="@string/fab_content_switch_direction" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_stackTaskClear"
+            android:id="@+id/fab_refAlarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/fab_between"
@@ -49,7 +49,7 @@
             app:backgroundTint="@color/main"
             app:tint="@color/icon_fab"
             app:srcCompat="@drawable/ic_baseline_delete_black_20"
-            android:contentDescription="@string/fab_content_ref_alarm" />
+            android:contentDescription="@string/fab_content_ref_notification" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_setAlarm"
@@ -62,7 +62,7 @@
             app:backgroundTint="@color/main"
             app:tint="@color/icon_fab"
             app:srcCompat="@drawable/ic_alarm_set_36"
-            android:contentDescription="@string/fab_content_set_alarm" />
+            android:contentDescription="@string/fab_content_set_notification" />
 
         <!-- 親fab -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton

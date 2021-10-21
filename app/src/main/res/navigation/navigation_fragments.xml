@@ -27,6 +27,6 @@
         android:id="@+id/item_navi_time"
         android:name="com.example.supportpreparation.ui.time.TimeFragment"
         android:label="@string/title_time"
-        tools:layout="@layout/fragment_time" />
+        tools:layout="@layout/fragment_time_manager" />
 
 </navigation>

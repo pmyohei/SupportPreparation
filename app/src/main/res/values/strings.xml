@@ -10,9 +10,9 @@
     <!-- スタック画面 -->
     <string name="label_now"> Now </string>
     <string name="label_finish"> Fin </string>
-    <string name="dialog_alarm_set">Set Alarm</string>
-    <string name="dialog_alarm_all_on">All ON</string>
-    <string name="dialog_alarm_all_off">All OFF</string>
+    <string name="dialog_notify_set">Set Notification</string>
+    <string name="dialog_notify_all_on">All ON</string>
+    <string name="dialog_notify_all_off">All OFF</string>
     <string name="dialog_final_time">Last time</string>
 
     <!-- Toast -->
@@ -35,8 +35,8 @@
 
     <!-- タスク画面 -->
     <string name="fab_content_switch_direction">ベース時間の方向反転</string>
-    <string name="fab_content_ref_alarm">アラーム参照</string>
-    <string name="fab_content_set_alarm">アラーム設定</string>
+    <string name="fab_content_ref_notification">通知参照</string>
+    <string name="fab_content_set_notification">通知設定</string>
     <string name="fab_content_parent">親</string>
 
     <!-- タスク画面 -->

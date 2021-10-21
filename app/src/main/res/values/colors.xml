@@ -38,9 +38,11 @@
     <color name="a_orange_2">#ffad60</color>
 
     <!-- 共通 -->
-    <color name="basic">#8ac6d1</color>
+<!--    <color name="basic">#8ac6d1</color>-->
+    <color name="basic">#F6AE99</color>
     <color name="bg_common">#FFF7EB</color>
-    <color name="main">#ECD9B9</color>
+<!--    <color name="main">#ECD9B9</color>-->
+    <color name="main">#F6AE99</color>
 
     <color name="clear">#00FFFFFF</color>
     <color name="_before_change">#c4c1be</color>    <!-- 動的に変更される前に設定する色 -->
@@ -56,7 +58,7 @@
     <color name="tx_task_very_short">#e2f3f5</color>
     <color name="bg_task_short">#B5D8AE</color>
     <color name="tx_task_short">#e2f3f5</color>
-    <color name="bg_task_normal">#F5C6AA</color>
+    <color name="bg_task_normal">#F6D167</color>
     <color name="tx_task_normal">#e2f3f5</color>
     <color name="bg_task_long">#FFC0C0</color>
     <color name="tx_task_long">#e2f3f5</color>
@@ -79,7 +81,7 @@
     <color name="bg_stack_task_time_line">#c4c1be</color>
     <color name="tx_stack_task_label">#716e77</color>
 
-    <color name="bg_limit_date">#B4DEE6</color>
+    <color name="bg_limit_date">#EACFA2</color>
 
     <color name="tx_time_not_reached">#716e77</color>
 

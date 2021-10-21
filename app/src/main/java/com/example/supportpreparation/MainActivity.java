@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                                                                 AsyncTaskTableOperaion.TaskOperationListener,
                                                                 AsyncStackTaskTableOperaion.StackTaskOperationListener {
 
-
     //画面種別
     public enum FRAGMENT_KIND {
         STACK(0),          //スタック画面
@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         }
     }
 
+    private final String SHARED_DATA_NAME = "UIData";
+    private final String SHARED_KEY_COUNTDOWN_STOP = "CountDownStop";
+
     private AppDatabase mDB;                                //DB
 
     //-- フラグメント間共通データ
@@ -78,10 +81,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
     private List<List<Integer>> mGuideList;                 //操作案内レイアウトIDリスト(画面毎のすべてのID)
     private AdSize mAdSize;                                 //AdViewのサイズ
-    private FRAGMENT_KIND mPreFrgKind;                       //前回のガイド要求フラグメント種別
+    private FRAGMENT_KIND mPreFrgKind;                      //前回のガイド要求フラグメント種別
 
     private boolean mSplashEnd;
     private boolean mReadData;
+
+    private boolean mIsStop;                                //カウントダウン停止フラグ
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -105,6 +110,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //前回のガイド要求フラグメント種別
         mPreFrgKind = null;
 
+        //UIデータ読み込み
+        SharedPreferences spData = getSharedPreferences(SHARED_DATA_NAME, MODE_PRIVATE);
+        mIsStop = spData.getBoolean(SHARED_KEY_COUNTDOWN_STOP, false);;
+
         //AdMod初期化
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -118,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
         Log.i("test", "main onSuccessTaskRead");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     /*
@@ -556,6 +570,22 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     }
     public void setFlgSelectTask(boolean flg) {
         mIsSelectTask = flg;
+    }
+
+    /*
+     * 「フラグ-「カウントダウン停止」を取得・設定
+     */
+    public boolean isStop() {
+        return mIsStop;
+    }
+    public void setIsStop(boolean isStop) {
+        mIsStop = isStop;
+
+        //UIデータ保存処理
+        SharedPreferences spData = getSharedPreferences(SHARED_DATA_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = spData.edit();
+        editor.putBoolean(SHARED_KEY_COUNTDOWN_STOP, mIsStop);
+        editor.apply();
     }
 
 

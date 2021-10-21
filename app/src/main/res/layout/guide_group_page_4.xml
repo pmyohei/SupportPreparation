@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:text="@string/guide_group_4"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 

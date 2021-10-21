@@ -39,7 +39,7 @@
             android:layout_weight="0.5"
             android:layout_margin="4dp"
             android:layout_gravity="center_vertical"
-            android:text="@string/dialog_alarm_all_on"
+            android:text="@string/dialog_notify_all_on"
             android:textColor="@color/white"
             android:textSize="12sp"
             app:backgroundTint="@color/bg_dialog"/>
@@ -51,7 +51,7 @@
             android:layout_weight="0.5"
             android:layout_margin="4dp"
             android:layout_gravity="center_vertical"
-            android:text="@string/dialog_alarm_all_off"
+            android:text="@string/dialog_notify_all_off"
             android:textColor="@color/white"
             android:textSize="12sp"
             app:backgroundTint="@color/bg_dialog"/>
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:layout_gravity="center_vertical"
-        android:text="@string/dialog_alarm_set"
+        android:text="@string/dialog_notify_set"
         android:textColor="@color/white"
         android:textSize="12sp"
         app:backgroundTint="@color/bg_dialog"/>

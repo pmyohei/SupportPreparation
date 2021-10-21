@@ -6,7 +6,7 @@
     -->
     <!-- 背景色 -->
     <solid
-        android:color="@color/main"/>
+        android:color="@color/bg_limit_date"/>
 
     <!-- 角の曲がり具合 -->
     <corners

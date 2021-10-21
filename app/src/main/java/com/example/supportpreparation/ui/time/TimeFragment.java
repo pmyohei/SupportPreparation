@@ -4,6 +4,7 @@ import static com.example.supportpreparation.StackTaskTable.NO_DATA;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,10 +61,11 @@ public class TimeFragment extends Fragment {
     private Fragment mFragment;                         //本フラグメント
     private Context mContext;                           //コンテキスト（親アクティビティ）
     private View mRootLayout;                           //本フラグメントに設定しているレイアウト
-    private StackTaskTable mAlarmStack;       //アラームスタック情報
+    private StackTaskTable mAlarmStack;                 //アラームスタック情報
     private TaskArrayList<TaskTable> mAlarmStackList;   //アラームスタック情報中の積み上げ「やること」
     private int mTaskRefIdx;                            //積み上げ「やること」の参照中インデックス
     private boolean mIsStop;                            //カウントダウン停止フラグ
+    private boolean mAlarmResetting;                    //アラーム再設定フラグ
     private String mCountDownText;                      //カウントダウン文字列
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -72,7 +74,7 @@ public class TimeFragment extends Fragment {
         //自身のフラグメントを保持
         mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
-        mRootLayout = inflater.inflate(R.layout.fragment_time, container, false);
+        mRootLayout = inflater.inflate(R.layout.fragment_time_manager, container, false);
         //親アクティビティのコンテキスト
         mContext = mRootLayout.getContext();
         //親アクティビティ
@@ -82,12 +84,12 @@ public class TimeFragment extends Fragment {
         mAlarmStack = mParentActivity.getAlarmStack();
         mAlarmStackList = mAlarmStack.getStackTaskList();
 
-        //非停止
-        //★備考★ユーザー状態の保存情報から設定する必要がある
-        mIsStop = false;
+        //停止フラグ
+        mIsStop = mParentActivity.isStop();
 
         //カウントダウン文字列初期値
-        mCountDownText = mContext.getString(R.string.init_next_timer);
+        int str = ( mIsStop ? R.string.stopped_timer : R.string.init_next_timer );
+        mCountDownText = mContext.getString(str);
 
         //スライド検知リスナーの設定
         //setupSlide();
@@ -194,6 +196,9 @@ public class TimeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        //カウントダウン停止フラグ　を同期
+        mParentActivity.setIsStop( mIsStop );
     }
 
 
@@ -240,6 +245,13 @@ public class TimeFragment extends Fragment {
 
         //カウントダウン停止ボタン
         ImageButton ib_stop = mRootLayout.findViewById(R.id.ib_stop);
+
+        //停止中ならアイコン差し替え
+        if( mIsStop ){
+            ib_stop.setBackgroundResource(R.drawable.avd_play_to_pause);
+        }
+
+        //クリックリスナー
         ib_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -247,14 +259,11 @@ public class TimeFragment extends Fragment {
                 //親ビュー
                 ViewGroup cl_time = mRootLayout.findViewById(R.id.cl_time);
 
-                //通知停止中のメッセージ
-                TextView tv_stoppedNotifyMsg = mRootLayout.findViewById(R.id.tv_stoppedNotifyMsg);
-
-                //通知停止中メッセージの表示非表示
-                int setVisivity;
-
                 //テキストカラー
                 int colorId;
+
+                //アイコン
+                int icon;
 
                 //フラグ変更
                 mIsStop = !mIsStop;
@@ -269,6 +278,10 @@ public class TimeFragment extends Fragment {
                         return;
                     }
 
+                    //アイコン
+                    icon = R.drawable.avd_pause_to_play;
+                    //icon = R.drawable.avd_play_to_pause;
+
                     //メッセージの表示
                     Toast toast = new Toast(mContext);
                     toast.setText( R.string.click_stop_btn );
@@ -277,9 +290,6 @@ public class TimeFragment extends Fragment {
                     //テキストカラーの変更
                     colorId = R.color.tx_time_not_reached;
                     changeTextColorInViewGroup(cl_time, colorId);
-
-                    //通知停止中のメッセージ：表示
-                    setVisivity = View.VISIBLE;
 
                     //カウントダウン中の表示を変更
                     TextView tv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
@@ -291,19 +301,29 @@ public class TimeFragment extends Fragment {
                 } else {
                     //再開された場合
 
-                    //戻す色を取得
+                    //アイコン
+                    icon = R.drawable.avd_play_to_pause;
+                    //icon = R.drawable.avd_pause_to_play;
+
+                    //元に戻す
                     setupDisplayText();
 
-                    //通知停止中のメッセージ：表示
-                    setVisivity = View.INVISIBLE;
+                    //停止中にアラーム再設定させていないなら、設定を元に戻す
+                    if( !mAlarmResetting ){
+                        //通知の再設定
+                        mParentActivity.setupAlarm( mAlarmStack );
+                    }
 
-                    //通知の再設定
-                    mParentActivity.setupAlarm( mAlarmStack );
+                    //アラーム再設定OFF
+                    mAlarmResetting = false;
                 }
 
-                //通知停止中メッセージの表示設定
-                tv_stoppedNotifyMsg.setVisibility( setVisivity );
+                //アイコンアニメーション開始
+                ib_stop.setBackgroundResource(icon);
+                AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) view.getBackground();
+                rocketAnimation.start();
 
+                //ib_stop.setBackgroundResource(icon);
             }
         });
     }
@@ -331,7 +351,7 @@ public class TimeFragment extends Fragment {
      */
     private void setupFabRefAlarm() {
 
-        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_stackTaskClear);
+        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
 
         // アラーム参照ボタンの設定
         fab_refAlarm.setOnClickListener(new View.OnClickListener() {
@@ -372,6 +392,9 @@ public class TimeFragment extends Fragment {
 
                 //アラーム設定
                 mParentActivity.setupAlarm(mAlarmStack);
+
+                //アラーム設定フラグON
+                mAlarmResetting = true;
             }
         });
 
@@ -724,9 +747,10 @@ public class TimeFragment extends Fragment {
         public void onDrawerClosed(@NonNull View drawerView) {
             Log.i("DrawerListener", "onDrawerClosed");
 
-            //広告とヘルプボタンを表示
+            //表示
             mParentActivity.setVisibilityAdmod(View.VISIBLE);
             mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
+            ((FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm)).show();
 
             //クローズON
             isClose = true;
@@ -743,9 +767,10 @@ public class TimeFragment extends Fragment {
             Log.i("DrawerListener", "onDrawerSlide");
 
             if( isClose ){
-                //閉じている状態からのスライドなら、広告とヘルプボタンを非表示
+                //閉じている状態からのスライドなら、非表示
                 mParentActivity.setVisibilityAdmod(View.INVISIBLE);
                 mParentActivity.setVisibilityHelpBtn(View.INVISIBLE);
+                ((FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm)).hide();
             }
 
             //やることを積んでいないなら、描画なし

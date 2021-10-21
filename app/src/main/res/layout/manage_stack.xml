@@ -26,19 +26,19 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:paddingRight="12dp"
             android:paddingLeft="12dp"
             android:background="@drawable/frame_limit_date"
-            android:text="@string/limitdate_no_input"
-            android:textColor="@color/tx_limit_line"
+            android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_alarmTime"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
@@ -81,7 +81,7 @@
 
         <TextView
             android:id="@+id/tv_limitTime"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
@@ -96,13 +96,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:paddingRight="12dp"
             android:paddingLeft="12dp"
             android:background="@drawable/frame_limit_date"
-            android:text="@string/limitdate_no_input"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold" />

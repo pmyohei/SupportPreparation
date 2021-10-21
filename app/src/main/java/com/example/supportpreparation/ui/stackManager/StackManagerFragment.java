@@ -38,7 +38,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.supportpreparation.AlarmBroadcastReceiver;
 import com.example.supportpreparation.AppDatabase;
 import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.CreateSetAlarmDialog;
@@ -60,15 +59,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import kotlinx.coroutines.scheduling.Task;
 
 public class StackManagerFragment extends Fragment {
 
@@ -95,12 +90,13 @@ public class StackManagerFragment extends Fragment {
     private TaskArrayList<TaskTable> mTaskList;              //「やること」
     private StackTaskRecyclerAdapter mStackAreaAdapter;      //積み上げ「やること」アダプタ
     private FloatingActionButton mfab_setAlarm;                   //フローティングボタン
-    private TextView mtv_limitDate;          //リミット日のビュー
-    private TextView mtv_limitTime;          //リミット時間のビュー
-    private Intent mAlarmReceiverIntent;   //アラーム受信クラスのIntent
+    private TextView mtv_limitDate;                         //リミット日のビュー
+    private TextView mtv_limitTime;                         //リミット時間のビュー
+    private Intent mAlarmReceiverIntent;                    //アラーム受信クラスのIntent
     private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
     private boolean mIsLimit;                               //フラグ-リミット選択中
-    private boolean mIsStackChg;                               //スタックタスク変更有無
+    private boolean mIsStackChg;                            //スタックタスク変更有無
+    private boolean mIsStop;                                //カウントダウン停止フラグ
 
     //BottomSheetBehavior と連動するpadding
     private int mBasicPadding;
@@ -128,6 +124,7 @@ public class StackManagerFragment extends Fragment {
         //やることリスト
         mTaskList = mParentActivity.getTaskData();
         //フラグ
+        mIsStop = mParentActivity.isStop();
         mIsSelectTask = mParentActivity.isSelectTask();
         mIsLimit = mStackTable.isLimit();
         //積み上げられた「やること」
@@ -172,14 +169,6 @@ public class StackManagerFragment extends Fragment {
         setupBottomSheet();
 
         return mRootLayout;
-    }
-
-    /*
-     * onDestroyView()
-     */
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 
 
@@ -958,7 +947,7 @@ public class StackManagerFragment extends Fragment {
      */
     private void setupFabStackTaskClear() {
 
-        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_stackTaskClear);
+        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
 
         fab_refAlarm.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -1132,6 +1121,9 @@ public class StackManagerFragment extends Fragment {
 
                 //アラーム設定
                 mParentActivity.setupAlarm(mStackTable);
+
+                //カウントダウン停止状態：「開始」
+                mIsStop = false;
             }
         });
 
@@ -1440,6 +1432,9 @@ public class StackManagerFragment extends Fragment {
         if( mIsStackChg ){
             mParentActivity.setStackTable(mStackTable);
         }
+
+        //カウントダウン停止フラグ　を同期
+        mParentActivity.setIsStop( mIsStop );
     }
 
     /*
@@ -1510,7 +1505,7 @@ public class StackManagerFragment extends Fragment {
             isShow = false;
 
             fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
-            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_stackTaskClear);
+            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
             fab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
 
             showAnimation1 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_1);
