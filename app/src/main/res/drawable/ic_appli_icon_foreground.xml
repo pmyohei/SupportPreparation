@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group android:scaleX="0.1296"
+      android:scaleY="0.1296"
+      android:translateX="21.6"
+      android:translateY="21.6">
+    <path
+        android:pathData="M62.114,287.369C62.122,283.234 63.896,279.355 66.883,276.936C69.871,274.517 73.71,273.852 77.208,275.146C132.054,295.438 162.199,316.929 248.199,316.929C334.347,316.929 366.777,295.555 422.747,274.928L422.747,274.928C426.271,273.629 430.137,274.311 433.136,276.76C436.136,279.21 437.903,283.128 437.886,287.292L437.886,370.606L437.886,370.606C437.886,378.896 433.037,386.203 425.96,388.577C370.459,407.195 340.177,418.079 252.401,418.079C164.528,418.079 131.346,406.78 74.179,388.446L74.179,388.446C67.037,386.155 62.113,378.829 62.113,370.493z"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="13.132372"
+        android:fillColor="#F6AE99"
+        android:fillType="nonZero"
+        android:strokeColor="#F6AE99"
+        android:strokeLineCap="butt"/>
+    <path
+        android:pathData="M94.92,132.162C113.091,132.162 127.838,146.909 127.838,165.08C127.838,183.251 113.091,197.998 94.92,197.998C76.749,197.998 62.002,183.251 62.002,165.08C62.002,146.909 76.749,132.162 94.92,132.162z"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="5.8"
+        android:fillColor="#F6AE99"
+        android:fillType="nonZero"
+        android:strokeColor="#F6AE99"
+        android:strokeLineCap="butt"/>
+    <path
+        android:pathData="M405.08,132.162C423.251,132.162 437.998,146.909 437.998,165.08C437.998,183.251 423.251,197.998 405.08,197.998C386.909,197.998 372.162,183.251 372.162,165.08C372.162,146.909 386.909,132.162 405.08,132.162z"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="5.8"
+        android:fillColor="#F6AE99"
+        android:fillType="nonZero"
+        android:strokeColor="#F6AE99"
+        android:strokeLineCap="butt"/>
+  </group>
+</vector>
