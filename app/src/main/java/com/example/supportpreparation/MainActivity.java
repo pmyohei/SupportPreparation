@@ -1,5 +1,6 @@
 package com.example.supportpreparation;
 
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static com.example.supportpreparation.ui.stackManager.StackManagerFragment.NOTIFY_SEND_KEY;
 
 import android.annotation.SuppressLint;
@@ -36,6 +37,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
@@ -93,6 +95,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        //ダークモード非対応
+        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
 
         //スプラッシュ用アニメーション開始
         startSplashAnimation();

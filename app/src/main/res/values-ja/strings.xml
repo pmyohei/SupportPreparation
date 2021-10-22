@@ -14,6 +14,8 @@
     <string name="dialog_notify_all_on">すべてON</string>
     <string name="dialog_notify_all_off">すべてOFF</string>
     <string name="dialog_final_time">最終時刻</string>
+    <string name="dialog_title_set_notification">新しい通知の設定</string>
+    <string name="dialog_title_ref_notification">設定中の通知</string>
 
     <!-- Toast -->
     <string name="toast_input_time_previous">現在時刻以降を設定してください</string>
@@ -25,11 +27,6 @@
     <string name="toast_nothing_notification">設定した通知はありません</string>
     <string name="toast_error_occurred">エラーが発生しました。再度、ボタンを押してください</string>
 
-    <!-- タスク画面 -->
-    <string name="fab_content_switch_direction">ベース時間の方向反転</string>
-    <string name="fab_content_ref_notification">通知参照</string>
-    <string name="fab_content_set_notification">通知設定</string>
-    <string name="fab_content_parent">親</string>
 
     <!-- タスク画面 -->
     <string name="task_name_hint">やることを入力してください</string>
@@ -43,7 +40,7 @@
     <string name="select_switch_label_group">グループ</string>
 
     <!-- タイマ画面 -->
-    <string name="heading_remaining_time">Limit</string>
+    <string name="heading_remaining_time">最終時刻まで</string>
     <string name="heading_next">Next</string>
     <string name="waiting">待機中…</string>
     <string name="next_none">―</string>
@@ -100,5 +97,11 @@
     <!-- リリース用
     <string name="admod_id">ca-app-pub-8046295810838892/4349114093</string>
     -->
+
+    <!-- Fab詳細説明 -->
+    <string name="fab_content_switch_direction">ベース時間の方向反転</string>
+    <string name="fab_content_ref_notification">通知参照</string>
+    <string name="fab_content_set_notification">通知設定</string>
+    <string name="fab_content_parent">親</string>
 
 </resources>

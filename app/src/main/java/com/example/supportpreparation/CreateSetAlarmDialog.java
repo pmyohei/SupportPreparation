@@ -21,7 +21,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import java.util.Date;
 import java.util.List;
@@ -35,7 +34,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
     private final StackTaskTable mStackTable;
     //private final Fragment mFragment;
     private LayoutInflater mInflater;
-    private View.OnClickListener        mClickListener;
+    private View.OnClickListener mClickListener;
     //private final boolean mIsSetAlarm;
 
     /*
@@ -63,7 +62,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
         mInflater = inflater;
 
         //ダイアログにレイアウトを設定
-        return inflater.inflate(R.layout.dialog_alarm_set, container, false);
+        return inflater.inflate(R.layout.dialog_notification, container, false);
     }
 
     @NonNull
@@ -89,6 +88,9 @@ public class CreateSetAlarmDialog extends DialogFragment {
         if (dialog == null) {
             return;
         }
+
+        //ダイアログタイトル
+        setupTitle(dialog);
 
         //サイズ設定
         setupDialogSize(dialog);
@@ -141,6 +143,19 @@ public class CreateSetAlarmDialog extends DialogFragment {
                 dismiss();
             }
         });
+    }
+
+
+    /*
+     * ダイアログタイトル設定
+     */
+    private void setupTitle(Dialog dialog) {
+
+        TextView tv_title = dialog.findViewById(R.id.tv_title);
+
+        int strId = ( mStackTable.isStack() ? R.string.dialog_title_set_notification: R.string.dialog_title_ref_notification );
+
+        tv_title.setText(strId);
     }
 
     /*

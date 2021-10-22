@@ -3,7 +3,7 @@
     <!-- 枠線 -->
     <stroke
         android:width="2px"
-        android:color="@color/bg_dialog"/>
+        android:color="@color/main"/>
 
     <!-- 角の曲がり具合 -->
     <corners

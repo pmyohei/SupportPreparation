@@ -8,14 +8,24 @@
 
     <!-- TimePickerDialog テーマ -->
     <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/bg_timepicker</item>
-        <item name="android:textColorPrimary">@color/bg_timepicker</item>
+        <item name="colorAccent">@color/main</item>
+        <item name="android:textColorPrimary">@color/main</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/TimePickerTheme_Button</item>
         <item name="android:buttonBarPositiveButtonStyle">@style/TimePickerTheme_Button</item>
     </style>
 
     <style name="TimePickerTheme_Button" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
-        <item name="android:textColor">@color/bg_timepicker</item>
+        <item name="android:textColor">@color/main</item>
+    </style>
+
+    <!-- Switch テーマ -->
+    <style name="Switch" parent="Theme.AppCompat.Light">
+        <!--ボタンON時のボタンの通り道（透明度30%）・ボタンとタッチフィードバックカラー-->
+        <item name="colorControlActivated">@color/main</item>
+        <!--ボタンOFF時のボタンの通り道（透明度30%）-->
+        <item name="android:colorForeground">@color/bg_switch_off</item>
+        <!-- OFFボタンを押したときのタッチフィードバックカラー -->
+        <item name="colorControlHighlight">@color/main</item>
     </style>
 
 </resources>

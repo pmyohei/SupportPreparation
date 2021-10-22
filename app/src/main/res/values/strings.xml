@@ -14,6 +14,8 @@
     <string name="dialog_notify_all_on">All ON</string>
     <string name="dialog_notify_all_off">All OFF</string>
     <string name="dialog_final_time">Last time</string>
+    <string name="dialog_title_set_notification">Set new notifications</string>
+    <string name="dialog_title_ref_notification">Setting notification</string>
 
     <!-- Toast -->
     <!-- 現在時刻以降を設定してください -->
@@ -32,12 +34,6 @@
     <string name="toast_nothing_notification">No notification.</string>
     <!-- エラーが発生しました。再度、ボタンを押してください -->
     <string name="toast_error_occurred">Error occurred. Please press the button again.</string>
-
-    <!-- タスク画面 -->
-    <string name="fab_content_switch_direction">ベース時間の方向反転</string>
-    <string name="fab_content_ref_notification">通知参照</string>
-    <string name="fab_content_set_notification">通知設定</string>
-    <string name="fab_content_parent">親</string>
 
     <!-- タスク画面 -->
     <string name="task_name_hint">Please enter the task</string>
@@ -128,5 +124,12 @@
     <!-- リリース用
     <string name="admod_id">ca-app-pub-8046295810838892/4349114093</string>
     -->
+
+    <!-- Fab詳細説明 -->
+    <string name="fab_content_switch_direction">ベース時間の方向反転</string>
+    <string name="fab_content_ref_notification">通知参照</string>
+    <string name="fab_content_set_notification">通知設定</string>
+    <string name="fab_content_parent">親</string>
+
 
 </resources>

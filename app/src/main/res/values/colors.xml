@@ -99,4 +99,6 @@
 
     <color name="tx_stopped_notification">#80FF0202</color>
 
+    <color name="bg_switch_off">#CC717171</color>
+
 </resources>
