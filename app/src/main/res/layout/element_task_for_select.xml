@@ -16,7 +16,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:text="Sample"
-        android:textColor="@color/tx_select_task"
+        android:textColor="@color/tx_select_area"
         android:textSize="14sp" />
 
     <LinearLayout
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00"
-            android:textColor="@color/tx_select_task"
+            android:textColor="@color/tx_select_area"
             android:textSize="12sp"/>
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_marginLeft="4dp"
             android:text="@string/unit_task_time"
             android:textSize="8sp"
-            android:textColor="@color/tx_select_task" />
+            android:textColor="@color/tx_select_area" />
 
     </LinearLayout>
 

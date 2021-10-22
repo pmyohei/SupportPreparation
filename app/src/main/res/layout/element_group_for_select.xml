@@ -16,7 +16,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:text="Group"
-        android:textColor="@color/tx_select_task"
+        android:textColor="@color/tx_select_area"
         android:textSize="14sp" />
 
     <!-- グループ合計時間 -->
@@ -27,8 +27,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:text="tmp"
-        android:textColor="@color/clear"
-        android:textSize="12sp"/>
+        android:textColor="@color/tx_select_area"
+        android:textSize="12sp"
+        android:visibility="invisible"/>
 
     <!-- グループ内のやること保持用。非表示。 -->
     <TextView

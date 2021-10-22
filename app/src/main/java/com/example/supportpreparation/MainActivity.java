@@ -553,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
                 //レイアウト
                 .setAnchorView(bnv)
-                .setBackgroundTint(getResources().getColor(R.color.basic))
+                .setBackgroundTint(getResources().getColor(R.color.main))
                 .setTextColor(getResources().getColor(R.color.white))
                 .setActionTextColor(getResources().getColor(R.color.white));
 

@@ -1,28 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- 共通 -->
+    <color name="bg_common">#FFF7EB</color>
+    <color name="main">#F6AE99</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="clear">#00FFFFFF</color>
+    <!--    <color name="basic">#8ac6d1</color>-->
+    <!--    <color name="main">#ECD9B9</color>-->
+
+    <!-- 動的に設定するビューに対して、事前に設定する色（これが設定されているビューは、コード上で色が設定される） -->
+    <color name="_before_change">#c4c1be</color>
+
+    <!-- スタック画面 -->
+    <color name="bg_limit_date">#EACFA2</color>
+    <color name="bg_limit_line">#c4c1be</color>
+
+    <color name="tx_basetime">#716e77</color>
+
+    <color name="bg_stack_task_time_line">#c4c1be</color>
+    <color name="tx_stack_task_label">#716e77</color>
+
+    <!-- タスク -->
+    <color name="tx_list_task">#f5f5f5</color>
+    <color name="tx_select_area">#716e77</color>
+
+    <color name="bg_task_very_short">#B4D2E7</color>
+    <color name="bg_task_short">#B5D8AE</color>
+    <color name="bg_task_normal">#F7D574</color>
+    <color name="bg_task_long">#FFC0C0</color>
+    <color name="bg_task_very_long">#C5AFCF</color>
+    <!--    <color name="tx_task_very_short">#e2f3f5</color>-->
+    <!--    <color name="tx_task_short">#e2f3f5</color>-->
+    <!--    <color name="tx_task_normal">#e2f3f5</color>-->
+    <!--    <color name="tx_task_long">#e2f3f5</color>-->
+    <!--    <color name="tx_task_very_long">#e2f3f5</color>-->
+
+    <!-- グループ画面 -->
+    <color name="bg_group">#4B6587</color>
+    <color name="tx_groupName">#FEFBF3</color>
+
+    <!-- ダイアログ -->
+    <color name="tx_diarog_alart">#d9534f</color>
+    <color name="bg_switch_off">#CC717171</color>
+
+    <!-- 下部ナビゲーション -->
+    <color name="bg_bottom_navi_icon_false">#716e77</color>
+
+    <!-- タイマ画面 -->
+    <color name="tx_not_time_arrive">#716e77</color>
+
+    <!-- グラフ -->
+    <color name="tx_gragh">#716e77</color>
+
+    <color name="bg_current_time_line">#80FF0202</color>
+    <color name="tx_current_time">#C1FF0202</color>
+
+    <!-- Fab -->
+    <color name="icon_fab">#FFF7EB</color>
+
+    <!-- ガイド -->
+    <color name="strk_guide">#CC717171</color>
+    <color name="bg_guide">#E6FFFFFF</color>
+
+    <color name="bg_guide_indicator_true">#CC2196F3</color>
+    <color name="bg_guide_indicator_false">#CC717171</color>
+
+    <!-- ーーーー以下未使用ーーー  -->
+
+    <!-- Themes（テーマは未適用） -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-
-    <!-- 色候補 -->
-    <color name="white_2">#f5f5f5</color>
-    <color name="white_3">#e2f3f5</color>
-
-    <color name="orange">#feb062</color>
-
-    <color name="red">#fc5c9c</color>
-    <color name="red_1">#fccde2</color>
-    <color name="red_2">#ffb6b9</color>
-
-    <color name="blue_1">#8ac6d1</color>
-
-    <color name="gray_1">#716e77</color>
 
     <!-- 候補 -->
+<!--
     <color name="a_blue_1">#8cbadb</color>
     <color name="a_blue_2">#72bbe5</color>
     <color name="a_green_1">#9fcc95</color>
@@ -37,68 +92,15 @@
     <color name="a_orange_1">#ff8a5c</color>
     <color name="a_orange_2">#ffad60</color>
 
-    <!-- 共通 -->
-<!--    <color name="basic">#8ac6d1</color>-->
-    <color name="basic">#F6AE99</color>
-    <color name="bg_common">#FFF7EB</color>
-<!--    <color name="main">#ECD9B9</color>-->
-    <color name="main">#F6AE99</color>
+    <color name="white_2">#f5f5f5</color>
+    <color name="white_3">#e2f3f5</color>
+    <color name="orange">#feb062</color>
+    <color name="red">#fc5c9c</color>
+    <color name="red_1">#fccde2</color>
+    <color name="red_2">#ffb6b9</color>
+    <color name="blue_1">#8ac6d1</color>
+    <color name="gray_1">#716e77</color>
+-->
 
-    <color name="clear">#00FFFFFF</color>
-    <color name="_before_change">#c4c1be</color>    <!-- 動的に変更される前に設定する色 -->
-
-
-    <color name="bg_appli_icon">#4B6587</color>
-
-    <color name="bg_task">#ffb6b9</color>
-    <color name="tx_task">#f5f5f5</color>
-    <color name="tx_select_task">#716e77</color>
-
-    <color name="bg_task_very_short">#B4D2E7</color>
-    <color name="tx_task_very_short">#e2f3f5</color>
-    <color name="bg_task_short">#B5D8AE</color>
-    <color name="tx_task_short">#e2f3f5</color>
-    <color name="bg_task_normal">#F7D574</color>
-    <color name="tx_task_normal">#e2f3f5</color>
-    <color name="bg_task_long">#FFC0C0</color>
-    <color name="tx_task_long">#e2f3f5</color>
-    <color name="bg_task_very_long">#C5AFCF</color>
-    <color name="tx_task_very_long">#e2f3f5</color>
-
-    <color name="bg_group">#4B6587</color>
-    <color name="tx_groupName">#FEFBF3</color>
-
-    <color name="bg_dialog">#8ac6d1</color>
-    <color name="tx_diarog_alart">#d9534f</color>
-    <color name="bg_timepicker">#8ac6d1</color>
-
-    <color name="bg_bottom_navi_icon_true">#8ac6d1</color>
-    <color name="bg_bottom_navi_icon_false">#716e77</color>
-
-    <color name="bg_limit_line">#c4c1be</color>
-    <color name="tx_limit_line">#716e77</color>
-
-    <color name="bg_stack_task_time_line">#c4c1be</color>
-    <color name="tx_stack_task_label">#716e77</color>
-
-    <color name="bg_limit_date">#EACFA2</color>
-
-    <color name="tx_time_not_reached">#716e77</color>
-
-    <color name="bg_current_time_line">#80FF0202</color>
-    <color name="tx_current_time">#C1FF0202</color>
-
-    <color name="icon_fab">#FFF7EB</color>
-    <color name="bg_fab">#D79771</color>
-
-    <color name="strk_guide">#CC717171</color>
-    <color name="bg_guide">#E6FFFFFF</color>
-
-    <color name="bg_guide_indicator_true">#CC2196F3</color>
-    <color name="bg_guide_indicator_false">#CC717171</color>
-
-    <color name="tx_stopped_notification">#80FF0202</color>
-
-    <color name="bg_switch_off">#CC717171</color>
 
 </resources>

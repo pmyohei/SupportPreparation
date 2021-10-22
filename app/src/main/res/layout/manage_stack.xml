@@ -43,7 +43,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:text="@string/limittime_no_input"
-            android:textColor="@color/tx_limit_line"
+            android:textColor="@color/tx_basetime"
             android:textSize="20sp"
             android:textStyle="bold"/>
 
@@ -86,7 +86,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:text="@string/limittime_no_input"
-            android:textColor="@color/tx_limit_line"
+            android:textColor="@color/tx_basetime"
             android:textSize="20sp"
             android:textStyle="bold"/>
 

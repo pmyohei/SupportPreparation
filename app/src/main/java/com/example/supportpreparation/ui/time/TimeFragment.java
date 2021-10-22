@@ -288,7 +288,7 @@ public class TimeFragment extends Fragment {
                     toast.show();
 
                     //テキストカラーの変更
-                    colorId = R.color.tx_time_not_reached;
+                    colorId = R.color.tx_not_time_arrive;
                     changeTextColorInViewGroup(cl_time, colorId);
 
                     //カウントダウン中の表示を変更
@@ -534,7 +534,7 @@ public class TimeFragment extends Fragment {
         String noneStr = mContext.getString(R.string.next_none);
 
         //カラーID
-        int colorId = R.color.tx_time_not_reached;
+        int colorId = R.color.tx_not_time_arrive;
 
         if (mTaskRefIdx == REF_WAITING) {
             //-- まだ、初めの「やること」の開始時間に至っていない場合

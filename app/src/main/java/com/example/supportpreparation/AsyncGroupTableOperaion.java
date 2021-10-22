@@ -126,7 +126,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
     }
 
     /*
-     * 「やること」の生成処理
+     * 「グループ」の生成処理
      */
     private Integer createGroup(GroupTableDao dao ){
 
@@ -174,7 +174,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             //やることがあれば
             if( pids != null ) {
-                //pid分
+                //pid数分
                 for( Integer pid: pids ){
                     //pidに対応する「やること」を取得し、リストに追加
                     TaskTable task = taskTableDao.getRecord(pid);

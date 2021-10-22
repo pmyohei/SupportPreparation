@@ -2,13 +2,14 @@
     <dimen name="fab_margin_right">8dp</dimen>
     <dimen name="fab_margin_bottom">64dp</dimen>
     <dimen name="fab_alarm_margin_bottom">64dp</dimen>
-    <dimen name="fab_switch_margin_bottom">128dp</dimen>
     <dimen name="fab_between">8dp</dimen>
     <dimen name="fab_child_size">40dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
+<!--
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+-->
 
     <!-- 下部ナビゲーション高さ-->
     <dimen name="bottom_navi_height">60dp</dimen>
@@ -16,10 +17,6 @@
     <!-- BottomSheet よりも前に位置する標高 -->
     <dimen name="select_area_elevation">40dp</dimen>
     <dimen name="fab_elevation">60dp</dimen>
-
-    <!-- スタック画面-ベース時間反転ボタン -->
-    <dimen name="iv_reverse_margin_top">240dp</dimen>
-    <dimen name="iv_reverse_margin_end">24dp</dimen>
 
     <!-- 四隅のカーブ -->
     <dimen name="corner_radius_task_select">20dp</dimen>
@@ -29,30 +26,10 @@
 
     <!-- やることの高さ(3次元)-->
     <dimen name="evelation_task">8dp</dimen>
-    <dimen name="evelation_group">8dp</dimen>
+    <dimen name="evelation_group">16dp</dimen>
 
-    <!-- 選択エリア内のやることサイズ
-    <dimen name="select_task_width">64dp</dimen>
-    <dimen name="select_task_height">64dp</dimen>
-    -->
-    <!-- 選択エリア内のグループサイズ
-    <dimen name="select_group_width">72dp</dimen>
-    <dimen name="select_group_height">64dp</dimen>
-    -->
-
-    <!-- リスト内のやることサイズ-->
-    <dimen name="list_task_width">160dp</dimen>
-    <dimen name="list_task_height">160dp</dimen>
-
-    <!-- 積まれたやることサイズ
-    <dimen name="stack_task_width">180dp</dimen>
-    <dimen name="stack_task_height">100dp</dimen>
-    -->
-
-    <!-- グラフ -->
-    <dimen name="omit_width">80dp</dimen>
-    <dimen name="omit_height">80dp</dimen>
-
+    <!-- ガイド -->
+    <dimen name="tx_size_guide">14sp</dimen>
 
     <!-- 共通 -->
     <!-- ソース上で決定されるサイズには、この値を暫定として設定 -->

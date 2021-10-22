@@ -232,12 +232,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     group.setTaskAdapter(adapter);
                 }
 
-                //下部ナビゲーション
-                BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
-
-                //スナックバーを保持する親ビュー
-                ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
-
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
@@ -534,10 +528,8 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //空データ削除
         mGroupList.removeEmpty();
 
-        //生成された「グループ」情報をリストに追加
-        mGroupList.add( group );
-
-        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+        //RecyclerView：グループリスト
+        RecyclerView rv_group = mRootLayout.findViewById(R.id.rv_groupList);
 
         //グループのリサイクラービューを基準に、横幅を決定
         //※グループ内やることのリサイクラービューは現時点では取得不可のため
@@ -548,8 +540,13 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.IN_GROUP, size, 0);
         group.setTaskAdapter(adapter);
 
+        //生成された「グループ」情報をリストに追加
+        mGroupList.add( group );
+
         //アダプタに変更を通知
-        mGroupAdapter.notifyDataSetChanged();
+        //mGroupAdapter.notifyDataSetChanged();
+        mGroupAdapter.notifyItemInserted(mGroupList.size() - 1);
+        //mGroupAdapter.notifyItemChanged(mGroupList.size() - 1);
 
         //追加された位置へスクロール
         rv_group.scrollToPosition( mGroupList.size() - 1 );
