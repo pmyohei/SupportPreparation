@@ -311,7 +311,7 @@ public class TimeFragment extends Fragment {
                     //停止中にアラーム再設定させていないなら、設定を元に戻す
                     if( !mAlarmResetting ){
                         //通知の再設定
-                        mParentActivity.setupAlarm( mAlarmStack );
+                        mParentActivity.setAlarm( mAlarmStack );
                     }
 
                     //アラーム再設定OFF
@@ -391,7 +391,7 @@ public class TimeFragment extends Fragment {
                 mParentActivity.setAlarmStack(mAlarmStack);
 
                 //アラーム設定
-                mParentActivity.setupAlarm(mAlarmStack);
+                mParentActivity.setAlarm(mAlarmStack);
 
                 //アラーム設定フラグON
                 mAlarmResetting = true;

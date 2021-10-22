@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,6 +33,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -117,7 +119,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         //UIデータ読み込み
         SharedPreferences spData = getSharedPreferences(SHARED_DATA_NAME, MODE_PRIVATE);
-        mIsStop = spData.getBoolean(SHARED_KEY_COUNTDOWN_STOP, false);;
+        mIsStop = spData.getBoolean(SHARED_KEY_COUNTDOWN_STOP, false);
+        ;
 
         //AdMod初期化
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -294,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private void openOperationGuide(FRAGMENT_KIND kind) {
 
         //要求元のフラグメントが異なるなら、アダプタ再アタッチ
-        if( mPreFrgKind != kind ){
+        if (mPreFrgKind != kind) {
 
             //ViewPager2
             ViewPager2 vp2_guide = findViewById(R.id.vp2_guide);
@@ -342,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     /*
      * アラーム設定
      */
-    public void setupAlarm(StackTaskTable stackTable) {
+    public void setAlarm(StackTaskTable stackTable) {
 
         //アラーム設定
         Toast toast = new Toast(this);
@@ -351,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (am == null) {
             //メッセージを表示
-            toast.setText( R.string.toast_error_occurred );
+            toast.setText(R.string.toast_error_occurred);
             toast.show();
             return;
         }
@@ -368,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         Date dateNow = new Date();
 
         //最終時刻が過ぎていれば、アラーム設定はなし
-        if( dateNow.after( calender.getTime() ) ){
+        if (dateNow.after(calender.getTime())) {
             return;
         }
 
@@ -387,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             }
 
             //現在時刻を過ぎているアラームなら、設定せず次へ
-            if (dateNow.after( task.getStartCalendar().getTime() )) {
+            if (dateNow.after(task.getStartCalendar().getTime())) {
                 Log.i("skip", "skip check task=" + task.getTaskName());
                 continue;
             }
@@ -411,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         //最終時刻のアラーム設定
         //アラーム設定あり、かつ、現在時刻の方が前の時間
-        if ( stackTable.isOnAlarm() ) {
+        if (stackTable.isOnAlarm()) {
 
             String message = getString(R.string.notify_final_name);
 
@@ -432,10 +435,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         //Toastメッセージ
         //リクエストコードが増えていなければ、アラームは未設定
-        int stringId = ( (requestCode == 0) ? R.string.toast_nothing_notification: R.string.toast_set_notification );
+        int stringId = ((requestCode == 0) ? R.string.toast_nothing_notification : R.string.toast_set_notification);
 
         //メッセージを表示
-        toast.setText( stringId );
+        toast.setText(stringId);
         toast.show();
     }
 
@@ -480,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void setVisibilityAdmod(int value) {
 
         AdView adView = findViewById(R.id.adView);
-        if( adView == null ){
+        if (adView == null) {
             //起動時、未読み込み時のガード
             return;
         }
@@ -494,7 +497,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void setVisibilityHelpBtn(int value) {
 
         ImageButton ib_help = findViewById(R.id.ib_help);
-        if( ib_help == null ){
+        if (ib_help == null) {
             //起動時、未読み込み時のガード
             return;
         }
@@ -507,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
     public AdSize getAdsize() {
 
-        if( mAdSize != null ){
+        if (mAdSize != null) {
             return mAdSize;
         }
 
@@ -516,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         display.getMetrics(outMetrics);
 
         float widthPixels = outMetrics.widthPixels;
-        float density     = outMetrics.density;
+        float density = outMetrics.density;
 
         int adWidth = (int) (widthPixels / density);
 
@@ -525,6 +528,40 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         return mAdSize;
     }
+
+    /*
+     * スナックバーの表示
+     */
+    public void showSnackbar(View.OnClickListener actionListerner, Snackbar.Callback callbackListerner) {
+
+        //表示先親ビュー
+        FrameLayout fl_main = findViewById(R.id.fl_main);
+
+        //下部ナビゲーション
+        BottomNavigationView bnv = findViewById(R.id.bnv_nav);
+
+        //スナックバー
+        Snackbar snackbar = Snackbar
+                //オブジェクト生成
+                .make(fl_main, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
+
+                //アクションボタン押下時の動作
+                .setAction(R.string.snackbar_undo, actionListerner)
+
+                //スナックバークローズ時の動作
+                .addCallback(callbackListerner)
+
+                //レイアウト
+                .setAnchorView(bnv)
+                .setBackgroundTint(getResources().getColor(R.color.basic))
+                .setTextColor(getResources().getColor(R.color.white))
+                .setActionTextColor(getResources().getColor(R.color.white));
+
+        //表示
+        snackbar.show();
+    }
+
+    //-- Gettert Settert --------------------
 
     /*
      * 「やること」データを取得する

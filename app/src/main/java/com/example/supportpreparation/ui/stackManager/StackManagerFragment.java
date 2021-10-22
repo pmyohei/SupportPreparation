@@ -426,38 +426,26 @@ public class StackManagerFragment extends Fragment {
                 final int adapterPos = viewHolder.getAdapterPosition();
                 final TaskTable deletedTask = mStackTaskList.get(adapterPos);
 
-                //下部ナビゲーションを取得
-                BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
+                //スナックバー
+                mParentActivity.showSnackbar(
+                    //UNDO押下時の動作
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
+                            mStackTable.insertTask(adapterPos, deletedTask);
+                            mStackAreaAdapter.notifyItemInserted(adapterPos);
 
-                //スナックバーを保持する親ビュー
-                ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
+                            //表示位置を、元に戻したアイテム位置へ移動
+                            rv_stackArea.scrollToPosition(adapterPos);
 
-                //UNDOメッセージの表示
-                Snackbar snackbar = Snackbar
-                        .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
-                        //アクションボタン押下時の動作
-                        .setAction(R.string.snackbar_undo, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                                mStackTable.insertTask(adapterPos, deletedTask);
-                                mStackAreaAdapter.notifyItemInserted(adapterPos);
+                            //各時間を変更させるため、アダプタへ変更を通知
+                            mStackAreaAdapter.notifyDataSetChanged();
+                        }
+                    },
 
-                                //表示位置を、元に戻したアイテム位置へ移動
-                                rv_stackArea.scrollToPosition(adapterPos);
-
-                                //各時間を変更させるため、アダプタへ変更を通知
-                                mStackAreaAdapter.notifyDataSetChanged();
-                            }
-                        })
-                        //下部ナビゲーションの上に表示させるための設定
-                        .setAnchorView(bnv)
-                        .setBackgroundTint(getResources().getColor(R.color.basic))
-                        .setTextColor(getResources().getColor(R.color.white))
-                        .setActionTextColor(getResources().getColor(R.color.white));
-
-                //表示
-                snackbar.show();
+                    null
+                );
 
                 //リストから削除し、アダプターへ通知
                 mStackTable.removeTask(adapterPos);
@@ -969,18 +957,10 @@ public class StackManagerFragment extends Fragment {
                 //全削除
                 mStackTaskList.clear();
 
-                //下部ナビゲーションを取得
-                BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
-
-                //スナックバーを保持する親ビュー
-                ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
-
-                //UNDOメッセージの表示
-                //★備考★他のとまとめられるならまとめたい
-                Snackbar snackbar = Snackbar
-                        .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
-                        //アクションボタン押下時の動作
-                        .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                //スナックバー
+                mParentActivity.showSnackbar(
+                        //UNDO押下時の動作
+                        new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
 
@@ -997,16 +977,10 @@ public class StackManagerFragment extends Fragment {
                                 //削除リストをクリア
                                 deletedTaskList.clear();
                             }
-                        })
+                        },
 
-                        //下部ナビゲーションの上に表示させるための設定
-                        .setAnchorView(bnv)
-                        .setBackgroundTint(getResources().getColor(R.color.basic))
-                        .setTextColor(getResources().getColor(R.color.white))
-                        .setActionTextColor(getResources().getColor(R.color.white));
-
-                //表示
-                snackbar.show();
+                        null
+                );
 
                 //各開始時間を変更させるため、アダプタへ変更を通知
                 mStackAreaAdapter.notifyDataSetChanged();
@@ -1120,7 +1094,7 @@ public class StackManagerFragment extends Fragment {
                 mParentActivity.setAlarmStack(mAlarmStack);
 
                 //アラーム設定
-                mParentActivity.setupAlarm(mStackTable);
+                mParentActivity.setAlarm(mStackTable);
 
                 //カウントダウン停止状態：「開始」
                 mIsStop = false;

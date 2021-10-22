@@ -241,7 +241,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //アダプタの生成・設定
                 AsyncGroupTableOperaion.GroupOperationListener dbListener
                         = (AsyncGroupTableOperaion.GroupOperationListener) mFragment;
-                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, dbListener, height, bnv, cl_mainContainer);
+                mGroupAdapter = new GroupRecyclerAdapter(mContext, mGroupList, dbListener, height, mParentActivity);
 
                 //リスナー設定(グループ名編集)
                 mGroupAdapter.setOnGroupNameClickListener(new View.OnClickListener() {
@@ -326,17 +326,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     final int        adapterPosition = viewHolder.getAdapterPosition();
                     final GroupTable deletedGroup    = mGroupList.get(adapterPosition);
 
-                    //下部ナビゲーションを取得
-                    BottomNavigationView bnv = mParentActivity.findViewById(R.id.bnv_nav);
-
-                    //スナックバーを保持する親ビュー
-                    ConstraintLayout cl_mainContainer = mParentActivity.findViewById(R.id.cl_mainContainer);
-
-                    //UNDOメッセージの表示
-                    Snackbar snackbar = Snackbar
-                            .make(cl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
-                            //アクションボタン押下時の動作
-                            .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                    //スナックバー
+                    mParentActivity.showSnackbar(
+                            //para1:UNDO押下時の動作
+                            new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
                                     //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
@@ -344,9 +337,9 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                                     mGroupAdapter.notifyItemInserted(adapterPosition );
                                     rv_group.scrollToPosition(adapterPosition );
                                 }
-                            })
-                            //スナックバークローズ時の動作
-                            .addCallback(new Snackbar.Callback() {
+                            },
+                            //para2:スナックバー消失時の動作
+                            new Snackbar.Callback() {
                                 @Override
                                 public void onDismissed(Snackbar snackbar, int event) {
                                     super.onDismissed(snackbar, event);
@@ -358,15 +351,8 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                                         new AsyncGroupTableOperaion(mDB, mGroupDBListener, AsyncGroupTableOperaion.DB_OPERATION.DELETE, gPid).execute();
                                     }
                                 }
-                            })
-                            //下部ナビゲーションの上に表示させるための設定
-                            .setAnchorView(bnv)
-                            .setBackgroundTint(getResources().getColor(R.color.basic))
-                            .setTextColor(getResources().getColor(R.color.white))
-                            .setActionTextColor(getResources().getColor(R.color.white));
-
-                    //表示
-                    snackbar.show();
+                            }
+                    );
 
                     //リストから削除し、アダプターへ通知
                     mGroupList.remove(adapterPosition);

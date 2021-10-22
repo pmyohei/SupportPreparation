@@ -26,11 +26,10 @@ import com.google.android.material.snackbar.Snackbar;
  */
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
 
-    private GroupArrayList<GroupTable> mData;
+    private GroupArrayList<GroupTable>                      mData;
     private Context                                         mContext;
     private int                                             mItemHeight;
-    private BottomNavigationView                            mBNV;
-    private ConstraintLayout                                mcl_mainContainer;
+    private MainActivity                                    mParentActivity;
     private View.OnClickListener                            mGroupNameClickListener;
     private View.OnTouchListener                            mTaskTouchListener;
     private View.OnDragListener                             mDragListener;
@@ -66,13 +65,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     public GroupRecyclerAdapter(Context context, GroupArrayList<GroupTable> groupList,
                                 AsyncGroupTableOperaion.GroupOperationListener dbListener, int height,
-                                BottomNavigationView bnv, ConstraintLayout cl_mainContainer) {
+                                MainActivity activity) {
         mContext          = context;
         mData             = groupList;
         mItemHeight       = height;
         mDBListener       = dbListener;
-        mBNV              = bnv;
-        mcl_mainContainer = cl_mainContainer;
+        mParentActivity   = activity;
     }
 
 
@@ -176,7 +174,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         viewHolder.rv_taskInGroup.setAdapter(adapter);
 
         //ドラッグ、スワイプの設定
-        ItemTouchHelper helper = new ItemTouchHelper( new SimpleCallback(viewHolder.rv_taskInGroup, adapter, taskInGroupList, groupPid) );
+        SimpleCallbackTaskInGroup simpleCallbackTask = new SimpleCallbackTaskInGroup(viewHolder.rv_taskInGroup, adapter, taskInGroupList, groupPid);
+        ItemTouchHelper helper = new ItemTouchHelper( simpleCallbackTask );
+
         //リサイクラービューをヘルパーにアタッチ
         helper.attachToRecyclerView(viewHolder.rv_taskInGroup);
 
@@ -279,18 +279,18 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      * ドラッグ／スワイプ リスナー
      *　　グループ内「やること」のドラッグ／スワイプ処理
      */
-    private class SimpleCallback extends ItemTouchHelper.SimpleCallback {
+    private class SimpleCallbackTaskInGroup extends ItemTouchHelper.SimpleCallback {
 
         private RecyclerView                mRecyclerView;  //本コールバックのアタッチ先のRecyclerView
         private TaskRecyclerAdapter         mAdapter;       //本コールバックのアタッチ先のRecyclerView
         private int                         mGroupPid;      //グループのプライマリーキー
         private TaskArrayList<TaskTable>    mTaskInGroup;   //グループに割り当てられた「やること」
 
-        public SimpleCallback(RecyclerView recyclerView, TaskRecyclerAdapter adapter, TaskArrayList<TaskTable> taskInGroup, int groupPid) {
+        public SimpleCallbackTaskInGroup(RecyclerView recyclerView, TaskRecyclerAdapter adapter, TaskArrayList<TaskTable> taskInGroup, int groupPid) {
             super(0, ItemTouchHelper.LEFT);
 
             mRecyclerView   = recyclerView;
-            mAdapter        = adapter;
+            mAdapter        = (TaskRecyclerAdapter)recyclerView.getAdapter();
             mTaskInGroup    = taskInGroup;
             mGroupPid       = groupPid;
         }
@@ -299,14 +299,6 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         public boolean onMove(@NonNull RecyclerView recyclerView,
                               @NonNull RecyclerView.ViewHolder viewHolder,
                               @NonNull RecyclerView.ViewHolder target) {
-                            /*
-                            //！getAdapterPosition()←非推奨
-                            final int fromPos = viewHolder.getAdapterPosition();
-                            final int toPos   = target.getAdapterPosition();
-                            //アイテム移動を通知
-                            mGroupAdapter.notifyItemMoved(fromPos, toPos);
-                            Log.i("test", "onMove " + fromPos + " " + toPos);
-                            */
             return true;
         }
 
@@ -317,11 +309,10 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             final int       adapterPosition = viewHolder.getAdapterPosition();
             final TaskTable deletedTask     = mTaskInGroup.get(adapterPosition);
 
-            //UNDOメッセージの表示
-            Snackbar snackbar = Snackbar
-                    .make(mcl_mainContainer, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
-                    //アクションボタン押下時の動作
-                    .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+            //スナックバー
+            mParentActivity.showSnackbar(
+                    //UNDO押下時の動作
+                    new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
@@ -329,9 +320,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                             mAdapter.notifyItemInserted(adapterPosition );
                             mRecyclerView.scrollToPosition(adapterPosition );
                         }
-                    })
-                    //スナックバークローズ時の動作
-                    .addCallback(new Snackbar.Callback() {
+                    },
+                    new Snackbar.Callback() {
                         @Override
                         public void onDismissed(Snackbar snackbar, int event) {
                             super.onDismissed(snackbar, event);
@@ -343,15 +333,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                                 new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.REMOVE_TASK, mGroupPid, adapterPosition).execute();
                             }
                         }
-                    })
-                    //下部ナビゲーションの上に表示させるための設定
-                    .setAnchorView(mBNV)
-                    .setBackgroundTint(mContext.getResources().getColor(R.color.basic))
-                    .setTextColor(mContext.getResources().getColor(R.color.white))
-                    .setActionTextColor(mContext.getResources().getColor(R.color.white));
-
-            //表示
-            snackbar.show();
+                    }
+            );
 
             //リストから削除し、アダプターへ通知
             mTaskInGroup.remove(adapterPosition);
