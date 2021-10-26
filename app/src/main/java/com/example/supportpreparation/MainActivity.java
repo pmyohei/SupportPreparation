@@ -271,10 +271,16 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
                 LinearLayout ll_guide = findViewById(R.id.ll_guide);
                 if (ll_guide.getVisibility() == View.VISIBLE) {
-                    //非表示にして終了
+                    //非表示
                     ll_guide.setVisibility(View.GONE);
+                    //アイコン変更
+                    v.setBackgroundResource(R.drawable.ic_help_24);
+
                     return;
                 }
+
+                //アイコン変更
+                v.setBackgroundResource(R.drawable.ic_help_24_pressed);
 
                 //下部ナビゲーション
                 BottomNavigationView bnv_nav = findViewById(R.id.bnv_nav);
@@ -348,6 +354,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         if (ll_guide.getVisibility() == View.VISIBLE) {
             //非表示
             ll_guide.setVisibility(View.GONE);
+
+            //アイコン変更
+            ImageButton ib_help = findViewById(R.id.ib_help);
+            ib_help.setBackgroundResource(R.drawable.ic_help_24);
         }
     }
 
