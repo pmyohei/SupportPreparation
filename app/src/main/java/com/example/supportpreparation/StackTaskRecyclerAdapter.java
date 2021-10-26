@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +17,8 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 /*
  * RecyclerViewアダプター：「やること」用
@@ -234,7 +233,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         }
 
         //設定日時をDate型として取得
-        Date baseDate = mStackTable.getBaseTimeDate();
+        Date baseDate = mStackTable.getBaseDateTimeInDateFormat();
         if( baseDate == null ){
             //設定なし or 変換エラーの場合、無効文字列を設定
             String noInputStr = mContext.getString(R.string.limittime_no_input);
@@ -251,127 +250,11 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         }
 
         //Dateを文字列変換
-        Date setDate = setCalendar.getTime();
-        String timeStr = ResourceManager.sdf_Time.format(setDate);
+        String timeStr = (String) DateFormat.format(ResourceManager.STR_HOUR_MIN, setCalendar);
 
         //時間設定
         tv_target.setText(timeStr);
     }
-
-    /*
-     * 「やること」開始時刻の設定
-     */
-    /*
-    private void setupTaskStartTime(StackTaskViewHolder viewHolder, int i) {
-
-        //設定日時をDate型として取得
-        Date finalLimit = getConvertedDateBaseTime();
-        if( finalLimit == null ){
-            //設定なし or 変換エラーの場合、無効文字列を設定
-            String noInputStr = mContext.getString(R.string.limittime_no_input);
-            viewHolder.tv_taskStartTime.setText(noInputStr);
-            return;
-        }
-
-        //「やること」開始時刻
-        Calendar startCalendar = getStartTimeCalendar(i, finalLimit);
-
-        //「やること」終了時刻の計算
-        Calendar endCalendar = getStartTimeCalendar(i, finalLimit);
-        int time = mData.get(i).getTaskTime();
-        endCalendar.add(Calendar.MINUTE, time);
-
-        //ラベルの設定
-        setLabel(viewHolder, i, startCalendar, endCalendar);
-
-        //開始時間を文字列に変換
-        Date startDate       = startCalendar.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-        String startTimeStr  = sdf.format(startDate);
-
-        //「開始時間」として設定
-        viewHolder.tv_taskStartTime.setText(startTimeStr);
-
-        //やることにカレンダーを設定
-        mData.get(i).setStartCalendar(startCalendar);
-        mData.get(i).setEndCalendar(endCalendar);
-    }
-     */
-
-
-    /*
-     * 「やること」終了時刻の設定
-     */
-    /*
-    private void setupTaskEndTime(StackTaskViewHolder viewHolder, int i ) {
-
-        //設定日時をDate型として取得
-        Date finalLimit = getConvertedDateBaseTime();
-        if( finalLimit == null ){
-            //設定なし or 変換エラーの場合、無効文字列を設定
-            String noInputStr = mContext.getString(R.string.limittime_no_input);
-            viewHolder.tv_taskEndTime.setText(noInputStr);
-            return;
-        }
-
-        //「やること」終了時刻
-        Calendar endCalendar = getEndTimeCalendar(i, finalLimit);
-
-        //「やること」開始時刻の計算
-        Calendar startCalendar = getEndTimeCalendar(i, finalLimit);
-        int time = mData.get(i).getTaskTime();
-        startCalendar.add(Calendar.MINUTE, -time);
-
-        //ラベルの設定（スタートベースの場合、ラベル付与なし）
-        viewHolder.ll_label.setVisibility(View.INVISIBLE);
-
-        //終了時間を取得し、文字列に変換
-        Date endDate         = endCalendar.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-        String endTimeStr    = sdf.format(endDate);
-
-        //「終了時間」として設定
-        viewHolder.tv_taskEndTime.setText(endTimeStr);
-
-        //やることにカレンダーを設定
-        mData.get(i).setStartCalendar(startCalendar);
-        mData.get(i).setEndCalendar(endCalendar);
-    }
-     */
-
-    /*
-     * 「やること」の開始時刻（カレンダー）の取得
-     *   取得に伴い、アラーム時刻のリストに開始時刻を追加する
-     */
-/*    private Calendar getStartTimeCalendar(int i, Date finalLimit) {
-
-        //リミットから引く時間を計算
-        int totalTaskMin = getTotalTaskTimeToLast(i);
-
-        //開始時間を計算
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(finalLimit);
-        calendar.add(Calendar.MINUTE, -totalTaskMin);
-
-        return calendar;
-    }*/
-
-    /*
-     * 「やること」の終了時刻（カレンダー）の取得
-     *   取得に伴い、アラーム時刻のリストに終了時刻を追加する
-     */
-/*    private Calendar getEndTimeCalendar(int i, Date startTime) {
-
-        //スタート時間に加算する値を取得
-        int totalTaskMin = getTotalTaskTimeFromTop(i);
-
-        //開始時間を計算
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startTime);
-        calendar.add(Calendar.MINUTE, totalTaskMin);
-
-        return calendar;
-    }*/
 
     /*
      * 「やること」ラベルの設定
@@ -423,37 +306,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         //スタート指定：このIndexから最後のIndexまで、アイテム追加アニメーションを適用
         mAnimIdx = idx;
     }
-
-    /*
-     * やること時間の累計（指定Index～LastIndex）
-     */
-/*    private int getTotalTaskTimeToLast(int idx){
-
-        int minute = 0;
-
-        int size = mData.size();
-        for( int i = idx; i < size; i++ ){
-            //やること時間を累算
-            minute += mData.get(i).getTaskTime();
-        }
-
-        return minute;
-    }*/
-
-    /*
-     * やること時間の累計（TopIndex～指定Index）
-     */
-/*    private int getTotalTaskTimeFromTop(int idx){
-
-        int minute = 0;
-
-        for( int i = 0; i <= idx; i++ ){
-            //やること時間を累算
-            minute += mData.get(i).getTaskTime();
-        }
-
-        return minute;
-    }*/
 
     /*
      * リミットか否かを反転

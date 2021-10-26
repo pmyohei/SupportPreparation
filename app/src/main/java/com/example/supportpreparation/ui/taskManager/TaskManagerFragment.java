@@ -293,14 +293,19 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //生成された「やること」をリストに追加
         mTaskList.add( taskTable );
 
-        int addIdx = mTaskList.size() - 1;
+        int addIdx = mTaskList.getLastIdx();
 
         //アダプタに変更を通知
-        mTaskAdapter.notifyItemInserted(addIdx);
+        if( addIdx == 0 ){
+            //空のデータがあるため、1件目の場合は変更通知
+            mTaskAdapter.notifyItemChanged(0);
+        } else {
+            mTaskAdapter.notifyItemInserted(addIdx);
+        }
 
         //追加された位置へスクロール
-        RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
-        rv_task.scrollToPosition( addIdx );
+        //RecyclerView rv_task  = mRootLayout.findViewById(R.id.rv_taskList);
+        //rv_task.scrollToPosition( addIdx );
     }
 
     @Override

@@ -543,13 +543,18 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //生成された「グループ」情報をリストに追加
         mGroupList.add( group );
 
+        int addIdx = Math.max(mGroupList.size() - 1, 0);
+
         //アダプタに変更を通知
-        //mGroupAdapter.notifyDataSetChanged();
-        mGroupAdapter.notifyItemInserted(mGroupList.size() - 1);
-        //mGroupAdapter.notifyItemChanged(mGroupList.size() - 1);
+        if( addIdx == 0 ){
+            //空のデータがあるため、1件目の場合は変更通知
+            mGroupAdapter.notifyItemChanged(0);
+        } else {
+            mGroupAdapter.notifyItemInserted(addIdx);
+        }
 
         //追加された位置へスクロール
-        rv_group.scrollToPosition( mGroupList.size() - 1 );
+        rv_group.scrollToPosition( addIdx );
     }
 
     @Override

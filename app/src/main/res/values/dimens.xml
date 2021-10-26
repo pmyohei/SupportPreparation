@@ -25,8 +25,8 @@
     <dimen name="corner_radius_guide">24dp</dimen>
 
     <!-- やることの高さ(3次元)-->
-    <dimen name="evelation_task">8dp</dimen>
-    <dimen name="evelation_group">16dp</dimen>
+    <dimen name="elevation_task">8dp</dimen>
+    <dimen name="elevation_group">16dp</dimen>
 
     <!-- ガイド -->
     <dimen name="tx_size_guide">14sp</dimen>

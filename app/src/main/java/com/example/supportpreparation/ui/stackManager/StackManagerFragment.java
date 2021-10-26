@@ -1,5 +1,9 @@
 package com.example.supportpreparation.ui.stackManager;
 
+import static android.text.format.DateUtils.FORMAT_NUMERIC_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
+
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -14,6 +18,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +65,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -190,7 +198,7 @@ public class StackManagerFragment extends Fragment {
                         //現在時刻よりも後かどうか
                         if (isAfterSetTime(hourOfDay, minute)) {
                             //入力時刻を設定
-                            String limit = String.format("%02d:%02d", hourOfDay, minute);
+                            String limit = String.format(ResourceManager.SAVE_FORMAT_STR_TIME, hourOfDay, minute);
                             touchView.setText(limit);
 
                             if (!mIsLimit) {
@@ -238,18 +246,32 @@ public class StackManagerFragment extends Fragment {
 
                         //現在日よりも後かどうか
                         if (isAfterSetDate(year, month, dayOfMonth)) {
-                            //日付を取得して表示
-                            String date = String.format(Locale.JAPANESE, "%04d/%02d/%02d", year, month + 1, dayOfMonth);
-                            touchView.setText(date);
+
+                            Date date;
+                            try {
+                                //日付（データ保持用フォーマットで保持）
+                                //※ユーザーの入力情報の変換であるため、Localeはどれでも問題なし
+                                String dateForHold = String.format(Locale.JAPANESE, ResourceManager.SAVE_FORMAT_STR_DATE, year, month + 1, dayOfMonth);
+
+                                //Dateへ変換
+                                date = ResourceManager.sdf_DateAndTime.parse(dateForHold);
+
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                                return;
+                            }
+
+                            //ユーザー向け文字列
+                            String dateForUser = DateUtils.formatDateTime(mContext, date.getTime(), FORMAT_SHOW_YEAR | FORMAT_SHOW_DATE | FORMAT_NUMERIC_DATE);
+                            touchView.setText(dateForUser);
 
                             if (!mIsLimit) {
                                 //リミット指定でないなら、リミット側にも設定(スタックアダプタ参照用)
-                                mtv_limitDate.setText(date);
+                                mtv_limitDate.setText(dateForUser);
                             }
 
                             //共通データとして保持
-                            mStackTable.setDate(date);
-                            //mParentActivity.setStackTable(mStackTable);
+                            mStackTable.setDate(dateForUser);
                             mIsStackChg = true;
 
                             //やること開始時間を変更
@@ -300,13 +322,10 @@ public class StackManagerFragment extends Fragment {
 
         //現在時分
         Date nowDate = new Date();
-        String nowDateStr = ResourceManager.sdf_Date.format(nowDate);
+        String nowDateStr = (String) DateFormat.format(ResourceManager.STR_DATE, nowDate);
 
         //設定中の日付
         String setDate = mStackTable.getDate();
-
-        //Log.i("test", "nowDateStr=" + nowDateStr);
-        //Log.i("test", "setDate=" + setDate);
 
         //本日の時刻でなければ、後であること確定
         if (setDate.compareTo(nowDateStr) != 0) {
@@ -314,22 +333,17 @@ public class StackManagerFragment extends Fragment {
         }
 
         //現在時分
-        String nowStr = ResourceManager.sdf_Time.format(nowDate);
+        String nowStr = (String) DateFormat.format(ResourceManager.STR_HOUR_MIN, nowDate);
 
         //設定時分
-        String setStr = String.format("%02d:%02d", hourOfDay, minute);
+        String setStr = String.format(ResourceManager.SAVE_FORMAT_STR_TIME, hourOfDay, minute);
 
         //Log.i("test", "nowStr=" + nowStr);
         //Log.i("test", "setStr=" + setStr);
         //Log.i("test", "compareTo=" + nowStr.compareTo(setStr));
 
-        if (setStr.compareTo(nowStr) >= 0) {
-            //設定時分が、現在時分よりも後であれば
-            return true;
-        } else {
-            //設定時分が、現在時分よりも前か同じであれば
-            return false;
-        }
+        //設定時分が、現在時分よりも後かどうか
+        return (setStr.compareTo(nowStr) >= 0);
     }
 
 
@@ -542,27 +556,27 @@ public class StackManagerFragment extends Fragment {
         }
 
         //親アクティビティで保持しているリミット時間を取得
-        String limitTime = mStackTable.getTime();
+        String baseTime = mStackTable.getTime();
 
         //時間設定-リミット
-        mtv_limitTime.setText(limitTime);
+        mtv_limitTime.setText(baseTime);
         mtv_limitTime.setOnClickListener(new BaseTimeListener());
 
         //時間設定-スタート
-        TextView tv_startTime = (TextView) mRootLayout.findViewById(R.id.tv_alarmTime);
-        tv_startTime.setText(limitTime);
+        TextView tv_startTime = mRootLayout.findViewById(R.id.tv_alarmTime);
+        tv_startTime.setText(baseTime);
         tv_startTime.setOnClickListener(new BaseTimeListener());
 
         //親アクティビティで保持しているリミット日を取得
-        String today = mStackTable.getDate();
+        String baseDate = mStackTable.getDateForUser(mContext);
 
         //日付設定-リミット
-        mtv_limitDate.setText(today);
+        mtv_limitDate.setText(baseDate);
         mtv_limitDate.setOnClickListener(new BaseDateListener());
 
         //日付設定-スタート
-        TextView tv_startDate = (TextView) mRootLayout.findViewById(R.id.tv_startDate);
-        tv_startDate.setText(today);
+        TextView tv_startDate = mRootLayout.findViewById(R.id.tv_startDate);
+        tv_startDate.setText(baseDate);
         tv_startDate.setOnClickListener(new BaseDateListener());
     }
 
@@ -577,7 +591,7 @@ public class StackManagerFragment extends Fragment {
         }
 
         //レイアウトからリストビューを取得
-        RecyclerView rv_task = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+        RecyclerView rv_task = mRootLayout.findViewById(R.id.rv_taskList);
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);

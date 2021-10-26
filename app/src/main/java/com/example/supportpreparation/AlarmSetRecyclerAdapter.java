@@ -1,7 +1,13 @@
 package com.example.supportpreparation;
 
+import static android.text.format.DateUtils.FORMAT_NUMERIC_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,8 +103,8 @@ public class AlarmSetRecyclerAdapter extends RecyclerView.Adapter<AlarmSetRecycl
         viewHolder.tv_taskName.setText(task.getTaskName());
 
         //開始時刻（アラーム時刻）
-        Date date       = task.getStartCalendar().getTime();
-        String alarmStr = ResourceManager.sdf_DateAndTime.format(date);
+        long mills = task.getStartCalendar().getTimeInMillis();
+        String alarmStr = ResourceManager.getInternationalizationDateTime(viewHolder.tv_taskName.getContext(), mills);
 
         viewHolder.tv_alarmTime.setText(alarmStr);
 
@@ -119,32 +125,5 @@ public class AlarmSetRecyclerAdapter extends RecyclerView.Adapter<AlarmSetRecycl
         //表示データ数を返す
         return mData.size();
     }
-
-    /*
-     * インナークラス
-     *   アラームON/OFFスイッチリスナー
-     */
-    private class SwitchChangeListerner implements CompoundButton.OnCheckedChangeListener{
-
-        //private final int mIdx;
-        private final TaskTable mTask;
-
-        public SwitchChangeListerner(TaskTable task){
-            mTask = task;
-        }
-
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if( isChecked ) {
-                //mSwitch : Off -> On の時の処理
-                //buttonView.setChecked( isChecked );
-                mTask.setOnAlarm( isChecked );
-            } else {
-                //mSwitch : On -> Off の時の処理
-                mTask.setOnAlarm( isChecked );
-            }
-        }
-    }
-
 
 }

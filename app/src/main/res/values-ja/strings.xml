@@ -45,7 +45,7 @@
     <string name="waiting">待機中…</string>
     <string name="next_none">―</string>
     <string name="init_next_timer">00:00:00</string>
-    <string name="init_final_timer">00:00</string>
+    <string name="init_final_timer">00h00m</string>
     <string name="contentDescription_iv_openGragh">グラフオープン</string>
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
     <string name="stopped_nofitication_message">通知停止中</string>

@@ -111,7 +111,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
         //空データなら、非表示
         if( viewType == ResourceManager.INVALID_MIN ){
-            LinearLayout ll_group = view.findViewById( R.id.ll_groupInfo );
+            LinearLayout ll_group = view.findViewById( R.id.ll_group );
             ll_group.setVisibility( View.INVISIBLE );
         }
 
@@ -124,7 +124,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
 
-        Log.i("test", "group adapter onBindViewHolder i=" + i);
+        Log.i("adapter", "group adapter onBindViewHolder i=" + i);
 
         int totalTime = mData.get(i).getTotalTime();
         if( totalTime == ResourceManager.INVALID_MIN ){
@@ -349,6 +349,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             //リストから削除し、アダプターへ通知
             mTaskInGroup.remove(adapterPosition);
             adapter.notifyItemRemoved(adapterPosition);
+
+            Log.i("adapter", "swiped adapterPosition=" + adapterPosition);
         }
     }
 }

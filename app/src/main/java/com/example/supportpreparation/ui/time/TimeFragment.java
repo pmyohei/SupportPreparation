@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -41,6 +42,7 @@ import com.example.supportpreparation.TaskTable;
 import com.google.android.gms.ads.AdView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -53,8 +55,10 @@ public class TimeFragment extends Fragment {
     //--定数（単位変換）
     private final int CONV_SEC_TO_MSEC = 1000;         //単位変換：sec → msec
     private final int CONV_MIN_TO_MSEC = 60000;        //単位変換：min → msec
+/*
     private final int INTERVAL_PROGRESS = 1000;         //進行中やることのインターバル（1sec）
     private final int INTERVAL_FINAL = 60000;        //最終時刻までのインターバル（1min）
+*/
 
     //--フィールド
     private MainActivity mParentActivity;               //親アクティビティ
@@ -88,7 +92,7 @@ public class TimeFragment extends Fragment {
         mIsStop = mParentActivity.isStop();
 
         //カウントダウン文字列初期値
-        int str = ( mIsStop ? R.string.stopped_timer : R.string.init_next_timer );
+        int str = (mIsStop ? R.string.stopped_timer : R.string.init_next_timer);
         mCountDownText = mContext.getString(str);
 
         //スライド検知リスナーの設定
@@ -120,7 +124,7 @@ public class TimeFragment extends Fragment {
         }
 
         //指定時刻のDate型を取得
-        Date dateBaseTime = mAlarmStack.getBaseTimeDate();
+        Date dateBaseTime = mAlarmStack.getBaseDateTimeInDateFormat();
         if (dateBaseTime == null) {
             //カウントダウンなし
             return mRootLayout;
@@ -154,7 +158,7 @@ public class TimeFragment extends Fragment {
         //カウントダウン数
         long countdown;
 
-        //一番初めのやることが先頭で、現在時刻がそのやることの時間帯に割り込んでいるか判定
+        //現在時刻がやることの時間帯に割り込んでいるか
         if (firstIdx == 0 && dateNow.before(dateStart)) {
             //--現在時刻 → 開始時刻 のため、割り込んでいない状態
 
@@ -178,17 +182,12 @@ public class TimeFragment extends Fragment {
         }
 
         //進行中タイマーの設定
-        setNextTimer(countdown);
+        setNextCountdown(countdown);
 
         //「やること」表示処理（進行中／次）
         setupDisplayText();
 
-        //現在時刻から最終時刻までの時間を算出
-        long toLastCount = finalTime.getTime() - dateNow.getTime();
-
-        //カウントダウンインスタンスの生成
-        FinalCountDown countDownFinal = new FinalCountDown(toLastCount, INTERVAL_FINAL);
-        countDownFinal.start();
+        setupFinalCountDown(finalTime);
 
         return mRootLayout;
     }
@@ -197,8 +196,8 @@ public class TimeFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        //カウントダウン停止フラグ　を同期
-        mParentActivity.setIsStop( mIsStop );
+        //カウントダウン停止フラグを同期
+        mParentActivity.setIsStop(mIsStop);
     }
 
 
@@ -247,7 +246,7 @@ public class TimeFragment extends Fragment {
         ImageButton ib_stop = mRootLayout.findViewById(R.id.ib_stop);
 
         //停止中ならアイコン差し替え
-        if( mIsStop ){
+        if (mIsStop) {
             ib_stop.setBackgroundResource(R.drawable.avd_play_to_pause);
         }
 
@@ -268,7 +267,7 @@ public class TimeFragment extends Fragment {
                 //フラグ変更
                 mIsStop = !mIsStop;
 
-                if( mIsStop ){
+                if (mIsStop) {
                     //停止された場合
 
                     //最終時刻まで満了した場合、停止処理はなし
@@ -284,7 +283,7 @@ public class TimeFragment extends Fragment {
 
                     //メッセージの表示
                     Toast toast = new Toast(mContext);
-                    toast.setText( R.string.click_stop_btn );
+                    toast.setText(R.string.click_stop_btn);
                     toast.show();
 
                     //テキストカラーの変更
@@ -309,9 +308,9 @@ public class TimeFragment extends Fragment {
                     setupDisplayText();
 
                     //停止中にアラーム再設定させていないなら、設定を元に戻す
-                    if( !mAlarmResetting ){
+                    if (!mAlarmResetting) {
                         //通知の再設定
-                        mParentActivity.setAlarm( mAlarmStack );
+                        mParentActivity.setAlarm(mAlarmStack);
                     }
 
                     //アラーム再設定OFF
@@ -339,7 +338,6 @@ public class TimeFragment extends Fragment {
 
                 if (event.getAction() == MotionEvent.ACTION_MOVE) {
 
-
                 }
                 return true;
             }
@@ -351,7 +349,7 @@ public class TimeFragment extends Fragment {
      */
     private void setupFabRefAlarm() {
 
-        FloatingActionButton fab_refAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
+        FloatingActionButton fab_refAlarm = mRootLayout.findViewById(R.id.fab_refAlarm);
 
         // アラーム参照ボタンの設定
         fab_refAlarm.setOnClickListener(new View.OnClickListener() {
@@ -402,122 +400,24 @@ public class TimeFragment extends Fragment {
     }
 
     /*
-     * Admodの設定
-     */
-/*
-    public void setupAdmod() {
-
-        AdView adView = mRootLayout.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
-    }
-*/
-
-    /*
      * グラフの設定
      */
     public void setupGragh() {
         //NavigationView がオープンされた時のリスナーを設定
-        DrawerLayout dl = (DrawerLayout) mRootLayout.findViewById(R.id.dl_time);
+        DrawerLayout dl = mRootLayout.findViewById(R.id.dl_time);
         DrawerLayout.DrawerListener listener = new TimeDrawerListener();
         dl.addDrawerListener(listener);
 
         //グラフ表示ボタンリスナー
-        ImageView iv_openGragh = (ImageView) mRootLayout.findViewById(R.id.iv_openGragh);
+        ImageView iv_openGragh = mRootLayout.findViewById(R.id.iv_openGragh);
         iv_openGragh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //グラフを表示
-                DrawerLayout drawer = (DrawerLayout) mRootLayout.findViewById(R.id.dl_time);
+                DrawerLayout drawer = mRootLayout.findViewById(R.id.dl_time);
                 drawer.openDrawer(GravityCompat.END);
             }
         });
-    }
-
-    /*
-     * 積まれたやること参照Indexの調整
-     */
-/*    public Date getBaseTimeDate(String baseDate, String baseTime) {
-
-        try {
-            //期限日と期限時間を連結
-            String baseTimeStr = baseDate + " " + baseTime;
-            //Date型へ変換
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-            return sdf.parse(baseTimeStr);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-
-            //エラーメッセージを表示
-            //Toast toast = new Toast(mContext);
-            //toast.setText("時間を設定してください");
-            //toast.show();
-
-            //例外発生時は、終了
-            return null;
-        }
-    }*/
-
-    /*
-     * 積まれたやること参照Indexの調整
-     */
-    public void adjustTaskRefIdx(long overmsec) {
-
-        //「やること時間」累計（msec）
-        long total = 0;
-
-        //進行中の「やること」まで進める
-        int idx = 0;
-        for (TaskTable task : mAlarmStackList) {
-
-            //やること時間をmsecに変換し、累計に加算
-            long taskmsec = (long) task.getTaskTime() * CONV_MIN_TO_MSEC;
-            total += taskmsec;
-
-            //割り込んだ時間が、やること時間（累計）未満であれば
-            if (overmsec < total) {
-                //進行中のやること発見したため、終了
-                break;
-            }
-
-            //Indexを次へ
-            idx++;
-        }
-
-        //現在進行中のやることのIndexに更新
-        mTaskRefIdx = idx;
-
-        Log.i("test", "adjustTaskRefIdx=" + mTaskRefIdx);
-    }
-
-    /*
-     * 進行中「やること」の残り時間を取得（カウンタ値の算出）
-     */
-    public long getRemainCount(Date now, Date finalLimit) {
-
-        int remainMinute = 0;
-
-        int size = mAlarmStackList.size();
-        for (int i = mTaskRefIdx; i < size; i++) {
-            //進行中タスク以降の「やること時間」を累計
-            remainMinute += mAlarmStackList.get(i).getTaskTime();
-        }
-
-        //進行中やることの開始時刻を算出
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(finalLimit);
-        calendar.add(Calendar.MINUTE, -remainMinute);
-        Date progressStartTime = calendar.getTime();
-
-        //現在時刻 - 進行中やることの開始時刻
-        long diff = now.getTime() - progressStartTime.getTime();
-
-        //進行中やることの時間
-        long taskTime = (long) mAlarmStackList.get(mTaskRefIdx).getTaskTime() * CONV_MIN_TO_MSEC;
-
-        //残りのやること時間を返す
-        return (taskTime - diff);
     }
 
     /*
@@ -586,7 +486,7 @@ public class TimeFragment extends Fragment {
         tv_progressTime.setText(mCountDownText);
 
         //テキストカラーの変更
-        changeTextColorInViewGroup((ViewGroup) cl_time, colorId);
+        changeTextColorInViewGroup(cl_time, colorId);
     }
 
     /*
@@ -610,13 +510,37 @@ public class TimeFragment extends Fragment {
     /*
      * タイマーセット(直近のやることまでのタイマー)
      */
-    public void setNextTimer(long count) {
+    public void setNextCountdown(long count) {
 
         //カウントダウンインスタンスを生成し、タイマー開始
-        NextCountDown countDownProgress = new NextCountDown(count, INTERVAL_PROGRESS);
+        NextCountDown countDownProgress = new NextCountDown(count);
         countDownProgress.start();
 
-        Log.i("test", "setNextTimer started");
+        Log.i("time", "next now time=" + ResourceManager.getSdfHMS().format(count));
+    }
+
+    /*
+     * タイマーセット(直近のやることまでのタイマー)
+     */
+    public void setupFinalCountDown(Date finalLimit) {
+
+        //現在時刻
+        Date dateNow = new Date();
+
+        //現在時刻から最終時刻までの時間を算出
+        long toLastCount = finalLimit.getTime() - dateNow.getTime();
+
+        //半端な秒数を埋め、１分分増やす
+        //※理由１：残り時間が「5m12s」のとき、表示を「00h06m」とするため
+        Date lastDate = new Date(toLastCount);
+        Calendar cl = Calendar.getInstance();
+        cl.setTime(lastDate);
+
+        cl.add(Calendar.MINUTE, 1);
+
+        //カウントダウンインスタンスの生成
+        FinalCountDown countDownFinal = new FinalCountDown(cl.getTimeInMillis());
+        countDownFinal.start();
     }
 
     /*
@@ -626,19 +550,21 @@ public class TimeFragment extends Fragment {
 
         //カウントダウンフォーマット
         private final TextView tv_time;
+        private final SimpleDateFormat mSdf;
 
         /*
          * コンストラクタ
          */
-        public NextCountDown(long millisInFuture, long countDownInterval) {
-            super(millisInFuture, countDownInterval);
+        public NextCountDown(long millisInFuture) {
+
+            //1000mSec間隔でカウントダウン
+            super(millisInFuture, 1000);
 
             //表示ビュー
             tv_time = mRootLayout.findViewById(R.id.tv_progressTime);
 
             //タイムフォーマットのタイムゾーンをUTCに設定
-            TimeZone tz = TimeZone.getTimeZone("UTC");
-            ResourceManager.sdf_TimeSec.setTimeZone(tz);
+            mSdf = ResourceManager.getSdfHMS();
         }
 
         @Override
@@ -663,7 +589,7 @@ public class TimeFragment extends Fragment {
 
             //タイマーを再設定
             int taskTime = mAlarmStackList.get(mTaskRefIdx).getTaskTime();
-            setNextTimer((long) taskTime * CONV_MIN_TO_MSEC);
+            setNextCountdown((long) taskTime * CONV_MIN_TO_MSEC);
         }
 
         // インターバルで呼ばれる
@@ -676,7 +602,7 @@ public class TimeFragment extends Fragment {
             //timerText.setText(String.format("%1$02d:%2$02d.%3$03d", mm, ss, ms));
 
             //カウントダウン文字列は保持
-            mCountDownText = ResourceManager.sdf_TimeSec.format(millisUntilFinished);
+            mCountDownText = mSdf.format(millisUntilFinished);
 
             //停止中でなければ、残り時間を表示
             if( !mIsStop ){
@@ -692,32 +618,35 @@ public class TimeFragment extends Fragment {
 
         //カウントダウンフォーマット
         private final TextView         tv_time;
+        private final SimpleDateFormat mSdf;
 
         /*
          * コンストラクタ
          */
-        public FinalCountDown(long millisInFuture, long countDownInterval) {
-            super(millisInFuture, countDownInterval);
+        public FinalCountDown(long millisInFuture) {
+            //200msec間隔でカウントダウン
+            super(millisInFuture, 200);
 
             //表示ビュー
             tv_time = mRootLayout.findViewById(R.id.tv_finalTime);
 
-            //タイムフォーマットのタイムゾーンをUTCに設定
-            TimeZone tz = TimeZone.getTimeZone("UTC");
-            ResourceManager.sdf_Time.setTimeZone(tz);
+            mSdf = ResourceManager.getSdfHM();
         }
 
         @Override
         public void onFinish() {
-            // 完了
-            tv_time.setText(ResourceManager.sdf_Time.format(0));
+            //完了
+            tv_time.setText(mSdf.format(0));
         }
 
         // インターバルで呼ばれる
         @Override
         public void onTick(long millisUntilFinished) {
-            // 残り時間を表示
-            tv_time.setText(ResourceManager.sdf_Time.format(millisUntilFinished));
+
+            //残り時間を表示
+            tv_time.setText( mSdf.format(millisUntilFinished) );
+
+            //Log.i("time", "final time=" + ResourceManager.getSdfHMS().format(millisUntilFinished));
         }
     }
 
@@ -862,7 +791,7 @@ public class TimeFragment extends Fragment {
             LinearLayout ll_gragh = v_rootGragh.findViewById(R.id.ll_gragh);
 
             //ベース時間
-            Date dateBaseTime = mAlarmStack.getBaseTimeDate();
+            Date dateBaseTime = mAlarmStack.getBaseDateTimeInDateFormat();
 
             //現在時間と先頭のやることの間のスペースを設定
             setupCurrentBetweenSpace(inflater, ll_gragh, dateBaseTime);
@@ -949,9 +878,8 @@ public class TimeFragment extends Fragment {
             v_currentLine.setVisibility(View.VISIBLE);
 
             //現在時刻の設定
-            Date now = new Date();
             TextView tv_current = layout_empty.findViewById(R.id.tv_current);
-            tv_current.setText(ResourceManager.sdf_Time.format(now));
+            tv_current.setText( DateFormat.format(ResourceManager.STR_HOUR_MIN, Calendar.getInstance()) );
 
             //グラフに追加
             root.addView(layout_empty);
@@ -1009,9 +937,8 @@ public class TimeFragment extends Fragment {
             v_empty.setLayoutParams(params);
 
             //現在時刻の設定
-            Date now = new Date();
             TextView tv_current = mRootLayout.findViewById(R.id.tv_current);
-            tv_current.setText( ResourceManager.sdf_Time.format(now) );
+            tv_current.setText( DateFormat.format(ResourceManager.STR_HOUR_MIN, Calendar.getInstance()) );
         }
 
         /*
@@ -1070,7 +997,7 @@ public class TimeFragment extends Fragment {
             TextView tv_limitTime = mRootLayout.findViewById(R.id.tv_limitTime);
 
             //ベース時間チェック
-            Date dateBaseTime = mAlarmStack.getBaseTimeDate();
+            Date dateBaseTime = mAlarmStack.getBaseDateTimeInDateFormat();
             if (dateBaseTime == null) {
                 //未設定なら、未設定文字列を設定
                 String baseTimeStr = mContext.getString(R.string.limittime_no_input);
@@ -1080,9 +1007,7 @@ public class TimeFragment extends Fragment {
 
             //最後のやることの終了時間を設定
             int last = mAlarmStackList.getLastIdx();
-            Date endDate = mAlarmStackList.get(last).getEndCalendar().getTime();
-
-            tv_limitTime.setText( ResourceManager.sdf_Time.format(endDate));
+            tv_limitTime.setText( DateFormat.format(ResourceManager.STR_HOUR_MIN, mAlarmStackList.get(last).getEndCalendar()) );
         }
 
         /*
@@ -1114,11 +1039,8 @@ public class TimeFragment extends Fragment {
                 return;
             }
 
-            //終了時間を取得
-            Date convertedDate = mAlarmStackList.get(idx).getStartCalendar().getTime();
-
-            //文字列変換
-            tv_taskStartTime.setText( ResourceManager.sdf_Time.format(convertedDate) );
+            //開始時間を文字列変換
+            tv_taskStartTime.setText( DateFormat.format(ResourceManager.STR_HOUR_MIN, mAlarmStackList.get(idx).getStartCalendar()) );
         }
 
 
@@ -1137,7 +1059,7 @@ public class TimeFragment extends Fragment {
             drawable.setTint(mContext.getColor(colorId));
 
             //drawableの設定
-            View v_gragh = (View) view.findViewById(R.id.v_gragh);
+            View v_gragh = view.findViewById(R.id.v_gragh);
             v_gragh.setBackground(drawable);
 
             //設定する高さの取得
@@ -1170,7 +1092,7 @@ public class TimeFragment extends Fragment {
                 //--割り込みあり
 
                 //上部に空白スペースがあれば、削除
-                LinearLayout ll_empty = (LinearLayout) mRootLayout.findViewById(R.id.ll_empty);
+                LinearLayout ll_empty = mRootLayout.findViewById(R.id.ll_empty);
                 if( ll_empty != null ){
                     ViewGroup p = (ViewGroup) ll_empty.getParent();
                     p.removeView(ll_empty);
@@ -1232,7 +1154,7 @@ public class TimeFragment extends Fragment {
         private void setMarginCurrentLine( int value ) {
 
             //現在時刻線
-            View v_currentLine = (View) mRootLayout.findViewById(R.id.v_currentLine);
+            View v_currentLine = mRootLayout.findViewById(R.id.v_currentLine);
 
             if(v_currentLine == null){
                 //グラフが一度も描画されていない場合、何もしない

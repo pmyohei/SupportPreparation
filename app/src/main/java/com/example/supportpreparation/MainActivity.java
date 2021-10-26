@@ -37,6 +37,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -186,6 +187,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         BottomNavigationView navView = findViewById(R.id.bnv_nav);
         NavController navController = Navigation.findNavController(this, R.id.fragment_host);
         NavigationUI.setupWithNavController(navView, navController);
+
+        navView.setOnNavigationItemReselectedListener( new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                //何もしない処理をオーバライドすることで、再選択時の再描画を防ぐ
+                return;
+            }
+        });
 
         //広告のロード
         loadAdmod();

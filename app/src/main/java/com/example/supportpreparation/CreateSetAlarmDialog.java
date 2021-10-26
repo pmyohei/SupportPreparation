@@ -1,5 +1,9 @@
 package com.example.supportpreparation;
 
+import static android.text.format.DateUtils.FORMAT_NUMERIC_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -8,6 +12,8 @@ import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextPaint;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +28,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -219,7 +226,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
         Switch sw_alarmOn = (Switch) alarmInfo.findViewById(R.id.sw_alarmOn);
 
         String timeName;
-        Date alarmDate;
+        Calendar alarmCal;
         boolean onAlarm;
 
         if (task == null) {
@@ -231,7 +238,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
             TaskArrayList<TaskTable> StackTaskList = mStackTable.getStackTaskList();
             int last = StackTaskList.getLastIdx();
 
-            alarmDate = StackTaskList.get(last).getEndCalendar().getTime();
+            alarmCal = StackTaskList.get(last).getEndCalendar();
 
             //アラームON／OFF
             onAlarm = mStackTable.isOnAlarm();
@@ -242,7 +249,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
             timeName = task.getTaskName();
 
             //開始時刻（アラーム時刻）
-            alarmDate = task.getStartCalendar().getTime();
+            alarmCal = task.getStartCalendar();
 
             //アラームON/OFF
             onAlarm = task.isOnAlarm();
@@ -251,9 +258,15 @@ public class CreateSetAlarmDialog extends DialogFragment {
         //設定
         tv_taskName.setText(timeName);
 
-        String alarmStr = ResourceManager.sdf_DateAndTime.format(alarmDate);
+        //アラーム時間のDate
+        Date alarmDate = alarmCal.getTime();
+        long mills = alarmDate.getTime();
+
+        //設定
+        String alarmStr = ResourceManager.getInternationalizationDateTime(alarmInfo.getContext(), mills);
         tv_alarmTime.setText(alarmStr);
 
+        //チェック状態
         sw_alarmOn.setChecked(onAlarm);
 
         //もし、アラームが既に経過していれば、表示を無効化

@@ -1,8 +1,18 @@
 package com.example.supportpreparation;
 
 
+import static android.text.format.DateUtils.FORMAT_NUMERIC_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /*
  * リソース管理
@@ -10,31 +20,42 @@ import java.util.Locale;
  */
 public class ResourceManager {
 
-    //やること無効時間
-    public static final int INVALID_MIN = -1;                      //空データとして設定
+    //やること無効時間（空データとして設定）
+    public static final int INVALID_MIN = -1;
 
-    //やること時間の最高値
-    private static final int TASK_TIME_VERY_SHORT  = 5;
-    private static final int TASK_TIME_SHORT       = 10;
-    private static final int TASK_TIME_NORMAL      = 30;
-    private static final int TASK_TIME_LONG        = 60;
+    //やること時間の色変更閾値
+    private static final int TASK_TIME_VERY_SHORT   = 5;
+    private static final int TASK_TIME_SHORT        = 10;
+    private static final int TASK_TIME_NORMAL       = 30;
+    private static final int TASK_TIME_LONG         = 60;
 
+    //アラームキャンセル最大数
+    public static final int MAX_ALARM_CANCEL_NUM    = 256;
 
-    public static final int MAX_ALARM_CANCEL_NUM = 256;               //アラームキャンセル最大数
+    //文字列
+    public static final String STR_NO_INPUT_BASETIME = "--:--";         //!文字列変更時は注意! R.string.limittime_no_inputs
 
-    public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
-    public static final SimpleDateFormat sdf_Date        = new SimpleDateFormat("yyyy/MM/dd", Locale.JAPANESE);
-    public static final SimpleDateFormat sdf_Time        = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-    public static final SimpleDateFormat sdf_TimeSec     = new SimpleDateFormat("HH:mm:ss", Locale.JAPANESE);
+    public static final String STR_DATE_AND_TIME    = "yyyy/MM/dd HH:mm";
+    public static final String STR_DATE             = "yyyy/MM/dd";
+    public static final String STR_HOUR_MIN         = "HH:mm";
+    public static final String STR_HOUR_MIN_HM      = "HH'h'mm'm'";
+    public static final String STR_HOUR_MIN_SEC     = "HH:mm:ss";
+
+    public static final String SAVE_FORMAT_STR_DATE = "%04d/%02d/%02d";
+    public static final String SAVE_FORMAT_STR_TIME = "%02d:%02d";
+
+    //！Localeは任意の指定で問題ない場面で使用すること
+    public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat(STR_DATE_AND_TIME, Locale.US);
+    public static final SimpleDateFormat sdf_Date        = new SimpleDateFormat(STR_DATE, Locale.US);
 
     /*
      * やること時間に応じたカラーIDの取得
      */
-    public static int getTaskTimeColorId( int time ){
+    public static int getTaskTimeColorId(int time) {
 
         int id;
 
-        if( time == INVALID_MIN ){
+        if (time == INVALID_MIN) {
             id = R.color.clear;
 
         } else if (time <= TASK_TIME_VERY_SHORT) {
@@ -56,9 +77,61 @@ public class ResourceManager {
         return id;
     }
 
+    /*
+     * 国際化対応した年月日を取得
+     *    イギリス英語: 18/11/2016
+     *    アメリカ英語: 11/18/2016
+     *    日本語　　　: 2016/11/18
+     */
+    public static String getInternationalizationDate(Context context, long mills) {
 
+        //ローカル対応した年月日を返す
+        return DateUtils.formatDateTime(context, mills, FORMAT_SHOW_YEAR | FORMAT_SHOW_DATE | FORMAT_NUMERIC_DATE);
+    }
 
+    /*
+     * 国際化対応した年月日時分を取得
+     *    イギリス英語: 18/11/2016 12:34
+     *    アメリカ英語: 11/18/2016 12:34
+     *    日本語　　　: 2016/11/18 12:34
+     */
+    public static String getInternationalizationDateTime(Context context, long mills) {
 
+        String dateStr = DateUtils.formatDateTime(context, mills, FORMAT_SHOW_YEAR | FORMAT_SHOW_DATE | FORMAT_NUMERIC_DATE);
+
+        String timeStr = (String) DateFormat.format(STR_HOUR_MIN, mills);
+
+        //ローカル対応した年月日を返す
+        return (dateStr + " " + timeStr);
+    }
+
+    /*
+     * 時分秒のsdfフォーマットを取得
+     *   ※カウントダウンでの使用を想定しているため、
+     * 　　タイムゾーンはUTCを指定
+     */
+    public static SimpleDateFormat getSdfHMS(){
+
+        //タイムゾーン-UTC
+        SimpleDateFormat sdf = new SimpleDateFormat(STR_HOUR_MIN_SEC);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        return sdf;
+    }
+
+    /*
+     * 時分のsdfフォーマットを取得
+     *   ※カウントダウンでの使用を想定しているため、
+     * 　　タイムゾーンはUTCを指定
+     */
+    public static SimpleDateFormat getSdfHM(){
+
+        //タイムゾーン-UTC
+        SimpleDateFormat sdf = new SimpleDateFormat(STR_HOUR_MIN_HM);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        return sdf;
+    }
 
 
 }

@@ -4,6 +4,8 @@ package com.example.supportpreparation;
 
 import static java.util.Collections.swap;
 
+import android.content.Context;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,12 +15,10 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /*
  * エンティティ
@@ -109,8 +109,8 @@ public class StackTaskTable implements Cloneable {
     public StackTaskTable( boolean isStack ) {
         //本日の日付
         Date nowDate = new Date();
-        this.date = ResourceManager.sdf_Date.format(nowDate);
-        this.time = "--:--";    //!文字列変更時は注意! R.string.limittime_no_input
+        this.date = (String)DateFormat.format(ResourceManager.STR_DATE, nowDate);
+        this.time = ResourceManager.STR_NO_INPUT_BASETIME;
 
         this.isStack = isStack;
     }
@@ -150,6 +150,16 @@ public class StackTaskTable implements Cloneable {
         this.onAlarm = onAlarm;
     }
 
+    public String getDateForUser(Context context) {
+        //ユーザー向けのベース日文字列を返す
+        Date baseDate = getBaseDateInDateFormat();
+        if (baseDate == null) {
+            //フェールセーフ
+            return ResourceManager.STR_NO_INPUT_BASETIME;
+        }
+
+        return ResourceManager.getInternationalizationDate(context, baseDate.getTime());
+    }
     public String getDate() {
         return date;
     }
@@ -399,24 +409,40 @@ public class StackTaskTable implements Cloneable {
 
 
     /*
-     * ベース時間をDateに変換
+     * ベース日時をDate形式で取得
      */
-    public Date getBaseTimeDate() {
+    public Date getBaseDateTimeInDateFormat() {
 
-        Date baseDate;
         try {
             //期限日と期限時間を連結
             String baseStr = date + " " + time;
-            //文字列をDate型に変換
-            baseDate = ResourceManager.sdf_DateAndTime.parse(baseStr);
+
+            //文字列をDate型に変換して返す
+            //※日付と時間は、ユーザーが入力したものであるため、どのLocaleを指定しても問題なし
+            return ResourceManager.sdf_DateAndTime.parse(baseStr);
 
         } catch (ParseException e) {
             e.printStackTrace();
             //例外発生なら、nullを返す
             return null;
         }
+    }
 
-        return baseDate;
+    /*
+     * ベース日をDate形式で取得
+     */
+    public Date getBaseDateInDateFormat() {
+
+        try {
+            //文字列をDate型に変換して返す
+            //※日付と時間は、ユーザーが入力したものであるため、どのLocaleを指定しても問題なし
+            return ResourceManager.sdf_Date.parse(date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            //例外発生なら、nullを返す
+            return null;
+        }
     }
 
     /*
@@ -424,7 +450,7 @@ public class StackTaskTable implements Cloneable {
      */
     public Calendar getBaseTimeCalender() {
         //保持中のベース時間を、Dateに変換
-        Date baseDate = getBaseTimeDate();
+        Date baseDate = getBaseDateTimeInDateFormat();
         if (baseDate == null) {
             return null;
         }
@@ -457,13 +483,6 @@ public class StackTaskTable implements Cloneable {
     public int getFirstArriveIdx() {
         //現在時刻
         Date nowTime = new Date();
-
-        /*dbg
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPANESE);
-        String nowStr = sdf.format(nowTime);
-        Log.i("test", "nowStr=" + nowStr);
-        Log.i("test", "now=" + nowTime.getTime());
-        */
 
         //リストの先頭（時間が前側）からチェック
         //現在時刻よりも後の終了時間の中で、一番先に来るIndexを検索
@@ -554,7 +573,7 @@ public class StackTaskTable implements Cloneable {
             }
         }
 
-        Date baseDate = getBaseTimeDate();
+        Date baseDate = getBaseDateTimeInDateFormat();
         if (baseDate == null) {
             //未設定
             return false;

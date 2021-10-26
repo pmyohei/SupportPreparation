@@ -15,7 +15,7 @@
         android:layout_width="@dimen/_variable_size"
         android:layout_height="@dimen/_variable_size"
         android:gravity="center"
-        android:elevation="@dimen/evelation_task"
+        android:elevation="@dimen/elevation_task"
         android:background="@drawable/frame_item_group_for_select"
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="vertical"
