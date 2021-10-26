@@ -16,6 +16,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -45,7 +47,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class TimeFragment extends Fragment {
 
@@ -151,43 +152,15 @@ public class TimeFragment extends Fragment {
         //※この設定は、カウントダウン可能な場合にのみ行う
         setupStopButton();
 
-        //先頭のやることの開始時間
-        TaskTable firstTask = mAlarmStackList.get(firstIdx);
-        Date dateStart = firstTask.getStartCalendar().getTime();
+        //カウントダウン表示制御
+        ConstraintLayout cl_time = mRootLayout.findViewById(R.id.cl_time);
+        ctrlVisibleTimer(cl_time, View.INVISIBLE);
 
-        //カウントダウン数
-        long countdown;
+        //カウントダウン開始までの調整タイマーの設定
+        setupStartAdjustTimer(firstIdx, dateNow);
 
-        //現在時刻がやることの時間帯に割り込んでいるか
-        if (firstIdx == 0 && dateNow.before(dateStart)) {
-            //--現在時刻 → 開始時刻 のため、割り込んでいない状態
-
-            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
-            countdown = dateStart.getTime() - dateNow.getTime();
-
-            Log.i("test", "countdown a=" + countdown);
-
-            mTaskRefIdx = REF_WAITING;
-
-        } else {
-            //--割り込んでいる場合
-
-            //「終了時刻」ー「現在時刻」（現在から終了時刻までの時間）がカウントダウン時間
-            Date dateEnd = firstTask.getEndCalendar().getTime();
-            countdown = dateEnd.getTime() - dateNow.getTime();
-
-            Log.i("test", "countdown b=" + countdown);
-
-            mTaskRefIdx = firstIdx;
-        }
-
-        //進行中タイマーの設定
-        setNextCountdown(countdown);
-
-        //「やること」表示処理（進行中／次）
-        setupDisplayText();
-
-        setupFinalCountDown(finalTime);
+        //カウントダウンの設定
+        //setupCountDown(firstIdx, dateNow, finalTime);
 
         return mRootLayout;
     }
@@ -325,6 +298,140 @@ public class TimeFragment extends Fragment {
                 //ib_stop.setBackgroundResource(icon);
             }
         });
+    }
+
+    /*
+     * カウントダウン表示制御
+     */
+    public void ctrlVisibleTimer(ViewGroup vg , int value) {
+
+        int preValue = mRootLayout.findViewById(R.id.tv_finalTime).getVisibility();
+
+        if( preValue == value ){
+            //既に設定された状態なら何もしない
+            return;
+        }
+
+        Animation animation = null;
+
+        //非表示からの表示なら、アニメーションあり
+        if( value == View.VISIBLE ) {
+            //適用アニメーション
+            animation = AnimationUtils.loadAnimation(mContext, R.anim.show_countdown);
+        }
+
+        //ViewGroup内のビュー
+        for (int i = 0; i < vg.getChildCount(); i++) {
+            //子ビューを取得
+            View v = vg.getChildAt(i);
+
+            //テキストビューのみ対象
+            if (v instanceof TextView) {
+                v.setVisibility(value);
+
+                if( animation != null ){
+                    //アニメーション開始
+                    v.startAnimation(animation);
+                }
+            }
+        }
+    }
+
+    /*
+     * カウントダウンの設定
+     */
+    public void setupDisplayCountDown() {
+
+        int firstIdx = mAlarmStack.getFirstArriveIdx();
+
+        //先頭のやることの開始時間
+        TaskTable firstTask = mAlarmStackList.get(firstIdx);
+        Date dateStart = firstTask.getStartCalendar().getTime();
+
+        long startMills;
+
+        //現在時刻
+        Date dateNow = new Date();
+
+        //現在時刻がやることの時間帯に割り込んでいるか
+        if (firstIdx == 0 && dateNow.before(dateStart)) {
+            //--現在時刻 → 開始時刻 のため、割り込んでいない状態
+
+            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
+            startMills = dateStart.getTime();
+
+            mTaskRefIdx = REF_WAITING;
+
+        } else {
+            //--割り込んでいる場合
+
+            //「終了時刻」ー「現在時刻」（現在から終了時刻までの時間）がカウントダウン時間
+            Date dateEnd = firstTask.getEndCalendar().getTime();
+            startMills = dateEnd.getTime();
+
+            mTaskRefIdx = firstIdx;
+        }
+
+        //カウントダウンms
+        long countdown = startMills - dateNow.getTime();;
+
+        //進行中タイマー
+        setNextCountDown(countdown);
+
+        //「やること」表示処理（進行中／次）
+        setupDisplayText();
+
+        //最終時刻
+        int last = mAlarmStackList.getLastIdx();
+        Date finalTime = mAlarmStackList.get(last).getEndCalendar().getTime();
+
+        //最終時刻までのタイマー
+        setupFinalCountDown(finalTime);
+    }
+
+    /*
+     * カウントダウン開始までの調整タイマ―の設定
+     */
+    public void setupStartAdjustTimer(int firstIdx, Date dateNow) {
+
+        //先頭のやることの開始時間
+        TaskTable firstTask = mAlarmStackList.get(firstIdx);
+        Date dateStart = firstTask.getStartCalendar().getTime();
+
+        long startMills;
+
+        //現在時刻がやることの時間帯に割り込んでいるか
+        if (firstIdx == 0 && dateNow.before(dateStart)) {
+            //--現在時刻 → 開始時刻 のため、割り込んでいない状態
+
+            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
+            startMills = dateStart.getTime();
+
+            mTaskRefIdx = REF_WAITING;
+
+        } else {
+            //--割り込んでいる場合
+
+            //「終了時刻」ー「現在時刻」（現在から終了時刻までの時間）がカウントダウン時間
+            Date dateEnd = firstTask.getEndCalendar().getTime();
+            startMills = dateEnd.getTime();
+
+            mTaskRefIdx = firstIdx;
+        }
+
+        //カウントダウンms
+        long countdown = startMills - dateNow.getTime();;
+
+        //ミリ秒取得
+        Date date = new Date(countdown);
+        Calendar cl = Calendar.getInstance();
+        cl.setTime(date);
+
+        long mill = cl.get(Calendar.MILLISECOND);
+
+        //ミリ秒経過を監視するカウントダウンを生成
+        StartAdjustCountDown countDown = new StartAdjustCountDown(mill);
+        countDown.start();
     }
 
     /*
@@ -485,8 +592,16 @@ public class TimeFragment extends Fragment {
         tv_nextTask.setText(nextTask);
         tv_progressTime.setText(mCountDownText);
 
+        if( mIsStop ){
+            //停止中なら色は設定なし
+            colorId = R.color.tx_not_time_arrive;
+        }
+
         //テキストカラーの変更
         changeTextColorInViewGroup(cl_time, colorId);
+
+        //表示
+        ctrlVisibleTimer(cl_time, View.VISIBLE);
     }
 
     /*
@@ -510,7 +625,7 @@ public class TimeFragment extends Fragment {
     /*
      * タイマーセット(直近のやることまでのタイマー)
      */
-    public void setNextCountdown(long count) {
+    public void setNextCountDown(long count) {
 
         //カウントダウンインスタンスを生成し、タイマー開始
         NextCountDown countDownProgress = new NextCountDown(count);
@@ -544,6 +659,32 @@ public class TimeFragment extends Fragment {
     }
 
     /*
+     * カウントダウン(カウントダウン開始までの時間調整用)
+     */
+    private class StartAdjustCountDown extends CountDownTimer {
+
+        /*
+         * コンストラクタ
+         */
+        public StartAdjustCountDown(long millisInFuture) {
+
+            //インターバルは1sより大きければなんでもよい
+            super(millisInFuture, 2000);
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            //do nothing
+        }
+
+        @Override
+        public void onFinish() {
+            //指定時間が満了したので、表示用カウントダウンを開始
+            setupDisplayCountDown();
+        }
+    }
+
+    /*
      * カウントダウン(次の時刻)
      */
     private class NextCountDown extends CountDownTimer {
@@ -565,6 +706,24 @@ public class TimeFragment extends Fragment {
 
             //タイムフォーマットのタイムゾーンをUTCに設定
             mSdf = ResourceManager.getSdfHMS();
+        }
+
+        //指定間隔でコールされる
+        @Override
+        public void onTick(long millisUntilFinished) {
+            //残り時間を分、秒、ミリ秒に分割
+            //long mm = millisUntilFinished / 1000 / 60;
+            //long ss = millisUntilFinished / 1000 % 60;
+            //long ms = millisUntilFinished - ss * 1000 - mm * 1000 * 60;
+            //timerText.setText(String.format("%1$02d:%2$02d.%3$03d", mm, ss, ms));
+
+            //カウントダウン文字列は保持
+            mCountDownText = mSdf.format(millisUntilFinished);
+
+            //停止中でなければ、残り時間を表示
+            if( !mIsStop ){
+                tv_time.setText( mCountDownText );
+            }
         }
 
         @Override
@@ -589,25 +748,7 @@ public class TimeFragment extends Fragment {
 
             //タイマーを再設定
             int taskTime = mAlarmStackList.get(mTaskRefIdx).getTaskTime();
-            setNextCountdown((long) taskTime * CONV_MIN_TO_MSEC);
-        }
-
-        // インターバルで呼ばれる
-        @Override
-        public void onTick(long millisUntilFinished) {
-            //残り時間を分、秒、ミリ秒に分割
-            //long mm = millisUntilFinished / 1000 / 60;
-            //long ss = millisUntilFinished / 1000 % 60;
-            //long ms = millisUntilFinished - ss * 1000 - mm * 1000 * 60;
-            //timerText.setText(String.format("%1$02d:%2$02d.%3$03d", mm, ss, ms));
-
-            //カウントダウン文字列は保持
-            mCountDownText = mSdf.format(millisUntilFinished);
-
-            //停止中でなければ、残り時間を表示
-            if( !mIsStop ){
-                tv_time.setText( mCountDownText );
-            }
+            setNextCountDown((long) taskTime * CONV_MIN_TO_MSEC);
         }
     }
 
@@ -633,12 +774,6 @@ public class TimeFragment extends Fragment {
             mSdf = ResourceManager.getSdfHM();
         }
 
-        @Override
-        public void onFinish() {
-            //完了
-            tv_time.setText(mSdf.format(0));
-        }
-
         // インターバルで呼ばれる
         @Override
         public void onTick(long millisUntilFinished) {
@@ -647,6 +782,12 @@ public class TimeFragment extends Fragment {
             tv_time.setText( mSdf.format(millisUntilFinished) );
 
             //Log.i("time", "final time=" + ResourceManager.getSdfHMS().format(millisUntilFinished));
+        }
+
+        @Override
+        public void onFinish() {
+            //完了
+            tv_time.setText(mSdf.format(0));
         }
     }
 
