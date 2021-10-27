@@ -365,14 +365,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
     public void setAlarm(StackTaskTable stackTable) {
 
-        Toast toast = new Toast(this);
-
         //AlarmManagerの取得
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (am == null) {
             //メッセージを表示
-            toast.setText(R.string.toast_error_occurred);
-            toast.show();
+            Toast.makeText(this, R.string.toast_error_occurred , Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -455,8 +452,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         int stringId = ((requestCode == 0) ? R.string.toast_nothing_notification : R.string.toast_set_notification);
 
         //メッセージを表示
-        toast.setText(stringId);
-        toast.show();
+        Toast.makeText(this, stringId , Toast.LENGTH_SHORT).show();
     }
 
     /*

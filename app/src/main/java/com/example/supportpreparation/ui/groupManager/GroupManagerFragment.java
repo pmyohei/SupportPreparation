@@ -517,14 +517,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //戻り値に応じてトースト表示
         if( code == -1 ){
-            //エラーメッセージを表示
-            String message = "登録済みです";
-
-            //トーストの生成
-            Toast toast = new Toast(mContext);
-            toast.setText(message);
-            toast.show();
-
+            Toast.makeText(mContext, R.string.toast_data_registered , Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -590,9 +583,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         rv_group.scrollToPosition(i);
 
         //トーストの生成
-        Toast toast = new Toast(mContext);
-        toast.setText( R.string.toast_updated );
-        toast.show();
+        Toast.makeText(mContext, R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }
 
     @Override

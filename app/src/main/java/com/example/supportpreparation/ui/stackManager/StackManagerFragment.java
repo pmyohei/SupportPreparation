@@ -197,9 +197,7 @@ public class StackManagerFragment extends Fragment {
 
                         } else {
                             //メッセージを表示
-                            Toast toast = new Toast(mContext);
-                            toast.setText(R.string.toast_input_time_previous);
-                            toast.show();
+                            Toast.makeText(mContext, R.string.toast_input_time_previous , Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -260,9 +258,7 @@ public class StackManagerFragment extends Fragment {
 
                         } else {
                             //メッセージを表示
-                            Toast toast = new Toast(mContext);
-                            toast.setText(R.string.toast_not_set_after_now);
-                            toast.show();
+                            Toast.makeText(mContext, R.string.toast_not_set_after_now , Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -881,22 +877,18 @@ public class StackManagerFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                Toast toast = new Toast(mContext);
-
                 //時間未入力チェック
                 String noInputStr = getString(R.string.limittime_no_input);
                 if (mtv_limitTime.getText().toString().equals(noInputStr)) {
                     //メッセージを表示
-                    toast.setText( R.string.toast_no_set_time );
-                    toast.show();
+                    Toast.makeText(mContext, R.string.toast_no_set_time , Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 //「やること」未選択の場合
                 if (mStackTaskList.size() == 0) {
                     //メッセージを表示
-                    toast.setText( R.string.toast_no_stack_task );
-                    toast.show();
+                    Toast.makeText(mContext, R.string.toast_no_stack_task , Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -936,10 +928,7 @@ public class StackManagerFragment extends Fragment {
 
                 if( mStackTaskList.size() == 0 ){
                     //やることが空の場合、何もしない旨のメッセージを表示して終了
-                    Toast toast = new Toast(mContext);
-                    toast.setText(R.string.toast_no_stack_task);
-                    toast.show();
-
+                    Toast.makeText(mContext, R.string.toast_no_stack_task , Toast.LENGTH_SHORT).show();
                     return;
                 }
 

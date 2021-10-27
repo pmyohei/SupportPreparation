@@ -248,9 +248,7 @@ public class TimeFragment extends Fragment {
                     //icon = R.drawable.avd_play_to_pause;
 
                     //メッセージの表示
-                    Toast toast = new Toast(mContext);
-                    toast.setText(R.string.click_stop_btn);
-                    toast.show();
+                    Toast.makeText(mContext, R.string.click_stop_btn , Toast.LENGTH_SHORT).show();
 
                     //テキストカラーの変更
                     colorId = R.color.tx_not_time_arrive;
@@ -471,9 +469,7 @@ public class TimeFragment extends Fragment {
 
         if (mAlarmStack.getStackTaskList().size() == 0) {
             //メッセージを表示
-            Toast toast = new Toast(mContext);
-            toast.setText(R.string.toast_not_setup_notification);
-            toast.show();
+            Toast.makeText(mContext, R.string.toast_not_setup_notification , Toast.LENGTH_SHORT).show();
 
             return;
         }

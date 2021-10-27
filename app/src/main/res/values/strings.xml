@@ -36,6 +36,8 @@
     <string name="toast_error_occurred">Error occurred. Please press the button again.</string>
     <!-- 通知は設定されていません -->
     <string name="toast_not_setup_notification">Not set up notifications.</string>
+    <!-- 登録済みです -->
+    <string name="toast_data_registered">It is registered.</string>
 
     <!-- タスク画面 -->
     <string name="task_name_hint">Please enter the task</string>

@@ -27,7 +27,7 @@
     <string name="toast_nothing_notification">設定した通知はありません</string>
     <string name="toast_error_occurred">エラーが発生しました。再度、ボタンを押してください</string>
     <string name="toast_not_setup_notification">通知は設定されていません</string>
-
+    <string name="toast_data_registered">登録済みです</string>
 
     <!-- タスク画面 -->
     <string name="task_name_hint">やることを入力してください</string>
