@@ -23,21 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- * RecyclerViewアダプター：「やることグループ」用
+ * RecyclerAdapter：グループ用
  */
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
 
-    private GroupArrayList<GroupTable>                      mData;
-    private Context                                         mContext;
-    private int                                             mItemHeight;
-    private MainActivity                                    mParentActivity;
-    private View.OnClickListener                            mGroupNameClickListener;
-    private View.OnTouchListener                            mTaskTouchListener;
-    private View.OnDragListener                             mDragListener;
-    private AsyncGroupTableOperaion.GroupOperationListener  mDBListener;
-
-    private List<Boolean> testhelper = new ArrayList<>();
-    private int helperNum;
+    //フィールド変数
+    private final GroupArrayList<GroupTable>                      mData;
+    private final Context                                         mContext;
+    private final int                                             mItemHeight;
+    private final MainActivity                                    mParentActivity;
+    private final AsyncGroupTableOperaion.GroupOperationListener  mDBListener;
+    private View.OnClickListener                                  mGroupNameClickListener;
+    private View.OnTouchListener                                  mTaskTouchListener;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -45,10 +42,10 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView        tv_groupPid;
-        private LinearLayout    ll_group;
-        private TextView        tv_groupName;
-        private RecyclerView    rv_taskInGroup;
+        private final TextView        tv_groupPid;
+        private final LinearLayout    ll_group;
+        private final TextView        tv_groupName;
+        private final RecyclerView    rv_taskInGroup;
 
         /*
          * コンストラクタ
@@ -75,8 +72,6 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         mItemHeight       = height;
         mDBListener       = dbListener;
         mParentActivity   = activity;
-
-        helperNum = 0;
     }
 
 
@@ -98,7 +93,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      *　ViewHolderの生成
      */
     @Override
-    public GroupRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public GroupRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
         //表示レイアウトの設定
         LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -217,24 +212,15 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         mTaskTouchListener = listener;
     }
 
-
-    /*
-     * リスナー設定：ドラッグリスナー（ドロップされた時の動作）
-     */
-    public void setOnItemDragListener(View.OnDragListener listener) {
-        mDragListener = listener;
-    }
-
-
     /*
      * ドラッグ＆ドロップリスナー
      *　　グループ内への「やること」のドロップを検知する
      */
     private class DragGroupListener implements View.OnDragListener {
 
-        private TaskRecyclerAdapter         mAdapter;       //本コールバックのアタッチ先のRecyclerView
-        private int                         mGroupPid;      //グループのプライマリーキー
-        private TaskArrayList<TaskTable>    mTaskInGroup;   //グループに割り当てられた「やること」
+        private final TaskRecyclerAdapter         mAdapter;       //本コールバックのアタッチ先のRecyclerView
+        private final int                         mGroupPid;      //グループのプライマリーキー
+        private final TaskArrayList<TaskTable>    mTaskInGroup;   //グループに割り当てられた「やること」
 
         /*
          * コンストラクタ

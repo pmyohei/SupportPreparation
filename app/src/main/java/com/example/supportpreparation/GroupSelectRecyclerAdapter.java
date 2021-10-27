@@ -8,21 +8,25 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 /*
- * RecyclerViewアダプター：「やること」用
+ * RecyclerAdapter：グループ（選択エリア）用
  */
 public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelectRecyclerAdapter.GroupViewHolder> {
 
-    private GroupArrayList<GroupTable>  mData;
-    private Context                     mContext;
-    private View.OnClickListener        mClickListener;
-    private View.OnLongClickListener    mLongListener;
-    private int                         mItemWidth;
-    private int                         mItemHeight;
+    //定数
+    private final int                         NOT_SIZE_SPECIFIED = 0;
+
+    //フィールド変数
+    private final GroupArrayList<GroupTable>  mData;
+    private final Context                     mContext;
+    private final int                         mItemWidth;
+    private final int                         mItemHeight;
+    private View.OnClickListener              mClickListener;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -30,10 +34,10 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
      */
     class GroupViewHolder extends RecyclerView.ViewHolder {
 
-        private LinearLayout    ll_groupInfo;        //リスナー設定ビュー
-        private TextView        tv_groupPid;        //Pid
-        private TextView        tv_groupName;       //グループ名
-        private TextView        tv_taskInGroup;     //やること
+        private final LinearLayout    ll_groupInfo;       //リスナー設定ビュー
+        private final TextView        tv_groupPid;        //Pid
+        private final TextView        tv_groupName;       //グループ名
+        private final TextView        tv_taskInGroup;     //やること
 
         /*
          * コンストラクタ
@@ -54,21 +58,21 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
      * コンストラクタ
      */
     public GroupSelectRecyclerAdapter(Context context, GroupArrayList<GroupTable> data) {
-        mData = data;
+        mData    = data;
         mContext = context;
 
-        //指定なしなら０とする
-        mItemWidth = 0;
-        mItemHeight = 0;
+        //指定なしならサイズ指定なしを設定
+        mItemWidth  = NOT_SIZE_SPECIFIED;
+        mItemHeight = NOT_SIZE_SPECIFIED;
     }
 
     /*
      * コンストラクタ
      */
     public GroupSelectRecyclerAdapter(Context context, GroupArrayList<GroupTable> data, int width, int height) {
-        mData = data;
-        mContext = context;
-        mItemWidth = width;
+        mData       = data;
+        mContext    = context;
+        mItemWidth  = width;
         mItemHeight = height;
     }
 
@@ -90,7 +94,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
      *　ViewHolderの生成
      */
     @Override
-    public GroupViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
         int id = getLayoutId(viewType);
@@ -104,23 +108,26 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
 
         //横幅
-        if (mItemWidth != 0) {
+        if (mItemWidth != NOT_SIZE_SPECIFIED) {
             layoutParams.width = mItemWidth;
             view.setLayoutParams(layoutParams);
 
             //正方形のサイズを設定
             LinearLayout ll_groupDesign = view.findViewById(R.id.ll_groupDesign);
 
+            //サイズ割合
+            final float SIZE_RATIO = 0.6f;
+
             //レイアウト全体サイズに対して、一定割合をブロックの大きさとする
             ViewGroup.LayoutParams blockLayoutParams = ll_groupDesign.getLayoutParams();
-            blockLayoutParams.width = (int)(mItemWidth * 0.6);
-            blockLayoutParams.height = (int)(mItemWidth * 0.6);
+            blockLayoutParams.width  = (int)(mItemWidth * SIZE_RATIO);
+            blockLayoutParams.height = (int)(mItemWidth * SIZE_RATIO);
 
             ll_groupDesign.setLayoutParams(blockLayoutParams);
 
         }
         //高さ
-        if (mItemHeight != 0) {
+        if (mItemHeight != NOT_SIZE_SPECIFIED) {
 
             layoutParams.height = mItemHeight;
             view.setLayoutParams(layoutParams);
@@ -140,7 +147,7 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
      * ViewHolderの設定
      */
     @Override
-    public void onBindViewHolder(GroupViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(@NonNull GroupViewHolder viewHolder, final int i) {
 
         int totalTime = mData.get(i).getTotalTime();
         if( totalTime == ResourceManager.INVALID_MIN ){
@@ -168,17 +175,6 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
             });
         }
 
-        //ドラッグ（ロングタッチ）処理
-        if ( mLongListener != null ) {
-            viewHolder.ll_groupInfo.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    mLongListener.onLongClick(view);
-                    return true;
-                }
-            });
-        }
-
     }
 
     /*
@@ -199,25 +195,14 @@ public class GroupSelectRecyclerAdapter extends RecyclerView.Adapter<GroupSelect
 
     /*
      * カラーIDの取得
+     *   ※色の動的変更に備え、残しておく
      */
     private int getLayoutId(int time) {
 
         int id;
 
         id = R.layout.outer_group_for_select;
-        /*
-        if (time <= 5) {
-            id = R.layout.outer_task_very_short;
-        } else if (time <= 10) {
-            id = R.layout.outer_task_short;
-        } else if (time <= 30) {
-            id = R.layout.outer_task_normal;
-        } else if (time <= 60) {
-            id = R.layout.outer_task_long;
-        } else {
-            id = R.layout.outer_task_very_long;
-        }
-         */
+
         return id;
     }
 

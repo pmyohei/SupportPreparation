@@ -8,8 +8,7 @@ import androidx.room.PrimaryKey;
 import java.util.Calendar;
 
 /*
- * エンティティ
- *   テーブルに相当
+ * テーブル：やること
  */
 @Entity
 public class TaskTable  implements Cloneable {

@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+/*
+ * ArrayList：グループ用
+ */
 public class GroupArrayList<E> extends ArrayList<GroupTable> {
 
+    //定数
     public static int NO_DATA = -1;        //データなし
 
+    /*
+     * コンストラクタ
+     */
     public GroupArrayList() {
         super();
     }

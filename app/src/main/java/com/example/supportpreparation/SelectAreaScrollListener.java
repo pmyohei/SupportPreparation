@@ -19,10 +19,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  */
 public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
 
-    private final int FAB_HIDE_SCROLL_DX   = 12;        //非表示スクロール量
-
-    private ViewGroup mViewGroup;                       //非表示対象のfabの親ビュー
-    private FloatingActionButton mFab;                  //非表示対象のfab
+    //フィールド変数
+    private ViewGroup               mViewGroup;         //非表示対象のfabの親ビュー
+    private FloatingActionButton    mFab;               //非表示対象のfab
 
     /*
      * コンストラクタ
@@ -42,6 +41,10 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy){
         //スクロール量が一定量を超えたとき、fabを非表示にする
         int absDx = Math.abs(dx);
+
+        //非表示スクロール量
+        final int FAB_HIDE_SCROLL_DX = 12;
+
         if (absDx >= FAB_HIDE_SCROLL_DX) {
 
             if( mFab == null ){
@@ -59,6 +62,7 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
                             continue;
                         }
 
+                        //非表示
                         fab.hide();
                     }
                 }
@@ -67,8 +71,6 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
                 mFab.hide();
             }
         }
-
-        Log.d("test", "dx=" + dx);
     }
 
     @Override
@@ -99,8 +101,6 @@ public class SelectAreaScrollListener extends RecyclerView.OnScrollListener {
                 mFab.show();
             }
         }
-
-        Log.d("test", "newState=" + newState);
     }
 }
 

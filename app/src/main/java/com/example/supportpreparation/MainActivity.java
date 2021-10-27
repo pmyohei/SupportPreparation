@@ -1,7 +1,6 @@
 package com.example.supportpreparation;
 
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
-import static com.example.supportpreparation.ui.stackManager.StackManagerFragment.NOTIFY_SEND_KEY;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -51,6 +50,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/*
+ * メインとなるActivity
+ *   本Activityの上にフラグメントを生成
+ */
 public class MainActivity extends AppCompatActivity implements AsyncGroupTableOperaion.GroupOperationListener,
                                                                 AsyncTaskTableOperaion.TaskOperationListener,
                                                                 AsyncStackTaskTableOperaion.StackTaskOperationListener {
@@ -76,9 +79,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private final String SHARED_DATA_NAME = "UIData";
     private final String SHARED_KEY_COUNTDOWN_STOP = "CountDownStop";
 
-    private AppDatabase mDB;                                //DB
-
     //-- フラグメント間共通データ
+    private AppDatabase mDB;                                //DB
     private TaskArrayList<TaskTable> mTaskList;             //「やること」リスト
     private GroupArrayList<GroupTable> mGroupList;          //「やることグループ」リスト
     private StackTaskTable mStackTable;                     //スタックテーブル
@@ -416,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
             //Receiver側へのデータ
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
-            intent.putExtra(NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
+            intent.putExtra(ResourceManager.NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
 
             //アラームの設定
             PendingIntent pending
@@ -436,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
             //Receiver側へのデータ
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
-            intent.putExtra(NOTIFY_SEND_KEY, message);
+            intent.putExtra(ResourceManager.NOTIFY_SEND_KEY, message);
 
             long millis = calender.getTimeInMillis();
 

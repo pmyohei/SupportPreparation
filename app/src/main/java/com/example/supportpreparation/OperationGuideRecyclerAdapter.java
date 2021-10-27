@@ -10,11 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 /*
- * RecyclerViewアダプター：「やることグループ」用
+ * RecyclerAdapter：操作ガイド用
  */
 public class OperationGuideRecyclerAdapter extends RecyclerView.Adapter<OperationGuideRecyclerAdapter.GuideViewHolder> {
 
-    private List<Integer> mData;
+    //フィールド変数
+    private final List<Integer> mData;
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -34,8 +35,6 @@ public class OperationGuideRecyclerAdapter extends RecyclerView.Adapter<Operatio
      */
     public OperationGuideRecyclerAdapter(List<Integer> layoutIdList) {
         mData = layoutIdList;
-
-        Log.i("test", "test");
     }
 
     /*
@@ -43,7 +42,7 @@ public class OperationGuideRecyclerAdapter extends RecyclerView.Adapter<Operatio
      */
     @Override
     public int getItemViewType(int position) {
-
+        //レイアウトIDを返す
         return mData.get(position);
     }
 

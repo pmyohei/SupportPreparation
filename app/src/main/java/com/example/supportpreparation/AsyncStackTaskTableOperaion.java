@@ -5,11 +5,11 @@ import android.os.AsyncTask;
 import java.util.List;
 
 /*
- * 非同期-DBアクセス-やることセット
+ * 非同期-DBアクセス-スタックされたやること
  */
 public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
-    //-- DB操作種別
+    //DB操作種別
     public enum DB_OPERATION {
         CREATE,         //生成(or再生成)
         READ,           //参照
@@ -17,22 +17,15 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
         UPDATE,         //更新
     }
 
-    public final static int                    READ_NONE   = -1;
-    public final static int                    READ_NORMAL = 0;
+    public final static int                     READ_NORMAL = 0;    //正常
 
-
-    private AppDatabase                 mDB;
-    private StackTaskTableDao           mStackDao;
-    private DB_OPERATION                mOperation;
-    private StackTaskOperationListener  mListener;
-
-    private StackTaskTable              mStackTable;        //
-    private StackTaskTable              mAlarmStack;        //
-
-    //-- DB登録対象のデータ
-    private TaskArrayList<TaskTable>    mTaskList;          //「積み上げやること」のリスト
-    private String                      mDate;              //リミット-年月日
-    private String                      mTime;              //リミット-時間
+    //フィールド変数
+    private final AppDatabase                   mDB;                //DB
+    private final StackTaskTableDao             mStackDao;          //DAO
+    private final DB_OPERATION                  mOperation;         //DB操作種別
+    private final StackTaskOperationListener    mListener;          //スタックテーブル操作リスナー
+    private StackTaskTable                      mStackTable;        //スタック情報用
+    private StackTaskTable                      mAlarmStack;        //アラーム情報用
 
     /*
      * コンストラクタ
@@ -242,15 +235,6 @@ public class AsyncStackTaskTableOperaion extends AsyncTask<Void, Void, Integer> 
 
         //開始／終了時刻のカレンダーを全更新
         table.allUpdateStartEndTime();
-    }
-
-
-    /*
-     * インターフェース（リスナー）の設定
-     */
-    void setmListener(StackTaskOperationListener mListener) {
-        //リスナー設定
-        mListener = mListener;
     }
 
     /*

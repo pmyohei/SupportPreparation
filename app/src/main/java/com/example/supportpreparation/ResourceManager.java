@@ -15,8 +15,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /*
- * リソース管理
- * 　本アプリにて、共通するリソースを管理する
+ * 共通リソース管理
  */
 public class ResourceManager {
 
@@ -44,10 +43,22 @@ public class ResourceManager {
     public static final String SAVE_FORMAT_STR_DATE = "%04d/%02d/%02d";
     public static final String SAVE_FORMAT_STR_TIME = "%02d:%02d";
 
+    //キー文字列
+    public static final String KEY_TASK_NAME        = "TaskName";
+    public static final String KEY_TASK_TIME        = "TaskTime";
+    public static final String KEY_GROUP_NAME       = "EditGroupName";
+
+    //デリミタ文字
+    public static final String DELIMITER_DATA_AND_TIME = " ";
+
     //！Localeは任意の指定で問題ない場面で使用すること
     public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat(STR_DATE_AND_TIME, Locale.US);
     public static final SimpleDateFormat sdf_Date        = new SimpleDateFormat(STR_DATE, Locale.US);
     public static final SimpleDateFormat sdf_Date_jp     = new SimpleDateFormat(STR_DATE, Locale.JAPAN);
+
+    //通知キー
+    public static final String NOTIFY_SEND_KEY = "notifykey";
+
 
     /*
      * やること時間に応じたカラーIDの取得
@@ -103,7 +114,7 @@ public class ResourceManager {
         String timeStr = (String) DateFormat.format(STR_HOUR_MIN, mills);
 
         //ローカル対応した年月日を返す
-        return (dateStr + " " + timeStr);
+        return (dateStr + DELIMITER_DATA_AND_TIME + timeStr);
     }
 
     /*

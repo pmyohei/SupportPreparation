@@ -3,7 +3,7 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
 /*
- * Database の定義
+ * Database定義
  */
 @Database(
         entities = {

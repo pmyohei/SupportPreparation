@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /*
- * アラームタイマ満了時に呼ばれる処理を実装
+ * アラームタイマ満了時のReceiver
  */
 public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
@@ -37,7 +37,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
             String channelId = "default";
             String title = context.getString(R.string.app_name);
-            String message = intent.getExtras().getString( StackManagerFragment.NOTIFY_SEND_KEY );
+            String message = intent.getExtras().getString( ResourceManager.NOTIFY_SEND_KEY );
 
             Log.i("test", "Received message=" + message );
 

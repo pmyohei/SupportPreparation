@@ -8,7 +8,6 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -37,15 +36,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.supportpreparation.AppDatabase;
-import com.example.supportpreparation.AppDatabaseSingleton;
 import com.example.supportpreparation.CreateSetAlarmDialog;
 import com.example.supportpreparation.GroupArrayList;
 import com.example.supportpreparation.GroupSelectRecyclerAdapter;
@@ -60,51 +56,42 @@ import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.TaskTableManager;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/*
+ * スタック画面フラグメント
+ */
 public class StackManagerFragment extends Fragment {
 
-    public final static float STACK_BLOCK_RATIO = 0.4f;         //スタックやることの横サイズ割合
-    public final static int SELECT_TASK_AREA_DIV = 4;           //やること選択エリア-横幅分割数
+    //定数
+    public final static float STACK_BLOCK_RATIO   = 0.4f;       //スタックやることの横サイズ割合
+    public final static int SELECT_TASK_AREA_DIV  = 4;          //やること選択エリア-横幅分割数
     public final static int SELECT_GROUP_AREA_DIV = 4;          //やること選択エリア-横幅分割数
 
-    public static final String NOTIFY_SEND_KEY = "notifykey";               //アラームキャンセル最大数
-
-    public enum ALARM_RESULT {
-        NEW_ALARM,                                              //アラーム新規設定
-        UPDATE_ALARM,                                           //アラーム更新
-    }
-
-    private MainActivity mParentActivity;        //親アクティビティ
-    private Fragment mFragment;              //本フラグメント
-    private Context mContext;               //コンテキスト（親アクティビティ）
-    private View mRootLayout;            //本フラグメントに設定しているレイアウト
-    private AppDatabase mDB;                    //DB
-    private LinearLayout mll_stackArea;          //「やること」積み上げ領域
-    private StackTaskTable mStackTable;                            //スタックテーブル
-    private StackTaskTable mAlarmStack;                            //アラーム設定されたスタック
-    private TaskArrayList<TaskTable> mStackTaskList;             //積み上げ「やること」
-    private TaskArrayList<TaskTable> mTaskList;              //「やること」
-    private StackTaskRecyclerAdapter mStackAreaAdapter;      //積み上げ「やること」アダプタ
-    private FloatingActionButton mfab_setAlarm;                   //フローティングボタン
-    private TextView mtv_limitDate;                         //リミット日のビュー
-    private TextView mtv_limitTime;                         //リミット時間のビュー
-    private Intent mAlarmReceiverIntent;                    //アラーム受信クラスのIntent
-    private boolean mIsSelectTask;                          //フラグ-「やること」選択エリア表示中
-    private boolean mIsLimit;                               //フラグ-リミット選択中
-    private boolean mIsStackChg;                            //スタックタスク変更有無
-    private boolean mIsStop;                                //カウントダウン停止フラグ
+    //フィールド変数
+    private MainActivity mParentActivity;                       //親アクティビティ
+    private Context mContext;                                   //コンテキスト（親アクティビティ）
+    private View mRootLayout;                                   //本フラグメントに設定しているレイアウト
+    private StackTaskTable mStackTable;                         //スタックテーブル
+    private StackTaskTable mAlarmStack;                         //アラーム設定されたスタック
+    private TaskArrayList<TaskTable> mStackTaskList;            //積み上げ「やること」
+    private TaskArrayList<TaskTable> mTaskList;                 //「やること」
+    private StackTaskRecyclerAdapter mStackAreaAdapter;         //積み上げ「やること」アダプタ
+    private FloatingActionButton mfab_setAlarm;                 //フローティングボタン
+    private TextView mtv_limitDate;                             //リミット日のビュー
+    private TextView mtv_limitTime;                             //リミット時間のビュー
+    private boolean mIsSelectTask;                              //フラグ-「やること」選択エリア表示中
+    private boolean mIsLimit;                                   //フラグ-リミット選択中
+    private boolean mIsStackChg;                                //スタックタスク変更有無
+    private boolean mIsStop;                                    //カウントダウン停止フラグ
 
     //BottomSheetBehavior と連動するpadding
     private int mBasicPadding;
@@ -114,16 +101,10 @@ public class StackManagerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        Log.i("test", "StackManagerFragment onCreateView");
-
-        //自身のフラグメント
-        mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
         mRootLayout = inflater.inflate(R.layout.fragment_stack_manager, container, false);
         //親アクティビティのコンテキスト
         mContext = mRootLayout.getContext();
-        //DB操作インスタンス
-        mDB = AppDatabaseSingleton.getInstance(mRootLayout.getContext());
         //親アクティビティ
         mParentActivity = (MainActivity) getActivity();
         //スタック情報
@@ -613,7 +594,7 @@ public class StackManagerFragment extends Fragment {
 
                 //アダプタの生成・設定
                 //※高さはビューに依存「wrap_contents」
-                TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
+                TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SHOW_KIND.SELECT, width);
 
                 //クリックリスナー（クリック時、スタックエリアにクリックアイテムを積み上げる）
                 adapter.setOnItemClickListener(new SelectItemClickListener());
@@ -692,9 +673,6 @@ public class StackManagerFragment extends Fragment {
                 return false;
             }
         });
-
-        //スクロールリスナーの設定
-        rv_group.addOnScrollListener(new SelectAreaScrollListener(mfab_setAlarm));
     }
 
     /*

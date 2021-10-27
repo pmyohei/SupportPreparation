@@ -34,23 +34,20 @@ import java.util.List;
 
 
 /*
- * 「やること」新規生成のダイアログ
+ * ダイアログ：アラーム設定／参照
  */
 public class CreateSetAlarmDialog extends DialogFragment {
 
-    private final StackTaskTable mStackTable;
-    //private final Fragment mFragment;
-    private LayoutInflater mInflater;
-    private View.OnClickListener mClickListener;
-    //private final boolean mIsSetAlarm;
+    //フィールド変数
+    private final StackTaskTable mStackTable;       //積まれたやること
+    private LayoutInflater       mInflater;         //インフレータ
+    private View.OnClickListener mClickListener;    //ボタンクリックリスナー
 
     /*
      * コンストラクタ
      */
     public CreateSetAlarmDialog(StackTaskTable stackTable) {
-        //mFragment = fragment;
         mStackTable = stackTable;
-        //mIsSetAlarm = isNew;
     }
 
 
@@ -144,7 +141,6 @@ public class CreateSetAlarmDialog extends DialogFragment {
 
                 //呼び出し元の処理を呼びだす
                 mClickListener.onClick(v);
-                //((StackManagerFragment) mFragment).OnAlarmSetReturn(mIsNew);
 
                 //閉じる
                 dismiss();

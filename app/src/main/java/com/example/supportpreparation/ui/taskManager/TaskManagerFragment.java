@@ -1,7 +1,5 @@
 package com.example.supportpreparation.ui.taskManager;
 
-import static java.util.Collections.swap;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -28,20 +25,24 @@ import com.example.supportpreparation.AsyncTaskTableOperaion;
 import com.example.supportpreparation.CreateTaskDialog;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
+import com.example.supportpreparation.ResourceManager;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+/*
+ * タスク画面フラグメント
+ */
 public class TaskManagerFragment extends Fragment implements AsyncTaskTableOperaion.TaskOperationListener {
 
+    //定数
     public final static int             TASK_COLUMN = 2;            //やること表示列数
 
+    //フィールド変数
     private MainActivity                mParentActivity;            //親アクティビティ
     private View                        mRootLayout;                //本フラグメントに設定しているレイアウト
-    private Fragment                    mFragment;                  //本フラグメント
     private Context                     mContext;                   //コンテキスト（親アクティビティ）
     private AppDatabase                 mDB;                        //DB
     private TaskArrayList<TaskTable>    mTaskList;                  //「やること」リスト
@@ -53,8 +54,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        //自身のフラグメントを保持
-        mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
         mRootLayout = inflater.inflate(R.layout.fragment_task_manager, container, false);
         //親アクティビティのコンテキスト
@@ -64,7 +63,8 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //親アクティビティ
         mParentActivity = (MainActivity) getActivity();
         //「やること」操作リスナー
-        mTaskListener = (AsyncTaskTableOperaion.TaskOperationListener) mFragment;
+        Fragment fragment = getParentFragmentManager().getFragments().get(0);
+        mTaskListener = (AsyncTaskTableOperaion.TaskOperationListener) fragment;
 
         //ガイドクローズ
         mParentActivity.closeGuide();
@@ -74,23 +74,17 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //ヘルプボタン表示(タイマ画面でグラフを閉じずに画面移動された時の対策)
         mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
 
-        //現在登録されている「やること」を表示
-        //displayTask();
+        //現在登録されている「やること」
         mTaskList = mParentActivity.getTaskData();
-        displayTaskData();
 
-        // FloatingActionButton
+        //やること表示
+        setupTaskList();
+
+        //「やること」追加Fab
         FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addTask);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                CoordinatorLayout coordinatorLayout
-                        = (CoordinatorLayout) findViewById(R.id.cl_taskManage);
-                Snackbar
-                        .make(coordinatorLayout, "Hello, Snackbar!", Snackbar.LENGTH_SHORT)
-                        .show();
-                 */
 
                 //-- 「やること」追加ダイアログの生成
                 //Bundle生成
@@ -105,7 +99,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
             }
         });
 
-
         return mRootLayout;
     }
 
@@ -113,7 +106,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     public void onDestroyView() {
         super.onDestroyView();
     }
-
 
 
     /*
@@ -125,13 +117,12 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         String taskName = ((TextView) view.findViewById(R.id.tv_taskName)).getText().toString();
         String taskTimeStr = ((TextView) view.findViewById(R.id.tv_taskTime)).getText().toString();
 
-        //taskTimeStr = taskTimeStr.replace(" min", "");
         int taskTime = Integer.parseInt(taskTimeStr);
 
         //ダイアログへ渡すデータを設定
         Bundle bundle = new Bundle();
-        bundle.putString("TaskName", taskName);
-        bundle.putInt("TaskTime", taskTime);
+        bundle.putString(ResourceManager.KEY_TASK_NAME, taskName);
+        bundle.putInt(ResourceManager.KEY_TASK_TIME, taskTime);
 
         //FragmentManager生成
         FragmentManager transaction = getParentFragmentManager();
@@ -145,7 +136,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     /*
      * 「やること」データを表示エリアにセット
      */
-    public void displayTaskData() {
+    public void setupTaskList() {
 
         //レイアウトからリストビューを取得
         RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
@@ -165,7 +156,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                 int size = rv_task.getWidth() / TASK_COLUMN;
 
                 //アダプタの生成
-                mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.LIST, size, size);
+                mTaskAdapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SHOW_KIND.LIST, size, size);
 
                 //リスナー設定
                 mTaskAdapter.setOnItemClickListener(new View.OnClickListener() {

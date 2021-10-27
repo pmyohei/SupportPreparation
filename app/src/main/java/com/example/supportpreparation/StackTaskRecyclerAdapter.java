@@ -14,6 +14,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,19 +22,21 @@ import java.util.Calendar;
 import java.util.Date;
 
 /*
- * RecyclerViewアダプター：「やること」用
+ * RecyclerAdapter：スタックやること用
  */
 public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecyclerAdapter.StackTaskViewHolder> {
 
-    private final int NO_ANIMATION = -1;        //アニメーション適用なし
+    //定数
+    private final int NO_ANIMATION = -1;                        //アニメーション適用なし
 
-    private StackTaskTable mStackTable;     //積み立てやること
-    private TaskArrayList<TaskTable> mData;     //積み立てやること
-    private boolean mIsLimit;                   //リミット時間かどうか
-    private Context mContext;                   //コンテキスト
-    private int mAnimIdx;                       //アニメーション有効Idx
-    private int mAddAnimationID;                //やること追加時のアニメーションリソースID
-    private int mItemWidth;
+    //フィールド変数
+    private final StackTaskTable            mStackTable;        //スタックタスク情報
+    private final TaskArrayList<TaskTable>  mData;              //スタックタスクリスト
+    private final Context                   mContext;           //コンテキスト
+    private final int                       mItemWidth;         //やること横幅
+    private boolean                         mIsLimit;           //リミット時間かどうか
+    private int                             mAnimIdx;           //アニメーション有効Idx
+    private int                             mAddAnimationID;    //やること追加時のアニメーションリソースID
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -41,32 +44,31 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     class StackTaskViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_pid;
-        private TextView tv_taskName;
-        private TextView tv_taskTime;
-        private LinearLayout ll_taskInfo;
-        private LinearLayout ll_startTime;
-        private LinearLayout ll_endTime;
-        private TextView tv_taskStartTime;
-        private TextView tv_taskEndTime;
-        private LinearLayout ll_label;
-        private TextView tv_label;
+        private final TextView      tv_pid;
+        private final TextView      tv_taskName;
+        private final TextView      tv_taskTime;
+        private final LinearLayout  ll_startTime;
+        private final LinearLayout  ll_endTime;
+        private final TextView      tv_taskStartTime;
+        private final TextView      tv_taskEndTime;
+        private final LinearLayout  ll_label;
+        private final TextView      tv_label;
 
         /*
          * コンストラクタ
          */
         public StackTaskViewHolder(View itemView) {
             super(itemView);
-            tv_pid = (TextView) itemView.findViewById(R.id.tv_pid);
-            tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
-            tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
-            ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.ll_taskInfo);
-            ll_startTime = (LinearLayout) itemView.findViewById(R.id.ll_startTime);
-            ll_endTime = (LinearLayout) itemView.findViewById(R.id.ll_endTime);
+
+            tv_pid           = (TextView) itemView.findViewById(R.id.tv_pid);
+            tv_taskName      = (TextView) itemView.findViewById(R.id.tv_taskName);
+            tv_taskTime      = (TextView) itemView.findViewById(R.id.tv_taskTime);
+            ll_startTime     = (LinearLayout) itemView.findViewById(R.id.ll_startTime);
+            ll_endTime       = (LinearLayout) itemView.findViewById(R.id.ll_endTime);
             tv_taskStartTime = (TextView) itemView.findViewById(R.id.tv_taskStartTime);
-            tv_taskEndTime = (TextView) itemView.findViewById(R.id.tv_taskEndTime);
-            ll_label = (LinearLayout) itemView.findViewById(R.id.ll_label);
-            tv_label = (TextView) itemView.findViewById(R.id.tv_label);
+            tv_taskEndTime   = (TextView) itemView.findViewById(R.id.tv_taskEndTime);
+            ll_label         = (LinearLayout) itemView.findViewById(R.id.ll_label);
+            tv_label         = (TextView) itemView.findViewById(R.id.tv_label);
         }
     }
 
@@ -96,8 +98,6 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     @Override
     public int getItemCount() {
-        Log.i("test", "stack getItemCount");
-
         //表示データ数を返す
         return mData.size();
     }
@@ -107,8 +107,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     @Override
     public int getItemViewType(int position) {
-        Log.i("test", "stack getItemViewType position=" + position);
-
+        //やること時間を返す
         return mData.get(position).getTaskTime();
     }
 
@@ -117,9 +116,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public StackTaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-
-        Log.i("test", "stack onCreateViewHolder viewType=" + viewType);
+    public StackTaskViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
         //レイアウトIDを取得
         int id = R.layout.outer_task_for_stack;
@@ -129,10 +126,10 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         View view = inflater.inflate(id, viewGroup, false);
 
         //正方形のサイズを設定
-        LinearLayout ll_taskDesign = view.findViewById(R.id.ll_taskInfo);
+        LinearLayout ll_taskInfo = view.findViewById(R.id.ll_taskInfo);
 
-        //レイアウト全体サイズに対して、一定割合をブロックの大きさとする
-        ViewGroup.LayoutParams blockLayoutParams = ll_taskDesign.getLayoutParams();
+        //レイアウト全体サイズに対して、指定された大きさをブロックの大きさとする
+        ViewGroup.LayoutParams blockLayoutParams = ll_taskInfo.getLayoutParams();
         blockLayoutParams.width = mItemWidth;
 
         //drawableファイルを適用

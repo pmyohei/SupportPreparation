@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -33,12 +32,12 @@ import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.GroupRecyclerAdapter;
+import com.example.supportpreparation.ResourceManager;
 import com.example.supportpreparation.SelectAreaScrollListener;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -46,23 +45,27 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * グループ画面フラグメント
+ */
 public class GroupManagerFragment extends Fragment implements AsyncGroupTableOperaion.GroupOperationListener {
 
-    private final int           NO_SEARCH = -1;                        //未発見
-    public  final static int    DIV_GROUP_IN_TASK = 3;                 //グループ内やること-横幅分割数
-    public  final static int    DIV_GROUP_IN_TASK_WIDTH = 4;           //グループ内やることブロックの横幅算出値
+    //定数
+    public  final static int                DIV_GROUP_IN_TASK       = 3;    //グループ内やること-横幅分割数
+    public  final static int                DIV_GROUP_IN_TASK_WIDTH = 4;    //グループ内やることブロックの横幅算出値
 
-    private MainActivity                   mParentActivity;            //親アクティビティ
-    private View                           mRootLayout;                //本フラグメントに設定しているレイアウト
-    private Fragment                       mFragment;                  //本フラグメント
-    private Context                        mContext;                   //コンテキスト（親アクティビティ）
-    private AppDatabase                    mDB;                        //DB
-    private TaskArrayList<TaskTable>       mTaskList;                  //「やること」リスト
-    private GroupArrayList<GroupTable>     mGroupList;                 //「グループ」リスト
-    private GroupRecyclerAdapter           mGroupAdapter;              //「グループ」表示アダプタ
-    private FloatingActionButton           mFab;                       //フローティングボタン
+    //フィールド変数
+    private MainActivity                    mParentActivity;                //親アクティビティ
+    private View                            mRootLayout;                    //本フラグメントに設定しているレイアウト
+    private Fragment                        mFragment;                      //本フラグメント
+    private Context                         mContext;                       //コンテキスト（親アクティビティ）
+    private AppDatabase                     mDB;                            //DB
+    private TaskArrayList<TaskTable>        mTaskList;                      //「やること」リスト
+    private GroupArrayList<GroupTable>      mGroupList;                     //「グループ」リスト
+    private GroupRecyclerAdapter            mGroupAdapter;                  //「グループ」表示アダプタ
+    private FloatingActionButton            mFab;                           //フローティングボタン
     private AsyncGroupTableOperaion.GroupOperationListener
-                                           mGroupDBListener;           //「グループ」DB操作リスナー
+                                            mGroupDBListener;               //「グループ」DB操作リスナー
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -153,7 +156,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 int width = rv_task.getWidth() / StackManagerFragment.SELECT_TASK_AREA_DIV;
 
                 //アダプタの生成・設定
-                TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SETTING.SELECT, width, 0);
+                TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, mTaskList, TaskRecyclerAdapter.SHOW_KIND.SELECT, width);
 
                 //ドラッグリスナーの設定
                 adapter.setOnItemLongClickListener(new View.OnLongClickListener() {
@@ -226,7 +229,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     //アダプタ生成
                     //※高さはビューに依存「wrap_contents」
                     TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
-                    TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.IN_GROUP, width, 0);
+                    TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SHOW_KIND.IN_GROUP, width);
 
                     //設定
                     group.setTaskAdapter(adapter);
@@ -427,7 +430,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //ダイアログへ渡すデータを設定
         Bundle bundle = new Bundle();
-        bundle.putString("EditGroupName", groupName);
+        bundle.putString(ResourceManager.KEY_GROUP_NAME, groupName);
 
         //FragmentManager生成
         FragmentManager transaction = getParentFragmentManager();
@@ -533,11 +536,11 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //グループのリサイクラービューを基準に、横幅を決定
         //※グループ内やることのリサイクラービューは現時点では取得不可のため
-        int size = rv_group.getWidth() / DIV_GROUP_IN_TASK_WIDTH;
+        int width = rv_group.getWidth() / DIV_GROUP_IN_TASK_WIDTH;
 
         //対応するアダプタを生成して、設定
         TaskArrayList<TaskTable> taskInGroupList = group.getTaskInGroupList();
-        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SETTING.IN_GROUP, size, 0);
+        TaskRecyclerAdapter adapter = new TaskRecyclerAdapter(mContext, taskInGroupList, TaskRecyclerAdapter.SHOW_KIND.IN_GROUP, width);
         group.setTaskAdapter(adapter);
 
         //生成された「グループ」情報をリストに追加
@@ -569,7 +572,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     public void onSuccessEditGroup(String preGroupName, String groupName) {
         //更新されたリストのIndexを取得
         int i = mGroupList.searchIdxByGroupName(preGroupName);
-        if( i == NO_SEARCH ){
+        if( i == GroupArrayList.NO_DATA ){
             //--フェールセーフ
             //見つからなければ、何もしない
             Log.i("failsafe", "onSuccessEditGroup couldn't found");

@@ -9,11 +9,11 @@ import java.util.List;
  */
 public class TaskTableManager {
 
-    //「セットに追加されたやること」の区切文字
-    private final static String DELIMITER = " ";
-    public final static Integer ALARM_ON = 1;
-    public final static Integer ALARM_OFF = 0;
-    private final static String ALARM_ON_CHAR = "1";
+    //pid間のデリミタ
+    private final static String DELIMITER      = " ";
+
+    //アラームON/OFF文字
+    private final static String ALARM_ON_CHAR  = "1";
     private final static String ALARM_OFF_CHAR = "0";
 
     /*
@@ -112,14 +112,11 @@ public class TaskTableManager {
         //半角スペースで分割
         String[] pidsStr = str.split(DELIMITER);
 
-        Log.i("test", "getPidsIntArray pidsStr=" + pidsStr);
-
         //pidリスト
         List<Integer> pids = new ArrayList<>();
 
         //PID分ループ
         for (String pidStr : pidsStr) {
-            Log.i("test", "getPidsIntArray loop pidStr=" + pidStr);
             //pidを整数に変換して、リストに追加
             pids.add(Integer.parseInt(pidStr));
         }

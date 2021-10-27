@@ -6,8 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /*
- * エンティティ
- *   テーブルに相当
+ * テーブル：グループ
  */
 @Entity
 public class GroupTable {
@@ -32,7 +31,7 @@ public class GroupTable {
     /*
      * 定数
      */
-    private final static String DELIMITER = " ";    //「セットに追加されたやること」の区切文字
+    private final static String DELIMITER = " ";    //「グループ内やること」の区切文字
 
     /*
      * 非レコードフィールド

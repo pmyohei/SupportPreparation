@@ -8,7 +8,7 @@ import androidx.room.Query;
 import java.util.List;
 
 /*
- * DAO の定義：やることセットテーブル
+ * DAO の定義：グループテーブル用
  *   DB操作の仲介役
  */
 @Dao
@@ -38,14 +38,14 @@ public interface GroupTableDao {
      *   指定されたプライマリーキーのレコードを更新
      */
     @Query("UPDATE GroupTable set group_name=(:groupName) WHERE id=(:pid)")
-    int updateGroupNameByPid(int pid, String groupName);
+    void updateGroupNameByPid(int pid, String groupName);
 
     /*
      * 更新：選択済み「やること」
      *   指定されたプライマリーキーのレコードを更新
      */
     @Query("UPDATE GroupTable set task_pids_string=(:taskPidsStr) WHERE id=(:pid)")
-    int updateTaskPidsStrByPid(int pid, String taskPidsStr);
+    void updateTaskPidsStrByPid(int pid, String taskPidsStr);
 
     /*
      * 削除：プライマリーキー指定

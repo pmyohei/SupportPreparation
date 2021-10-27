@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+/*
+ * ArrayList：やること用
+ */
 public class TaskArrayList<E> extends ArrayList<TaskTable> {
 
     public static int NO_DATA = -1;        //データなし
@@ -30,7 +33,8 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
     public TaskTable remove(int index) {
         super.remove(index);
         return null;
-    }*/
+    }
+*/
 
     /*
      * 「やること」取得（Pid指定）

@@ -3,7 +3,7 @@ import android.content.Context;
 import androidx.room.Room;
 
 /*
- * AppDatabase オブジェクトは、シングルトン設計にする必要がある
+ * AppDatabaseオブジェクトのシングルトン生成
  */
 public class AppDatabaseSingleton {
     private static AppDatabase instance = null;

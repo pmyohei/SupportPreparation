@@ -21,10 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 /*
- * エンティティ
- *   「積み上げやること」テーブル
- *
- *     備考：本レコードの最大登録数は「１つ」のみと想定
+ * テーブル：スタックやること
  */
 @Entity
 public class StackTaskTable implements Cloneable {
@@ -63,10 +60,14 @@ public class StackTaskTable implements Cloneable {
 
 
     /*
-     * 非レコードフィールド
+     * 定数
      */
     @Ignore
     public static int NO_DATA = -1;        //データなし
+
+    /*
+     * 非レコードフィールド
+     */
     @Ignore
     private TaskArrayList<TaskTable> mStackTaskList = new TaskArrayList<>();
     @Ignore
@@ -83,23 +84,6 @@ public class StackTaskTable implements Cloneable {
         //初期値はアラームON
         this.onAlarm = true;
     }
-
-    /*
-     *  コンストラクタ
-     *   新規生成用
-     */
-/*
-    @Ignore
-    public StackTaskTable(StackTaskTable stackTable) {
-        this.taskPidsStr = stackTable.getTaskPidsStr();
-        this.alarmOnOffStr = stackTable.getAlarmOnOffStr();
-        this.date = stackTable.getDate();
-        this.time = stackTable.getTime();
-        this.isLimit = stackTable.isLimit();
-        this.isStack = stackTable.isStack();
-        this.onAlarm = stackTable.isOnAlarm();
-    }
-*/
 
     /*
      *  コンストラクタ
@@ -359,7 +343,7 @@ public class StackTaskTable implements Cloneable {
         }
 
         //時間設定あれば、開始or終了 時間を設定
-        if ( !time.equals("--:--") ) {
+        if ( !time.equals(ResourceManager.STR_NO_INPUT_BASETIME) ) {
 
             //ベース時間
             Calendar baseTime = getBaseTimeCalender();
@@ -415,7 +399,7 @@ public class StackTaskTable implements Cloneable {
 
         try {
             //期限日と期限時間を連結
-            String baseStr = date + " " + time;
+            String baseStr = date + ResourceManager.DELIMITER_DATA_AND_TIME + time;
 
             //文字列をDate型に変換して返す
             //※日付と時間は、ユーザーが入力したものであるため、どのLocaleを指定しても問題なし

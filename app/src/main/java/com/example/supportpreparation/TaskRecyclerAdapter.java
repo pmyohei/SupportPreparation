@@ -15,24 +15,28 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 /*
- * RecyclerViewアダプター：「やること」用
+ * RecyclerAdapter：やること(リスト／選択エリア／グループ内)用
  */
 public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.TaskViewHolder> {
 
-    //-- アダプタ設定対象
-    public enum SETTING {
+    //表示種別
+    public enum SHOW_KIND {
         LIST,                   //「やること」一覧エリア
         SELECT,                 //「やること」選択エリア
         IN_GROUP,               //「やること」グループ割り当て
     }
 
-    private TaskArrayList<TaskTable> mData;
-    private Context mContext;
-    private View.OnClickListener mClickListener;
-    private View.OnLongClickListener mLongListener;
-    private SETTING mSetting;
-    private int mItemWidth;
-    private int mItemHeight;
+    //定数
+    private final  int                      NOT_SIZE_SPECIFIED = 0;
+
+    //フィールド変数
+    private final TaskArrayList<TaskTable>  mData;              //やることリスト
+    private final Context                   mContext;           //コンテキスト
+    private final SHOW_KIND                 mShowKind;          //表示種別
+    private final int                       mItemHeight;        //やること縦幅
+    private int                             mItemWidth;         //やること横幅
+    private View.OnClickListener            mClickListener;     //やることクリックリスナー
+    private View.OnLongClickListener        mLongListener;      //やることロングタッチリスナー
 
     /*
      * ViewHolder：リスト内の各アイテムのレイアウトを含む View のラッパー
@@ -40,44 +44,46 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      */
     class TaskViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_pid;            //Pid
-        private TextView tv_taskName;       //表示内容
-        private TextView tv_taskTime;
-        private LinearLayout ll_taskInfo;  //リスナー設定ビュー
+        private final TextView      tv_pid;
+        private final TextView      tv_taskName;
+        private final TextView      tv_taskTime;
+        private final LinearLayout  ll_taskInfo;
 
         /*
          * コンストラクタ
          */
         public TaskViewHolder(View itemView) {
             super(itemView);
-            tv_pid = (TextView) itemView.findViewById(R.id.tv_pid);
+
+            tv_pid      = (TextView) itemView.findViewById(R.id.tv_pid);
             tv_taskName = (TextView) itemView.findViewById(R.id.tv_taskName);
             tv_taskTime = (TextView) itemView.findViewById(R.id.tv_taskTime);
             ll_taskInfo = (LinearLayout) itemView.findViewById(R.id.ll_taskInfo);
         }
     }
 
-    /*
-     * コンストラクタ
-     */
-    public TaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, SETTING setting) {
-        mData = data;
-        mContext = context;
-        mSetting = setting;
 
-        //指定なしなら０とする
-        mItemWidth = 0;
-        mItemHeight = 0;
+    /*
+     * コンストラクタ(LIST/SELECT)
+     */
+    public TaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, SHOW_KIND setting, int width) {
+        mData       = data;
+        mContext    = context;
+        mShowKind   = setting;
+        mItemWidth  = width;
+
+        //縦幅指定なし
+        mItemHeight = NOT_SIZE_SPECIFIED;
     }
 
     /*
-     * コンストラクタ
+     * コンストラクタ(IN_GROUP)
      */
-    public TaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, SETTING setting, int width, int height) {
-        mData = data;
-        mContext = context;
-        mSetting = setting;
-        mItemWidth = width;
+    public TaskRecyclerAdapter(Context context, TaskArrayList<TaskTable> data, SHOW_KIND setting, int width, int height) {
+        mData       = data;
+        mContext    = context;
+        mShowKind   = setting;
+        mItemWidth  = width;
         mItemHeight = height;
     }
 
@@ -89,7 +95,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         if (mData.get(position) == null) {
             //フェールセーフ
-            Log.i("failsafe", "adapter data is null. mSetting=" + mSetting);
+            Log.i("failsafe", "adapter data is null. mSetting=" + mShowKind);
             return 0;
         }
 
@@ -113,54 +119,52 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         //drawableファイルを適用
         applyDrawableResorce(view, viewType);
 
-        //★備考★コード整理
-        //選択エリアなら、正方形の大きさを設定
-        if( mSetting == SETTING.SELECT || mSetting == SETTING.IN_GROUP){
 
-            //レイアウトパラメータを取得
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        //レイアウトパラメータを取得
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
 
-            //横幅
-            if (mItemWidth != 0) {
+        //表示目的に応じて、IDを取得
+        switch (mShowKind) {
+            case LIST:
+                //リストに対しては、追加レイアウト全体に対してサイズを設定
+
+                //サイズ割合
+                final float SIZE_RATIO_OVERALL = 0.8f;
+
                 //追加レイアウトそのものの大きさ
+                layoutParams.width  = (int)(mItemWidth * SIZE_RATIO_OVERALL);
+                layoutParams.height = (int)(mItemHeight * SIZE_RATIO_OVERALL);
+                view.setLayoutParams(layoutParams);
+
+                break;
+
+            case SELECT:
+            case IN_GROUP:
+                //選択エリア／グループ内に対しては、追加レイアウト全体、ブロックに対してサイズを設定
+
+                //横幅
+                //アイテムレイアウトそのものの大きさを設定
                 layoutParams.width = mItemWidth;
                 view.setLayoutParams(layoutParams);
-            }
 
-            //高さ
-            if (mItemHeight != 0) {
+                //サイズ割合
+                final float SIZE_RATIO_BLOCK = 0.6f;
 
-                //layoutParams.height = mItemHeight;
-                //view.setLayoutParams(layoutParams);
-            }
+                //正方形のサイズを設定
+                LinearLayout ll_taskDesign = view.findViewById(R.id.ll_taskDesign);
 
-            //正方形のサイズを設定
-            LinearLayout ll_taskDesign = view.findViewById(R.id.ll_taskDesign);
+                //アイテムレイアウト全体サイズに対して、一定割合をブロックの大きさとする
+                ViewGroup.LayoutParams blockLayoutParams = ll_taskDesign.getLayoutParams();
+                blockLayoutParams.width  = (int)(mItemWidth * SIZE_RATIO_BLOCK);
+                blockLayoutParams.height = (int)(mItemWidth * SIZE_RATIO_BLOCK);
 
-            //レイアウト全体サイズに対して、一定割合をブロックの大きさとする
-            ViewGroup.LayoutParams blockLayoutParams = ll_taskDesign.getLayoutParams();
-            blockLayoutParams.width = (int)(mItemWidth * 0.6);
-            blockLayoutParams.height = (int)(mItemWidth * 0.6);
+                ll_taskDesign.setLayoutParams(blockLayoutParams);
 
-            ll_taskDesign.setLayoutParams(blockLayoutParams);
+                break;
 
-        } else {
-            //レイアウトパラメータを取得
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-
-            //横幅
-            if (mItemWidth != 0) {
-                //追加レイアウトそのものの大きさ
-                layoutParams.width = (int)(mItemWidth * 0.8);;
-                view.setLayoutParams(layoutParams);
-            }
-
-            //高さ
-            if (mItemHeight != 0) {
-
-                layoutParams.height = (int)(mItemHeight * 0.8);
-                view.setLayoutParams(layoutParams);
-            }
+            default:
+                //ありえないルート
+                break;
         }
 
         return new TaskViewHolder(view);
@@ -222,13 +226,6 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     }
 
     /*
-     * アイテム毎のドラッグリスナー
-     */
-    public void setItemWidth(int width) {
-        mItemWidth = width;
-    }
-
-    /*
      * クリックリスナーの設定
      */
     public void setOnItemClickListener(View.OnClickListener listener) {
@@ -248,7 +245,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
      */
     private int getLayoutId() {
 
-        switch (mSetting) {
+        switch (mShowKind) {
             case LIST:
                 return R.layout.outer_task;
 
@@ -277,7 +274,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         int id_drawable;
 
         //表示目的に応じて、IDを取得
-        switch (mSetting) {
+        switch (mShowKind) {
             case LIST:
                 id_view     = R.id.ll_taskInfo;
                 id_drawable = R.drawable.frame_item_task;
@@ -319,62 +316,4 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         ll.setBackground(drawable);
     }
 
-
-    /*
-    private int getLayoutIdForCreate(int time) {
-
-        int id;
-
-        if (time <= 5) {
-            id = R.layout.outer_task_very_short;
-        } else if (time <= 10) {
-            id = R.layout.outer_task_short;
-        } else if (time <= 30) {
-            id = R.layout.outer_task_normal;
-        } else if (time <= 60) {
-            id = R.layout.outer_task_long;
-        } else {
-            id = R.layout.outer_task_very_long;
-        }
-        return id;
-    }
-
-
-    private int getLayoutIdForSelect(int time) {
-
-        int id;
-
-        if (time <= 5) {
-            id = R.layout.outer_task_for_select_very_short;
-        } else if (time <= 10) {
-            id = R.layout.outer_task_for_select_short;
-        } else if (time <= 30) {
-            id = R.layout.outer_task_for_select_normal;
-        } else if (time <= 60) {
-            id = R.layout.outer_task_for_select_long;
-        } else {
-            id = R.layout.outer_task_for_select_very_long;
-        }
-        return id;
-    }
-
-
-    private int getLayoutIdForGroup(int time) {
-
-        int id;
-
-        if (time <= 5) {
-            id = R.layout.outer_task_in_group_very_short;
-        } else if (time <= 10) {
-            id = R.layout.outer_task_in_group_short;
-        } else if (time <= 30) {
-            id = R.layout.outer_task_in_group_normal;
-        } else if (time <= 60) {
-            id = R.layout.outer_task_in_group_long;
-        } else {
-            id = R.layout.outer_task_in_group_very_long;
-        }
-        return id;
-    }
-     */
 }

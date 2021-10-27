@@ -13,7 +13,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
@@ -21,22 +20,26 @@ import androidx.fragment.app.DialogFragment;
 
 
 /*
- * 「やること」新規生成のダイアログ
+ * ダイアログ：「やること」生成・更新
  */
 public class CreateTaskDialog extends DialogFragment {
 
-    private boolean updateFlg;          //更新フラグ
-    private String  preTask;            //更新前-「やること」
-    private int     preTaskTime;        //更新前-「やること時間」
-    private AsyncTaskTableOperaion.TaskOperationListener listener;
+    //フィールド変数
+    private boolean mIsEdit;            //更新フラグ
+    private String  mPreTaskName;       //更新前-「やること」
+    private int     mPreTaskTime;       //更新前-「やること時間」
+    private final AsyncTaskTableOperaion.TaskOperationListener
+                    mListener;          //DB操作リスナー
 
     /*
      * コンストラクタ
      */
     public CreateTaskDialog(AsyncTaskTableOperaion.TaskOperationListener listener) {
-        this.listener = listener;
+        //リスナー
+        mListener = listener;
+
         //初期値：非更新
-        this.updateFlg = false;
+        mIsEdit = false;
     }
 
     @Override
@@ -86,23 +89,23 @@ public class CreateTaskDialog extends DialogFragment {
         np1th.setMinValue(0);
 
         //呼び出し元から情報を取得
-        this.preTask     = getArguments().getString("TaskName");
-        this.preTaskTime = getArguments().getInt("TaskTime");
+        mPreTaskName = getArguments().getString(ResourceManager.KEY_TASK_NAME);
+        mPreTaskTime = getArguments().getInt(ResourceManager.KEY_TASK_TIME);
 
         //更新であれば
-        if( this.preTask != null ){
+        if( mPreTaskName != null ){
             //-- 入力済みデータの設定
             //「やること」
             EditText et_task = (EditText) dialog.findViewById(R.id.et_dialogTask);
-            et_task.setText(this.preTask);
+            et_task.setText(mPreTaskName);
 
             //「やることの時間」
-            np100th.setValue( this.preTaskTime / 100 );
-            np10th.setValue( (this.preTaskTime / 10) % 10 );
-            np1th.setValue( this.preTaskTime % 10 );
+            np100th.setValue( mPreTaskTime / 100 );
+            np10th.setValue( (mPreTaskTime / 10) % 10 );
+            np1th.setValue( mPreTaskTime % 10 );
 
             //更新フラグを「更新」に
-            this.updateFlg = true;
+            mIsEdit = true;
         }
 
         //-- 「保存ボタン」のリスナー設定
@@ -132,18 +135,16 @@ public class CreateTaskDialog extends DialogFragment {
                     //正常入力されれば、エラー表示をクリア
                     ((TextView) dialog.findViewById(R.id.tv_alert)).setText("");
 
-                    //-- DBへ保存
                     //DB取得
                     AppDatabase db = AppDatabaseSingleton.getInstanceNotFirst();
 
                     //新規作成か更新か
-                    if (updateFlg) {
+                    if (mIsEdit) {
                         //更新
-                        new AsyncTaskTableOperaion(db, listener, AsyncTaskTableOperaion.DB_OPERATION.UPDATE, preTask, preTaskTime, task, time).execute();
-
+                        new AsyncTaskTableOperaion(db, mListener, AsyncTaskTableOperaion.DB_OPERATION.UPDATE, mPreTaskName, mPreTaskTime, task, time).execute();
                     } else {
                         //新規生成
-                        new AsyncTaskTableOperaion(db, listener, AsyncTaskTableOperaion.DB_OPERATION.CREATE, task, time).execute();
+                        new AsyncTaskTableOperaion(db, mListener, AsyncTaskTableOperaion.DB_OPERATION.CREATE, task, time).execute();
                     }
 
                     //ダイアログ閉じる

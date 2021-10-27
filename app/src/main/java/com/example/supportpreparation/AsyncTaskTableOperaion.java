@@ -5,28 +5,29 @@ import android.os.AsyncTask;
 import java.util.List;
 
 /*
- * 非同期-DBアクセスクラス
+ * 非同期-DBアクセス-やること
  */
 public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
-    //-- DB操作種別
+    //DB操作種別
     public enum DB_OPERATION {
         CREATE,         //生成
         READ,           //参照
         UPDATE,         //更新
         DELETE;         //削除
     }
-    
-    private final AppDatabase mDB;
-    private final DB_OPERATION mOperation;
-    private String mPreTask;
-    private int mPid;
-    private int mPreTaskTime;
-    private String mNewTaskName;
-    private int mNewTaskTime;
-    private TaskTable mTaskTable;
-    private final TaskArrayList<TaskTable> mTaskList = new TaskArrayList<>();
-    private TaskOperationListener mListener;
+
+    //フィールド変数
+    private final AppDatabase               mDB;
+    private final DB_OPERATION              mOperation;
+    private String                          mPreTask;
+    private int                             mPid;
+    private int                             mPreTaskTime;
+    private String                          mNewTaskName;
+    private int                             mNewTaskTime;
+    private TaskTable                       mTaskTable;
+    private final TaskArrayList<TaskTable>  mTaskList = new TaskArrayList<>();
+    private TaskOperationListener           mListener;
 
     /*
      * コンストラクタ
@@ -191,18 +192,8 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
                 //処理終了：更新
                 mListener.onSuccessEditTask(mPreTask, mPreTaskTime, mTaskTable);
 
-            } else {
-                //do nothing
             }
         }
-    }
-
-    /*
-     * インターフェース（リスナー）の設定
-     */
-    void setListener(TaskOperationListener listener) {
-        //リスナー設定
-        mListener = listener;
     }
 
     /*

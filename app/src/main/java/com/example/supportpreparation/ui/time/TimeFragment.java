@@ -48,22 +48,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+/*
+ * タイマ画面フラグメント
+ */
 public class TimeFragment extends Fragment {
 
-    //--定数
-    private final int REF_WAITING = -1;                 //積み上げ「やること」進行待ち状態
+    //定数
+    private final int REF_WAITING      = -1;            //積み上げ「やること」進行待ち状態
+    private final int CONV_MIN_TO_MSEC = 60000;         //単位変換：min → msec
 
-    //--定数（単位変換）
-    private final int CONV_SEC_TO_MSEC = 1000;         //単位変換：sec → msec
-    private final int CONV_MIN_TO_MSEC = 60000;        //単位変換：min → msec
-/*
-    private final int INTERVAL_PROGRESS = 1000;         //進行中やることのインターバル（1sec）
-    private final int INTERVAL_FINAL = 60000;        //最終時刻までのインターバル（1min）
-*/
-
-    //--フィールド
+    //フィールド変数
     private MainActivity mParentActivity;               //親アクティビティ
-    private Fragment mFragment;                         //本フラグメント
     private Context mContext;                           //コンテキスト（親アクティビティ）
     private View mRootLayout;                           //本フラグメントに設定しているレイアウト
     private StackTaskTable mAlarmStack;                 //アラームスタック情報
@@ -76,8 +71,6 @@ public class TimeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        //自身のフラグメントを保持
-        mFragment = getParentFragmentManager().getFragments().get(0);
         //設定レイアウト
         mRootLayout = inflater.inflate(R.layout.fragment_time_manager, container, false);
         //親アクティビティのコンテキスト

@@ -6,11 +6,11 @@ import android.util.Log;
 import java.util.List;
 
 /*
- * 非同期-DBアクセス-やることグループ
+ * 非同期-DBアクセス-グループ
  */
 public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
-    //-- DB操作種別
+    //DB操作種別
     public enum DB_OPERATION {
         CREATE,         //生成
         READ,           //参照
@@ -20,6 +20,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         REMOVE_TASK;    //やることを削除
     }
 
+    //フィールド変数
     private final AppDatabase           mDB;
     private final DB_OPERATION          mOperation;
     private String                      mPreGroupName;
