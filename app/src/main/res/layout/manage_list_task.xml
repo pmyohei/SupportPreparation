@@ -14,10 +14,8 @@
         android:id="@+id/rv_taskList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="44dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="10dp"
         android:gravity="center"
         android:overScrollMode="never"
         android:layoutAnimation="@anim/layout_anim_task_list"/>

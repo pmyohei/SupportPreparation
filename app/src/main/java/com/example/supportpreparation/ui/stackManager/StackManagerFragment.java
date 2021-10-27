@@ -598,7 +598,7 @@ public class StackManagerFragment extends Fragment {
                 //RecyclerViewにアダプタを設定
                 rv_task.setAdapter(adapter);
 
-                //--FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
                 rv_task.addItemDecoration(new SelectAreaItemDecoration());
 
                 //本リスナーを削除（何度も処理する必要はないため）
@@ -1397,7 +1397,7 @@ public class StackManagerFragment extends Fragment {
      */
     private class SelectAreaItemDecoration extends RecyclerView.ItemDecoration {
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, RecyclerView parent, RecyclerView.State state) {
             int position = parent.getChildAdapterPosition(view);
             if (position == state.getItemCount() - 1) {
                 //最後の要素の右に、FAB分の空間を設定

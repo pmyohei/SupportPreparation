@@ -38,6 +38,7 @@ import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
 import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
+import com.example.supportpreparation.ui.taskManager.TaskManagerFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -277,7 +278,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //アダプタ設定
                 rv_group.setAdapter(mGroupAdapter);
 
-                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
+                //レイアウト調整（上部／下部にスペースを設定）
+                rv_group.addItemDecoration(new GroupListItemDecoration(height));
+
+/*                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
                 rv_group.addItemDecoration( new RecyclerView.ItemDecoration(){
                     //★備考★クラス化できそう
                     @Override
@@ -288,7 +292,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                             outRect.bottom = height;
                         }
                     }
-                });
+                });*/
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_group.getViewTreeObserver().removeOnPreDrawListener(this);
@@ -503,6 +507,33 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             }
         });
     }
+
+
+    /*
+     * グル－プリスト レイアウト調整用
+     */
+    private class GroupListItemDecoration extends RecyclerView.ItemDecoration {
+
+        private final int mGroupHeight;
+
+        private GroupListItemDecoration(int groupHeight){
+            mGroupHeight = groupHeight;
+        }
+
+        @Override
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, RecyclerView parent, @NonNull RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view);
+            if (position == 0) {
+                //上部にスペースを設定
+                outRect.top = (mParentActivity.getHelpButtonHeight() * 2);
+
+            } else if (position == state.getItemCount() - 1) {
+                //下部にスペースを設定
+                outRect.bottom = mGroupHeight;
+            }
+        }
+    }
+
 
     /* --------------------------------------
      * 「グループ」

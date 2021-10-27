@@ -2,6 +2,7 @@ package com.example.supportpreparation.ui.taskManager;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import com.example.supportpreparation.ResourceManager;
 import com.example.supportpreparation.TaskArrayList;
 import com.example.supportpreparation.TaskRecyclerAdapter;
 import com.example.supportpreparation.TaskTable;
+import com.example.supportpreparation.ui.stackManager.StackManagerFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -169,6 +171,9 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                 //アダプタの設定
                 rv_task.setAdapter(mTaskAdapter);
 
+                //レイアウト調整（1行目の上部にスペースを設定）
+                rv_task.addItemDecoration(new TaskListItemDecoration());
+
                 //描画を中断するため、false
                 return false;
             }
@@ -248,9 +253,19 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         helper.attachToRecyclerView(rv_task);
     }
 
-    /* -------------------
-     * リスナークラス
+    /*
+     * やることリスト レイアウト調整用
      */
+    private class TaskListItemDecoration extends RecyclerView.ItemDecoration {
+        @Override
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, RecyclerView parent, @NonNull RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view);
+            if (position < TASK_COLUMN) {
+                //1行目の上部にスペースを設定
+                outRect.top = (mParentActivity.getHelpButtonHeight() * 2);
+            }
+        }
+    }
 
     /* -------------------
      * インターフェース：「やること」

@@ -70,13 +70,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         FRAGMENT_KIND(int i) {
             value = i;
         }
+
         int getValue() {
             return value;
         }
     }
 
     //UI操作情報保存
-    private final String SHARED_DATA_NAME          = "UIData";
+    private final String SHARED_DATA_NAME = "UIData";
     private final String SHARED_KEY_COUNTDOWN_STOP = "CountDownStop";
 
     //-- フラグメント間共通データ
@@ -187,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         NavController navController = Navigation.findNavController(this, R.id.fragment_host);
         NavigationUI.setupWithNavController(navView, navController);
 
-        navView.setOnNavigationItemReselectedListener( new BottomNavigationView.OnNavigationItemReselectedListener() {
+        navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
                 //何もしない処理をオーバライドすることで、再選択時の再描画を防ぐ
@@ -369,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (am == null) {
             //メッセージを表示
-            Toast.makeText(this, R.string.toast_error_occurred , Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_error_occurred, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -452,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         int stringId = ((requestCode == 0) ? R.string.toast_nothing_notification : R.string.toast_set_notification);
 
         //メッセージを表示
-        Toast.makeText(this, stringId , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -540,6 +541,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         mAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth);
 
         return mAdSize;
+    }
+
+    /*
+     * ヘルプボタンの高さを取得
+     */
+    public int getHelpButtonHeight() {
+
+        return findViewById(R.id.ib_help).getHeight();
     }
 
     /*
