@@ -469,8 +469,12 @@ public class TimeFragment extends Fragment {
      */
     private void createSetAlarmDialog() {
 
-        //★備考★メッセージを出力する
         if (mAlarmStack.getStackTaskList().size() == 0) {
+            //メッセージを表示
+            Toast toast = new Toast(mContext);
+            toast.setText(R.string.toast_not_setup_notification);
+            toast.show();
+
             return;
         }
 
@@ -537,7 +541,7 @@ public class TimeFragment extends Fragment {
         int colorId = R.color.tx_not_time_arrive;
 
         if (mTaskRefIdx == REF_WAITING) {
-            //-- まだ、初めの「やること」の開始時間に至っていない場合
+            //-- まだ初めの「やること」の開始時間に至っていない場合
 
             //進行中の「やること」
             progressTask = waitingStr;

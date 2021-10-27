@@ -173,7 +173,7 @@ public class CreateSetAlarmDialog extends DialogFragment {
 
         //レイアウトパラメータ
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = (int) ((float) metrics.widthPixels * 0.8);
+        lp.width  = (int) ((float) metrics.widthPixels * 0.8);
         lp.height = (int) ((float) metrics.heightPixels * 0.6);
 
         //サイズ設定

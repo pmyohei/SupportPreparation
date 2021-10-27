@@ -365,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
     public void setAlarm(StackTaskTable stackTable) {
 
-        //アラーム設定
         Toast toast = new Toast(this);
 
         //AlarmManagerの取得
