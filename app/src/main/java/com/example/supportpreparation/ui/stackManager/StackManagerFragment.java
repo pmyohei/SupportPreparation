@@ -254,7 +254,11 @@ public class StackManagerFragment extends Fragment {
                                 String dateForHold = String.format(Locale.JAPANESE, ResourceManager.SAVE_FORMAT_STR_DATE, year, month + 1, dayOfMonth);
 
                                 //Dateへ変換
-                                date = ResourceManager.sdf_DateAndTime.parse(dateForHold);
+                                date = ResourceManager.sdf_Date_jp.parse(dateForHold);
+
+                                //共通データとして保持
+                                mStackTable.setDate(dateForHold);
+                                mIsStackChg = true;
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -269,10 +273,6 @@ public class StackManagerFragment extends Fragment {
                                 //リミット指定でないなら、リミット側にも設定(スタックアダプタ参照用)
                                 mtv_limitDate.setText(dateForUser);
                             }
-
-                            //共通データとして保持
-                            mStackTable.setDate(dateForUser);
-                            mIsStackChg = true;
 
                             //やること開始時間を変更
                             mStackAreaAdapter.notifyDataSetChanged();

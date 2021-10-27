@@ -67,12 +67,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         FRAGMENT_KIND(int i) {
             value = i;
         }
-
         int getValue() {
             return value;
         }
     }
 
+    //UI操作情報保存
     private final String SHARED_DATA_NAME = "UIData";
     private final String SHARED_KEY_COUNTDOWN_STOP = "CountDownStop";
 
@@ -87,10 +87,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private List<List<Integer>> mGuideList;                 //操作案内レイアウトIDリスト(画面毎のすべてのID)
     private AdSize mAdSize;                                 //AdViewのサイズ
     private FRAGMENT_KIND mPreFrgKind;                      //前回のガイド要求フラグメント種別
-
-    private boolean mSplashEnd;
-    private boolean mReadData;
-
+    private boolean mSplashEnd;                             //スプラッシュアニメーション終了フラグ
+    private boolean mReadData;                              //DB読み込みフラグ
     private boolean mIsStop;                                //カウントダウン停止フラグ
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -121,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //UIデータ読み込み
         SharedPreferences spData = getSharedPreferences(SHARED_DATA_NAME, MODE_PRIVATE);
         mIsStop = spData.getBoolean(SHARED_KEY_COUNTDOWN_STOP, false);
-        ;
 
         //AdMod初期化
         MobileAds.initialize(this, new OnInitializationCompleteListener() {

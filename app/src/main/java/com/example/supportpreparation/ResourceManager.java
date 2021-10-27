@@ -47,6 +47,7 @@ public class ResourceManager {
     //！Localeは任意の指定で問題ない場面で使用すること
     public static final SimpleDateFormat sdf_DateAndTime = new SimpleDateFormat(STR_DATE_AND_TIME, Locale.US);
     public static final SimpleDateFormat sdf_Date        = new SimpleDateFormat(STR_DATE, Locale.US);
+    public static final SimpleDateFormat sdf_Date_jp     = new SimpleDateFormat(STR_DATE, Locale.JAPAN);
 
     /*
      * やること時間に応じたカラーIDの取得

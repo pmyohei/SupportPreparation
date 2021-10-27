@@ -436,7 +436,7 @@ public class StackTaskTable implements Cloneable {
         try {
             //文字列をDate型に変換して返す
             //※日付と時間は、ユーザーが入力したものであるため、どのLocaleを指定しても問題なし
-            return ResourceManager.sdf_Date.parse(date);
+            return ResourceManager.sdf_Date_jp.parse(date);
 
         } catch (ParseException e) {
             e.printStackTrace();
