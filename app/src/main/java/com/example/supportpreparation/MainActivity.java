@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     }
 
     //UI操作情報保存
-    private final String SHARED_DATA_NAME = "UIData";
+    private final String SHARED_DATA_NAME          = "UIData";
     private final String SHARED_KEY_COUNTDOWN_STOP = "CountDownStop";
 
     //-- フラグメント間共通データ

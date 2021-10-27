@@ -789,10 +789,13 @@ public class TimeFragment extends Fragment {
      */
     private class TimeDrawerListener implements DrawerLayout.DrawerListener {
 
-        //--フィールド変数
+        //定数
+        private final int CURRENT_INTERRUPT = -1;       //現在時刻 やることに割り込み
+
+        //フィールド変数
         private boolean isCreate = false;
-        private int mMinHeight;
-        private boolean isClose = true;
+        private boolean isClose  = true;
+        private int     mMinHeight;
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
@@ -1053,7 +1056,7 @@ public class TimeFragment extends Fragment {
             View v_empty = mRootLayout.findViewById(R.id.v_empty);
             if( v_empty == null ){
                 //※最小高さの取得よりも先に本処理が走った場合、何もしない（フェールセーフ）
-                Log.i("test", "v_empty is null");
+                Log.i("failsafe", "v_empty is null");
                 return;
             }
 
@@ -1118,8 +1121,16 @@ public class TimeFragment extends Fragment {
             long nowMills   = nowTime.getTime();
             long startMills = startDate.getTime();
 
+            long diff = startMills - nowMills;
+            if( diff < 0 ){
+                //やることに割り込んでいる場合は、適当なマイナス値を返す
+                return CURRENT_INTERRUPT;
+            }
+
             //分単位で返却
-            return (int) ((startMills - nowMills) / CONV_MIN_TO_MSEC);
+            //※1加算しているのは、以下のように値を返したいため
+            //　差の時間：5m10sなら6を返す
+            return (int) ((diff / CONV_MIN_TO_MSEC) + 1);
         }
 
         /*
@@ -1201,7 +1212,6 @@ public class TimeFragment extends Fragment {
 
             //高さを設定
             ViewGroup.LayoutParams params = v_gragh.getLayoutParams();
-            Log.i("test", "designGragh height=" + params.height);
             params.height = height;
             v_gragh.setLayoutParams(params);
         }
@@ -1226,11 +1236,10 @@ public class TimeFragment extends Fragment {
                 //--割り込みあり
 
                 //上部に空白スペースがあれば、削除
-                LinearLayout ll_empty = mRootLayout.findViewById(R.id.ll_empty);
-                if( ll_empty != null ){
-                    ViewGroup p = (ViewGroup) ll_empty.getParent();
-                    p.removeView(ll_empty);
-                    Log.i("test", "ll_empty remove");
+                FrameLayout fl_empty = mRootLayout.findViewById(R.id.fl_empty);
+                if( fl_empty != null ){
+                    ViewGroup p = (ViewGroup) fl_empty.getParent();
+                    p.removeView(fl_empty);
                 }
 
                 //やることの間に描画
@@ -1245,7 +1254,7 @@ public class TimeFragment extends Fragment {
         }
 
         /*
-         * 現在時間線の描画（やることの間に描画する）
+         * 現在時間線の描画（やることの上に描画）
          */
         private void drawCurrentLineOverlapTask() {
 
@@ -1271,7 +1280,7 @@ public class TimeFragment extends Fragment {
             timeToEndMin += 1;
 
             //割り込みやることの高さ
-            int taskTime = mAlarmStackList.get(idx).getTaskTime();
+            int taskTime   = mAlarmStackList.get(idx).getTaskTime();
             int heightTask = getGraghUnitHeight(taskTime);
 
             //割り込みやることの高さから、残時間分の高さを算出
