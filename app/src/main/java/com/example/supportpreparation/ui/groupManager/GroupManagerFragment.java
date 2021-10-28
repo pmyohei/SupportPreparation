@@ -140,7 +140,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //-- 「やること」の表示（セットへ追加の選択用）
         //レイアウトからリストビューを取得
-        RecyclerView rv_task = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+        RecyclerView rv_task = mRootLayout.findViewById(R.id.rv_taskList);
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
@@ -206,7 +206,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //-- 「グループ」の表示
         //レイアウトからリストビューを取得
-        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
+        RecyclerView rv_group = mRootLayout.findViewById(R.id.rv_groupList);
 
         //レイアウトマネージャの生成・設定（横スクロール）
         LinearLayoutManager l_manager = new LinearLayoutManager(mContext);
@@ -279,20 +279,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 rv_group.setAdapter(mGroupAdapter);
 
                 //レイアウト調整（上部／下部にスペースを設定）
-                rv_group.addItemDecoration(new GroupListItemDecoration(height));
-
-/*                //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
-                rv_group.addItemDecoration( new RecyclerView.ItemDecoration(){
-                    //★備考★クラス化できそう
-                    @Override
-                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                        int position = parent.getChildAdapterPosition(view);
-                        if (position == state.getItemCount() - 1) {
-                            //最後の要素の右に空間を設定
-                            outRect.bottom = height;
-                        }
-                    }
-                });*/
+                rv_group.addItemDecoration(new GroupListItemDecoration());
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_group.getViewTreeObserver().removeOnPreDrawListener(this);
@@ -502,7 +489,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             }
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
                 Log.i("timming", "group onSlide");
             }
         });
@@ -514,12 +500,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
      */
     private class GroupListItemDecoration extends RecyclerView.ItemDecoration {
 
-        private final int mGroupHeight;
-
-        private GroupListItemDecoration(int groupHeight){
-            mGroupHeight = groupHeight;
-        }
-
         @Override
         public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, RecyclerView parent, @NonNull RecyclerView.State state) {
             int position = parent.getChildAdapterPosition(view);
@@ -529,7 +509,8 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
             } else if (position == state.getItemCount() - 1) {
                 //下部にスペースを設定
-                outRect.bottom = mGroupHeight;
+                View ll_bottomSheet = mRootLayout.findViewById(R.id.ll_bottomSheet);
+                outRect.bottom = ll_bottomSheet.getHeight();
             }
         }
     }
