@@ -16,6 +16,6 @@ import androidx.room.RoomDatabase;
 public abstract class AppDatabase extends RoomDatabase {
     //DAO
     public abstract TaskTableDao        taskTableDao();             //やることテーブル
-    public abstract GroupTableDao       groupTableDao();            //やることセットテーブル
-    public abstract StackTaskTableDao   stackTaskTableDao();        //積み上げやることテーブル
+    public abstract GroupTableDao       groupTableDao();            //やることグループテーブル
+    public abstract StackTaskTableDao   stackTaskTableDao();        //積み上げられたやることテーブル
 }

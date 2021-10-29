@@ -19,13 +19,6 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="LockedOrientationActivity">
 
-        <!--
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"/>
-        -->
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -39,7 +32,7 @@
 
         </activity>
 
-        <!-- アラーム設定 -->
+        <!-- アラーム受信設定 -->
         <receiver
             android:name=".AlarmBroadcastReceiver"
             android:process=":remote" />

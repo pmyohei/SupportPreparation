@@ -43,7 +43,7 @@
     <!-- タイマ画面 -->
     <string name="heading_remaining_time">最終時刻まで</string>
     <string name="heading_next">Next</string>
-    <string name="waiting">待機中…</string>
+    <string name="waiting">開始前…</string>
     <string name="next_none">―</string>
     <string name="init_next_timer">00:00:00</string>
     <string name="init_final_timer">00h00m</string>

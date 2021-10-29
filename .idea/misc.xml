@@ -52,6 +52,7 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/dialog_alarm_set.xml" value="0.23052536231884058" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/dialog_create_group.xml" value="0.176" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/dialog_create_task.xml" value="0.264" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/dialog_notification.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/element_alarm.xml" value="0.25679347826086957" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/element_group_for_select.xml" value="0.29030797101449274" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/element_task.xml" value="0.264" />
@@ -94,6 +95,7 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_list_group.xml" value="0.24635416666666668" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_list_task.xml" value="0.15625" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack.xml" value="0.2760416666666667" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_timer.xml" value="0.18659420289855072" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/navigation_gragh.xml" value="0.264" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/old2_manage_stack.xml" value="0.29583333333333334" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/old_manage_stack.xml" value="0.16614583333333333" />
