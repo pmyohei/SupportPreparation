@@ -96,13 +96,13 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //ガイドクローズ
         mParentActivity.closeGuide();
 
+        //snackbarクローズ
+        mParentActivity.dismissSnackbar();
+
         //Admod非表示
         mParentActivity.setVisibilityAdmod( View.GONE );
         //ヘルプボタン表示(タイマ画面でグラフを閉じずに画面移動された時の対策)
         mParentActivity.setVisibilityHelpBtn(View.VISIBLE);
-
-        //現在登録されている「グループ」表示
-        setupGroupList();
 
         //選択エリアのやること
         setupTaskSelectionArea();
@@ -185,6 +185,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                //現在登録されている「グループ」表示
+                //※ItemDecorationにて、bottomSheetの高さを確定させてからグループリストの設定をする
+                setupGroupList();
 
                 //描画を中断するため、false
                 return false;
@@ -311,7 +315,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
                     //スワイプされたデータ
-                    final int        adapterPosition = viewHolder.getAdapterPosition();
+                    final int        adapterPosition = viewHolder.getAbsoluteAdapterPosition();
                     final GroupTable deletedGroup    = mGroupList.get(adapterPosition);
 
                     //スナックバー
@@ -320,9 +324,15 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                             new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
+
                                     //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                                    mGroupList.add(adapterPosition, deletedGroup);
+                                    mGroupList.addGroup(adapterPosition, deletedGroup);
                                     mGroupAdapter.notifyItemInserted(adapterPosition );
+
+                                    //追加前の最後のデータに変更通知を送る
+                                    //※空白スペースを削除するため。
+                                    mGroupAdapter.notifyItemChanged( mGroupList.getLastIdx() - 1);
+
                                     rv_group.scrollToPosition(adapterPosition );
                                 }
                             },
@@ -345,6 +355,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     //リストから削除し、アダプターへ通知
                     mGroupList.remove(adapterPosition);
                     mGroupAdapter.notifyItemRemoved(adapterPosition);
+
+                    //削除後の最後のデータに変更通知を送る。
+                    //※後ろに空白スペースを入れるため。
+                    mGroupAdapter.notifyItemChanged( mGroupList.getLastIdx() );
                 }
             }
         );
@@ -388,8 +402,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             }
 
             //削除対象があれば、削除
-            for( Integer idx: delList ){
-                taskInGroupList.remove(idx.intValue() );
+            //※削除は、削除リストの逆（大きいindex）から行う。先頭から削除を始めると、削除対象のIdxがずれるため
+            for( int j = delList.size() - 1; j >= 0; j-- ){
+                int idx = delList.get(j);
+                taskInGroupList.remove(idx);
             }
 
             //削除キュークリア
@@ -459,12 +475,13 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         ViewTreeObserver observer = ll_bottomSheet.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onGlobalLayout() {
 
                         //レイアウト確定後は不要なので、本リスナー削除
                         ll_bottomSheet.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        Log.i("getItemOffsets", "ll_bottomSheet.getHeight() before=" + ll_bottomSheet.getHeight());
 
                         //画面上に残したいサイズ
                         int peekHeight = ll_peek.getHeight();
@@ -494,7 +511,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         });
     }
 
-
     /*
      * グル－プリスト レイアウト調整用
      */
@@ -507,11 +523,24 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 //上部にスペースを設定
                 outRect.top = (mParentActivity.getHelpButtonHeight() * 2);
 
-            } else if (position == state.getItemCount() - 1) {
+                Log.i("getItemOffsets", "top position=" + position);
+
+            } else if (position == mGroupList.getLastIdx()) {
+                //※↑state.getItemCount() はリスト数が一致しないときがあるため、直接リストの最終インデックスを取得する
+
                 //下部にスペースを設定
                 View ll_bottomSheet = mRootLayout.findViewById(R.id.ll_bottomSheet);
                 outRect.bottom = ll_bottomSheet.getHeight();
+
+                Log.i("getItemOffsets", "bottom position=" + position + "  outRect.bottom=" + outRect.bottom);
+                Log.i("getItemOffsets", " bottom state.getItemCount()=" + state.getItemCount() );
+
+            } else {
+                //outRect.bottom = 0;
+                Log.i("getItemOffsets", "middle position=" + position);
+                Log.i("getItemOffsets", " middle state.getItemCount()=" + state.getItemCount() );
             }
+
         }
     }
 
@@ -528,13 +557,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     public void onSuccessCreateGroup(Integer code, GroupTable group) {
 
         //戻り値に応じてトースト表示
-        if( code == -1 ){
+        if(code.equals(AsyncGroupTableOperaion.REGISTERED)){
             Toast.makeText(mContext, R.string.toast_data_registered , Toast.LENGTH_SHORT).show();
             return;
         }
-
-        //空データ削除
-        mGroupList.removeEmpty();
 
         //RecyclerView：グループリスト
         RecyclerView rv_group = mRootLayout.findViewById(R.id.rv_groupList);
@@ -549,7 +575,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         group.setTaskAdapter(adapter);
 
         //生成された「グループ」情報をリストに追加
-        mGroupList.add( group );
+        mGroupList.addGroup( group );
 
         int addIdx = Math.max(mGroupList.size() - 1, 0);
 
@@ -558,6 +584,12 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
             //空のデータがあるため、1件目の場合は変更通知
             mGroupAdapter.notifyItemChanged(0);
         } else {
+
+            //１つ前のデータにも変更通知を送る
+            //※ItemDecoration()で、最後のデータの後ろには空白設定をいれており、その空白を消すため。
+            mGroupAdapter.notifyItemChanged(addIdx - 1);
+
+            //挿入通知
             mGroupAdapter.notifyItemInserted(addIdx);
         }
 
@@ -574,13 +606,19 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     }
 
     @Override
-    public void onSuccessEditGroup(String preGroupName, String groupName) {
+    public void onSuccessEditGroup(Integer code, String preGroupName, String groupName) {
         //更新されたリストのIndexを取得
         int i = mGroupList.searchIdxByGroupName(preGroupName);
         if( i == GroupArrayList.NO_DATA ){
             //--フェールセーフ
             //見つからなければ、何もしない
             Log.i("failsafe", "onSuccessEditGroup couldn't found");
+            return;
+        }
+
+        //戻り値に応じてトースト表示
+        if(code.equals(AsyncGroupTableOperaion.REGISTERED)){
+            Toast.makeText(mContext, R.string.toast_data_registered , Toast.LENGTH_SHORT).show();
             return;
         }
 

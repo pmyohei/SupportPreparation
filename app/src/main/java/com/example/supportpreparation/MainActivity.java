@@ -19,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -93,8 +96,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private boolean mSplashEnd;                             //スプラッシュアニメーション終了フラグ
     private boolean mReadData;                              //DB読み込みフラグ
     private boolean mIsStop;                                //カウントダウン停止フラグ
+    private Snackbar mSnackbar;                             //スナックバー
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +108,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
 
         //スプラッシュ用アニメーション開始
-        startSplashAnimation();
+        if( Build.VERSION.SDK_INT >= 23 ){
+            startSplashAnimation();
+        } else {
+            startSplashAnimation_less_23();
+        }
 
         //起動時の選択エリアは「やること」
         mIsSelectTask = true;
@@ -171,6 +179,43 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     }
 
     /*
+     * スプラッシュアニメーション開始
+     */
+    private void startSplashAnimation_less_23() {
+
+        //アニメーション
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.splash_less_23);
+
+        //API23以上用のビューは非表示
+        findViewById(R.id.iv_splash).setVisibility( View.GONE );
+
+        //API23未満用のビューを表示
+        ImageView iv_splash_less_23 = findViewById(R.id.iv_splash_less_23);
+        iv_splash_less_23.setVisibility( View.VISIBLE );
+
+        //アニメーション開始
+        iv_splash_less_23.startAnimation(animation);
+
+        //アニメーションリスナー
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mSplashEnd = true;
+
+                //DBの読み取りが完了していれば、レイアウト設定
+                if (mReadData) {
+                    setupMainLayout();
+                }
+            }
+
+            @Override
+            public void onAnimationStart(Animation animation) { }
+            @Override
+            public void onAnimationRepeat(Animation animation) { }
+        });
+    }
+
+    /*
      * レイアウト設定
      */
     private void setupMainLayout() {
@@ -188,7 +233,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         NavController navController = Navigation.findNavController(this, R.id.fragment_host);
         NavigationUI.setupWithNavController(navView, navController);
 
-        navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+        //アイコン再選択時のリスナー
+        navView.setOnItemReselectedListener(new BottomNavigationView.OnItemReselectedListener() {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
                 //何もしない処理をオーバライドすることで、再選択時の再描画を防ぐ
@@ -274,13 +320,13 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                     //非表示
                     ll_guide.setVisibility(View.GONE);
                     //アイコン変更
-                    v.setBackgroundResource(R.drawable.ic_help_24);
+                    v.setBackgroundResource(R.drawable.baseline_help_outline_24);
 
                     return;
                 }
 
                 //アイコン変更
-                v.setBackgroundResource(R.drawable.ic_help_24_pressed);
+                v.setBackgroundResource(R.drawable.baseline_help_24);
 
                 //下部ナビゲーション
                 BottomNavigationView bnv_nav = findViewById(R.id.bnv_nav);
@@ -357,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
             //アイコン変更
             ImageButton ib_help = findViewById(R.id.ib_help);
-            ib_help.setBackgroundResource(R.drawable.ic_help_24);
+            ib_help.setBackgroundResource(R.drawable.baseline_help_outline_24);
         }
     }
 
@@ -467,8 +513,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         for (int i = 0; i < ResourceManager.MAX_ALARM_CANCEL_NUM; i++) {
             //PendingIntentを取得
             //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
-            Intent intent = new Intent(getApplicationContext(), AlarmBroadcastReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), i, intent, PendingIntent.FLAG_NO_CREATE);
+            Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i, intent, PendingIntent.FLAG_NO_CREATE);
             if (pendingIntent == null) {
                 //未生成ならキャンセル処理終了
                 Log.i("test", "cancelAllAlarm= + i");
@@ -563,7 +609,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         BottomNavigationView bnv = findViewById(R.id.bnv_nav);
 
         //スナックバー
-        Snackbar snackbar = Snackbar
+        mSnackbar = Snackbar
                 //オブジェクト生成
                 .make(fl_main, R.string.snackbar_delete, Snackbar.LENGTH_LONG)
 
@@ -580,7 +626,22 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                 .setActionTextColor(getResources().getColor(R.color.white));
 
         //表示
-        snackbar.show();
+        mSnackbar.show();
+    }
+
+    /*
+     * スナックバーの非表示
+     */
+    public void dismissSnackbar() {
+
+        if( mSnackbar == null ){
+            return;
+        }
+
+        if( mSnackbar.isShown() ){
+            //表示中なら非表示に
+            mSnackbar.dismiss();
+        }
     }
 
     //-- Gettert Settert --------------------
@@ -685,7 +746,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //do nothing
     }
     @Override
-    public void onSuccessEditTask(String preTask, int preTaskTime, TaskTable updatedTask) {
+    public void onSuccessEditTask(Integer code, String preTask, int preTaskTime, TaskTable updatedTask) {
         //do nothing
     }
 
@@ -713,7 +774,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void onSuccessDeleteGroup(String task) {
     }
     @Override
-    public void onSuccessEditGroup(String preTask, String groupName) {
+    public void onSuccessEditGroup(Integer code, String preTask, String groupName) {
     }
     @Override
     public void onSuccessUpdateTask(int groupPid, String taskPidsStr){

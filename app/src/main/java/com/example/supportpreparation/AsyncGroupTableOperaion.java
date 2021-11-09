@@ -20,6 +20,10 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         REMOVE_TASK;    //やることを削除
     }
 
+    //戻り値
+    public static final Integer NORMAL     = 0;
+    public static final Integer REGISTERED = -1;
+
     //フィールド変数
     private final AppDatabase           mDB;
     private final DB_OPERATION          mOperation;
@@ -97,7 +101,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
     @Override
     protected Integer doInBackground(Void... params) {
 
-        Integer ret = 0;
+        Integer ret = NORMAL;
 
         GroupTableDao groupTableDao = mDB.groupTableDao();
 
@@ -112,7 +116,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
         } else if(mOperation == DB_OPERATION.UPDATE ){
             //編集
-            editGroupName(groupTableDao);
+            ret = editGroupName(groupTableDao);
 
         } else if(mOperation == DB_OPERATION.DELETE ){
             //削除
@@ -135,7 +139,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         int pid = dao.getPid( mGroupName);
         if( pid > 0 ){
             //すでに登録済みであれば、DBには追加しない
-            return -1;
+            return REGISTERED;
         }
 
         //DBに追加
@@ -147,7 +151,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         mNewGroupTable.setId(pid);
 
         //正常終了
-        return 0;
+        return NORMAL;
     }
 
     /*
@@ -201,12 +205,22 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
     /*
      * 「やることグループ」の編集処理
      */
-    private void editGroupName(GroupTableDao dao ){
+    private Integer editGroupName(GroupTableDao dao ){
+
+        //プライマリーキー取得
+        int pid = dao.getPid( mGroupName);
+        if( pid > 0 ){
+            //すでに登録済みであれば、DBには追加しない
+            return REGISTERED;
+        }
+
         //更新対象のPidを取得
-        int pid = dao.getPid( mPreGroupName);
+        pid = dao.getPid( mPreGroupName);
 
         //更新
         dao.updateGroupNameByPid( pid, mGroupName);
+
+        return NORMAL;
     }
 
     /*
@@ -277,7 +291,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             } else if( mOperation == DB_OPERATION.UPDATE ){
                 //処理終了：更新
-                mListener.onSuccessEditGroup(mPreGroupName, mGroupName);
+                mListener.onSuccessEditGroup(code, mPreGroupName, mGroupName);
 
             } else if( mOperation == DB_OPERATION.ADD_TASK || mOperation == DB_OPERATION.REMOVE_TASK){
                 //処理終了：やること
@@ -285,14 +299,6 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             }
         }
-    }
-
-    /*
-     * インターフェース（リスナー）の設定
-     */
-    void setListener(GroupOperationListener listener) {
-        //リスナー設定
-        mListener = listener;
     }
 
     /*
@@ -318,7 +324,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         /*
          * 更新完了時
          */
-        void onSuccessEditGroup(String preTask, String groupName);
+        void onSuccessEditGroup(Integer code, String preTask, String groupName);
 
         /*
          * やること追加／削除完了時

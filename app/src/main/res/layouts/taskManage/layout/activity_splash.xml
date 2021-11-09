@@ -19,4 +19,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:backgroundTint="@color/main"/>
 
+    <!--  API23未満用  -->
+    <ImageView
+        android:id="@+id/iv_splash_less_23"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:background="@drawable/ic_splash_less_23"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

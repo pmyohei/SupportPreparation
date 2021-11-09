@@ -18,7 +18,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="@dimen/fab_margin_bottom"
         android:layout_marginEnd="@dimen/fab_margin_right"
-        app:srcCompat="@drawable/ic_alarm_ref_32"
+        app:srcCompat="@drawable/baseline_alarm_update_24"
         app:backgroundTint="@color/main"
         app:tint="@color/icon_fab"
         android:contentDescription="@string/fab_content_ref_notification" />

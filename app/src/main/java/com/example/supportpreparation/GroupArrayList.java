@@ -19,6 +19,21 @@ public class GroupArrayList<E> extends ArrayList<GroupTable> {
         super();
     }
 
+
+    /*
+     *　最後尾のIndexの取得
+     */
+    public int getLastIdx() {
+
+        int size = size();
+
+        if (size == 0) {
+            return NO_DATA;
+        }
+
+        return size - 1;
+    }
+
     /*
      * 「グループ」Index検索（グループ名指定）
      */
@@ -62,6 +77,30 @@ public class GroupArrayList<E> extends ArrayList<GroupTable> {
         }
     }
 
+    /*
+     * 「グループ」追加
+     */
+    public void addGroup( GroupTable group ) {
+
+        //空データ削除
+        removeEmpty();
+
+        //グループ追加
+        add(group);
+    }
+
+    /*
+     * 「グループ」追加
+     */
+    public void addGroup( int pos, GroupTable group ) {
+
+        //空データ削除
+        removeEmpty();
+
+        //グループ追加
+        add(pos, group);
+    }
+    
     /*
      * 「空データ」削除
      * 　　ない場合は何もしない

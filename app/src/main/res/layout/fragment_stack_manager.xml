@@ -35,7 +35,7 @@
             app:fabCustomSize="@dimen/fab_child_size"
             app:backgroundTint="@color/main"
             app:tint="@color/icon_fab"
-            app:srcCompat="@drawable/ic_switch_direction_start_32"
+            app:srcCompat="@drawable/baseline_switch_direction_start_24"
             android:contentDescription="@string/fab_content_switch_direction" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -48,7 +48,7 @@
             app:fabCustomSize="@dimen/fab_child_size"
             app:backgroundTint="@color/main"
             app:tint="@color/icon_fab"
-            app:srcCompat="@drawable/ic_baseline_delete_black_20"
+            app:srcCompat="@drawable/baseline_delete_20"
             android:contentDescription="@string/fab_content_ref_notification" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -61,7 +61,7 @@
             app:fabCustomSize="@dimen/fab_child_size"
             app:backgroundTint="@color/main"
             app:tint="@color/icon_fab"
-            app:srcCompat="@drawable/ic_alarm_set_36"
+            app:srcCompat="@drawable/baseline_alarm_set_24"
             android:contentDescription="@string/fab_content_set_notification" />
 
         <!-- 親fab -->
@@ -74,7 +74,7 @@
             android:contentDescription="@string/fab_content_parent"
             app:backgroundTint="@color/main"
             app:tint="@color/icon_fab"
-            app:srcCompat="@drawable/avd_fab_parent_open" />
+            app:srcCompat="@drawable/ic_fab_open_32" />
 
     </LinearLayout>
 

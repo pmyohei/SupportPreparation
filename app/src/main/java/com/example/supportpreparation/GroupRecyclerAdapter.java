@@ -119,8 +119,6 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
 
-        Log.i("adapter", "group adapter onBindViewHolder i=" + i);
-
         int totalTime = mData.get(i).getTotalTime();
         if( totalTime == ResourceManager.INVALID_MIN ){
             //空データなら設定不要
@@ -175,8 +173,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         viewHolder.rv_taskInGroup.setAdapter(adapter);
 
         //ドラッグ、スワイプの設定（グループ内のやること）
-        SimpleCallbackTaskInGroup callBack = new SimpleCallbackTaskInGroup(viewHolder.rv_taskInGroup, taskInGroupList, groupPid);
-        ItemTouchHelper helper = new ItemTouchHelper( callBack );
+        SimpleCallbackTaskInGroup callBack = new SimpleCallbackTaskInGroup(viewHolder.rv_taskInGroup);
+        ItemTouchHelper helper             = new ItemTouchHelper( callBack );
 
         //リサイクラービューをヘルパーにアタッチ
         helper.attachToRecyclerView(viewHolder.rv_taskInGroup);
@@ -273,18 +271,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      */
     private class SimpleCallbackTaskInGroup extends ItemTouchHelper.SimpleCallback {
 
-        private final RecyclerView                mrv_taskInGroup;  //本コールバックのアタッチ先のRecyclerView
-        private final int                         mGroupPid;        //グループのプライマリーキー
-        private final TaskArrayList<TaskTable>    mTaskInGroup;     //グループに割り当てられた「やること」
+        private final RecyclerView mrv_taskInGroup;         //本コールバックのアタッチ先RecyclerView
 
-        public SimpleCallbackTaskInGroup(RecyclerView recyclerView, TaskArrayList<TaskTable> taskInGroup, int groupPid) {
+        public SimpleCallbackTaskInGroup(RecyclerView recyclerView) {
             super(0, ItemTouchHelper.LEFT);
 
             mrv_taskInGroup = recyclerView;
-            mTaskInGroup    = taskInGroup;
-            mGroupPid       = groupPid;
-
-            Log.i("adapter", "mGroupPid=" + mGroupPid + " adapter=" + (TaskRecyclerAdapter)mrv_taskInGroup.getAdapter());
         }
 
         @Override
@@ -297,13 +289,31 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-            //スワイプされたデータ
-            final int       adapterPosition = viewHolder.getAdapterPosition();
-            final TaskTable deletedTask     = mTaskInGroup.get(adapterPosition);
-
+            //対象アダプタ
             TaskRecyclerAdapter adapter = (TaskRecyclerAdapter)mrv_taskInGroup.getAdapter();
 
-            Log.i("adapter", "swiped mGroupPid=" + mGroupPid + " adapter=" + adapter);
+            //対象のアダプタと同じデータを検索
+            int i = 0;
+            for( GroupTable group: mData ){
+                if( adapter == group.getTaskAdapter() ){
+                    break;
+                }
+                i++;
+            }
+
+            //見つからなければ何もしない
+            if( i == mData.size() ){
+                Log.i( "failsafe", "not found swiped data" );
+                return;
+            }
+
+            //対象データ
+            TaskArrayList<TaskTable> taskInGroup = mData.get(i).getTaskInGroupList();
+            int gPid = mData.get(i).getId();
+
+            //スワイプされたデータ
+            final int       adapterPosition = viewHolder.getAbsoluteAdapterPosition();
+            final TaskTable deletedTask = taskInGroup.get(adapterPosition);
 
             //スナックバー
             mParentActivity.showSnackbar(
@@ -312,7 +322,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                         @Override
                         public void onClick(View view) {
                             //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                            mTaskInGroup.add(adapterPosition, deletedTask);
+                            taskInGroup.add(adapterPosition, deletedTask);
                             adapter.notifyItemInserted(adapterPosition );
                             mrv_taskInGroup.scrollToPosition(adapterPosition );
                         }
@@ -324,19 +334,18 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
                             //アクションバー押下以外で閉じられた場合
                             if (event != DISMISS_EVENT_ACTION) {
+
                                 //DBから削除
                                 AppDatabase db = AppDatabaseSingleton.getInstance(mContext);
-                                new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.REMOVE_TASK, mGroupPid, adapterPosition).execute();
+                                new AsyncGroupTableOperaion(db, mDBListener, AsyncGroupTableOperaion.DB_OPERATION.REMOVE_TASK, gPid, adapterPosition).execute();
                             }
                         }
                     }
             );
 
             //リストから削除し、アダプターへ通知
-            mTaskInGroup.remove(adapterPosition);
+            taskInGroup.remove(adapterPosition);
             adapter.notifyItemRemoved(adapterPosition);
-
-            Log.i("adapter", "swiped adapterPosition=" + adapterPosition);
         }
     }
 }

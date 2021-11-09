@@ -75,17 +75,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_plainProgressTask" />
 
-        <!-- カウント操作ボタン -->
+        <!-- アラーム停止ボタン -->
         <ImageButton
             android:id="@+id/ib_stop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="@drawable/avd_pause_to_play"
+            android:background="@drawable/baseline_alarm_off_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_progressTime"
             tools:ignore="SpeakableTextPresentCheck" />
+
+        <TextView
+            android:id="@+id/tv_stoppedAlarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/stopped_view_message"
+            android:textSize="20sp"
+            android:textColor="@color/tx_stopped_all_notification"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ib_stop" />
 
         <TextView
             android:id="@+id/tv_plainNextTask"
@@ -120,7 +133,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/v_border"
-            app:srcCompat="@drawable/ic_open_gragh_64" />
+            app:srcCompat="@drawable/baseline_open_gragh_32" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

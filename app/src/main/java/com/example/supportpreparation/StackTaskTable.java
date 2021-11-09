@@ -205,8 +205,14 @@ public class StackTaskTable implements Cloneable {
             cloneObject.date = new String(date);
             cloneObject.time = new String(time);
             cloneObject.isLimit = isLimit;
-            cloneObject.mStackTaskList = (TaskArrayList<TaskTable>) mStackTaskList.clone();
             cloneObject.onAlarm = onAlarm;
+
+            //やることを１つずつクローンしてリストに追加
+            //※リストそのものをクローンにはしない。やること自体は共通データとなってしまうため。
+            cloneObject.mStackTaskList = new TaskArrayList<>();
+            for( TaskTable task: mStackTaskList ){
+                cloneObject.mStackTaskList.add( (TaskTable)task.clone() );
+            }
 
             //※スタック側と重複しないようにするため、pidは初期値を設定
             cloneObject.id = 0;

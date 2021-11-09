@@ -1,9 +1,5 @@
 package com.example.supportpreparation;
 
-import static android.text.format.DateUtils.FORMAT_NUMERIC_DATE;
-import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
-import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -12,8 +8,6 @@ import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextPaint;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,9 +33,10 @@ import java.util.List;
 public class CreateSetAlarmDialog extends DialogFragment {
 
     //フィールド変数
-    private final StackTaskTable mStackTable;       //積まれたやること
-    private LayoutInflater       mInflater;         //インフレータ
-    private View.OnClickListener mClickListener;    //ボタンクリックリスナー
+    private final StackTaskTable    mStackTable;       //積まれたやること
+    private LayoutInflater          mInflater;         //インフレータ
+    private View.OnClickListener    mClickListener;    //ボタンクリックリスナー
+    private boolean                 mIsStart;          //開始フラグ
 
     /*
      * コンストラクタ
@@ -58,6 +53,22 @@ public class CreateSetAlarmDialog extends DialogFragment {
         mClickListener = listener;
     }
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        //ダイアログ
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+
+        //背景を透明にする(デフォルトテーマに付いている影などを消す)
+        //※これをしないと、画面横サイズまで拡張されない
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        //開始フラグ
+        mIsStart = false;
+
+        //ダイアログを返す
+        return dialog;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,23 +80,17 @@ public class CreateSetAlarmDialog extends DialogFragment {
         return inflater.inflate(R.layout.dialog_notification, container, false);
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //ダイアログ
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
-
-        //背景を透明にする(デフォルトテーマに付いている影などを消す)
-        //※これをしないと、画面横サイズまで拡張されない
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        //ダイアログを返す
-        return dialog;
-    }
-
     @Override
     public void onStart() {
         super.onStart();
+
+        if( mIsStart ){
+            //開始済みなら何もしない
+            return;
+        }
+
+        //Start済み
+        mIsStart = true;
 
         //ダイアログ取得
         Dialog dialog = getDialog();
@@ -148,6 +153,10 @@ public class CreateSetAlarmDialog extends DialogFragment {
         });
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 
     /*
      * ダイアログタイトル設定

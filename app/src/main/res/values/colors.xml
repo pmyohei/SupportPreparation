@@ -39,6 +39,7 @@
     <!-- グループ画面 -->
     <color name="bg_group">#889EAF</color>
     <color name="tx_groupName">#FEFBF3</color>
+    <color name="bg_task_in_group">#E6FFFFFF</color>
 
     <!-- ダイアログ -->
     <color name="tx_diarog_alart">#d9534f</color>
@@ -49,6 +50,7 @@
 
     <!-- タイマ画面 -->
     <color name="tx_not_time_arrive">#716e77</color>
+    <color name="tx_stopped_all_notification">#d9534f</color>
 
     <!-- グラフ -->
     <color name="tx_gragh">#716e77</color>

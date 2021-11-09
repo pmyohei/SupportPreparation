@@ -17,6 +17,10 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         DELETE;         //削除
     }
 
+    //戻り値
+    public static final Integer NORMAL     = 0;
+    public static final Integer REGISTERED = -1;
+
     //フィールド変数
     private final AppDatabase               mDB;
     private final DB_OPERATION              mOperation;
@@ -79,7 +83,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     @Override
     protected Integer doInBackground(Void... params) {
 
-        Integer ret = 0;
+        Integer ret = NORMAL;
 
         TaskTableDao taskTableDao = mDB.taskTableDao();
 
@@ -94,7 +98,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
         } else if(mOperation == DB_OPERATION.UPDATE ){
             //編集
-            updateTaskData(taskTableDao);
+            ret = updateTaskData(taskTableDao);
 
         } else if(mOperation == DB_OPERATION.DELETE ){
             //削除
@@ -114,7 +118,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         int pid = dao.getPid( mNewTaskName, mNewTaskTime);
         if( pid > 0 ){
             //すでに登録済みであれば、DBには追加しない
-            return -1;
+            return REGISTERED;
         }
 
         //DBに追加
@@ -127,7 +131,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         mTaskTable.setId(pid);
 
         //正常終了
-        return 0;
+        return NORMAL;
     }
 
     /*
@@ -147,15 +151,25 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     /*
      * 「やること」の編集処理
      */
-    private void updateTaskData( TaskTableDao dao ){
+    private Integer updateTaskData( TaskTableDao dao ){
+
+        int pid = dao.getPid( mNewTaskName, mNewTaskTime);
+        if( pid > 0 ){
+            //すでに登録済みであれば、DBには追加しない
+            return REGISTERED;
+        }
+
         //更新対象のPidを取得
-        int pid = dao.getPid( mPreTask, mPreTaskTime);
+        pid = dao.getPid( mPreTask, mPreTaskTime);
 
         //更新
         dao.updateByPid( pid, mNewTaskName, mNewTaskTime);
 
         //更新したレコードを取得
         mTaskTable = dao.getRecord( pid );
+
+        //正常終了
+        return NORMAL;
     }
 
     /*
@@ -190,7 +204,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
             } else if( mOperation == DB_OPERATION.UPDATE ){
                 //処理終了：更新
-                mListener.onSuccessEditTask(mPreTask, mPreTaskTime, mTaskTable);
+                mListener.onSuccessEditTask(code, mPreTask, mPreTaskTime, mTaskTable);
 
             }
         }
@@ -219,7 +233,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         /*
          * 更新完了時
          */
-        void onSuccessEditTask(String preTask, int preTaskTime, TaskTable updatedtask);
+        void onSuccessEditTask(Integer code, String preTask, int preTaskTime, TaskTable updatedtask);
 
     }
 }

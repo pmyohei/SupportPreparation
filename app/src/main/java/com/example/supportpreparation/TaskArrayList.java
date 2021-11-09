@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class TaskArrayList<E> extends ArrayList<TaskTable> {
 
-    public static int NO_DATA = -1;        //データなし
+    public static final int NO_DATA = -1;        //データなし
 
     public TaskArrayList() {
         super();
@@ -78,10 +78,35 @@ public class TaskArrayList<E> extends ArrayList<TaskTable> {
      */
     public void addEmpty() {
 
-        if( size() == 0 ){
+        if (size() == 0) {
             //空なら追加
-            add( new TaskTable("", ResourceManager.INVALID_MIN) );
+            add(new TaskTable("", ResourceManager.INVALID_MIN));
         }
+    }
+
+
+    /*
+     * 「やること」追加
+     */
+    public void addTask( TaskTable task ) {
+
+        //空データ削除
+        removeEmpty();
+
+        //やること追加
+        add(task);
+    }
+
+    /*
+     * 「やること」追加
+     */
+    public void addTask( int pos, TaskTable task ) {
+
+        //空データ削除
+        removeEmpty();
+
+        //やること追加
+        add(pos, task);
     }
 
     /*

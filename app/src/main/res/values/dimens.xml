@@ -23,6 +23,7 @@
     <dimen name="corner_radius_task_stack">24dp</dimen>
     <dimen name="corner_radius_task">32dp</dimen>
     <dimen name="corner_radius_guide">24dp</dimen>
+    <dimen name="corner_radius_task_in_group">20dp</dimen>
 
     <!-- やることの高さ(3次元)-->
     <dimen name="elevation_task">8dp</dimen>

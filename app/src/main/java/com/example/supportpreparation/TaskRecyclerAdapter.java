@@ -1,6 +1,8 @@
 package com.example.supportpreparation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
@@ -12,6 +14,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 /*
@@ -105,7 +110,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     /*
      *　ViewHolderの生成
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @NonNull
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
@@ -265,8 +270,15 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     /*
      * ビューにdrawableを適用
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void applyDrawableResorce(View view, int time) {
+
+        if( time == ResourceManager.INVALID_MIN ){
+            //空データのため、非表示
+            LinearLayout ll_taskInfo = view.findViewById( R.id.ll_taskInfo );
+            ll_taskInfo.setVisibility( View.INVISIBLE );
+
+            return;
+        }
 
         //適用対象のビューID（角丸四角のビュー）
         int id_view;
@@ -295,24 +307,24 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
                 return;
         }
 
-        //適用対象のビューを取得
-        LinearLayout ll = view.findViewById( id_view );
-        //drawableリソースを生成
-        Drawable drawable = mContext.getDrawable( id_drawable );
+        //時間に応じて、色を設定
+        int colorId = ResourceManager.getTaskTimeColorId(time);
 
-        if( time == ResourceManager.INVALID_MIN ){
+        //drawableリソース
+        Drawable drawable;
 
-            //空データのため、非表示
-            LinearLayout ll_taskInfo = view.findViewById( R.id.ll_taskInfo );
-            ll_taskInfo.setVisibility( View.INVISIBLE );
+        //API対応
+        if (Build.VERSION.SDK_INT >= 23) {
+            drawable = AppCompatResources.getDrawable(mContext, id_drawable);
+            drawable.setTint(mContext.getColor(colorId));
 
         } else {
-
-            //時間に応じて、色を設定
-            int colorId = ResourceManager.getTaskTimeColorId(time);;
-            drawable.setTint(mContext.getColor( colorId ));
+            drawable = DrawableCompat.wrap( AppCompatResources.getDrawable(mContext, id_drawable) );
+            DrawableCompat.setTint(drawable, ContextCompat.getColor(mContext, colorId));
         }
 
+        //適用対象のビューを取得
+        LinearLayout ll = view.findViewById( id_view );
         ll.setBackground(drawable);
     }
 

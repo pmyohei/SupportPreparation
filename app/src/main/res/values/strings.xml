@@ -58,6 +58,7 @@
     <string name="init_final_timer">00h00m</string>
     <string name="contentDescription_iv_openGragh">Open gragh</string>
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
+    <string name="stopped_view_message">Stopped all notifications.</string>
     <string name="stopped_nofitication_message">Notification stopped</string>
     <string name="click_stop_btn">All notifications have been stopped. When resumed, notifications and countdown will resume.</string>
 

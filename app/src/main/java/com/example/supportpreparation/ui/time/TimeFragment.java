@@ -2,9 +2,7 @@ package com.example.supportpreparation.ui.time;
 
 import static com.example.supportpreparation.StackTaskTable.NO_DATA;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,8 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -54,7 +54,7 @@ import java.util.Date;
 public class TimeFragment extends Fragment {
 
     //定数
-    private final int REF_WAITING      = -1;            //積み上げ「やること」進行待ち状態
+    private final int REF_WAITING = -1;            //積み上げ「やること」進行待ち状態
     private final int CONV_MIN_TO_MSEC = 60000;         //単位変換：min → msec
 
     //フィールド変数
@@ -65,7 +65,6 @@ public class TimeFragment extends Fragment {
     private TaskArrayList<TaskTable> mAlarmStackList;   //アラームスタック情報中の積み上げ「やること」
     private int mTaskRefIdx;                            //積み上げ「やること」の参照中インデックス
     private boolean mIsStop;                            //カウントダウン停止フラグ
-    private boolean mAlarmResetting;                    //アラーム再設定フラグ
     private String mCountDownText;                      //カウントダウン文字列
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -86,14 +85,18 @@ public class TimeFragment extends Fragment {
         mIsStop = mParentActivity.isStop();
 
         //カウントダウン文字列初期値
-        int str = (mIsStop ? R.string.stopped_timer : R.string.init_next_timer);
-        mCountDownText = mContext.getString(str);
+        //int str = (mIsStop ? R.string.stopped_timer : R.string.init_next_timer);
+        //mCountDownText = mContext.getString(str);
+        mCountDownText = mContext.getString(R.string.init_next_timer);
 
         //スライド検知リスナーの設定
         //setupSlide();
 
         //ガイドクローズ
         mParentActivity.closeGuide();
+
+        //snackbarクローズ
+        mParentActivity.dismissSnackbar();
 
         //アラーム参照Fabの設定
         setupFabRefAlarm();
@@ -147,7 +150,7 @@ public class TimeFragment extends Fragment {
 
         //カウントダウン表示制御
         ConstraintLayout cl_time = mRootLayout.findViewById(R.id.cl_time);
-        ctrlVisibleTimer(cl_time, View.INVISIBLE);
+        ctrlVisibleDate(cl_time, View.INVISIBLE);
 
         //カウントダウン開始までの調整タイマーの設定
         setupStartAdjustTimer(firstIdx, dateNow);
@@ -204,16 +207,21 @@ public class TimeFragment extends Fragment {
     }
 
     /*
-     * カウントダウン停止ボタンの設定
+     * 通知全停止停止ボタンの設定
      */
     public void setupStopButton() {
 
-        //カウントダウン停止ボタン
+        //通知全停止停止ボタン
         ImageButton ib_stop = mRootLayout.findViewById(R.id.ib_stop);
+
+        //通知停止時メッセージ
+        TextView tv_stoppedAlarm = mRootLayout.findViewById(R.id.tv_stoppedAlarm);
 
         //停止中ならアイコン差し替え
         if (mIsStop) {
-            ib_stop.setBackgroundResource(R.drawable.avd_play_to_pause);
+            //ib_stop.setBackgroundResource(R.drawable.avd_play_to_pause);
+            ib_stop.setBackgroundResource(R.drawable.baseline_alarm_on_24);
+            tv_stoppedAlarm.setVisibility(View.VISIBLE);
         }
 
         //クリックリスナー
@@ -221,14 +229,18 @@ public class TimeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                //親ビュー
+                //停止ボタン押下処理
+                switchAlarmStop( true );
+
+/*                //親ビュー
                 ViewGroup cl_time = mRootLayout.findViewById(R.id.cl_time);
 
                 //テキストカラー
                 int colorId;
-
                 //アイコン
                 int icon;
+                //通知停止ビュー表示制御値
+                int stoppedAlarmVisibility;
 
                 //フラグ変更
                 mIsStop = !mIsStop;
@@ -244,19 +256,22 @@ public class TimeFragment extends Fragment {
                     }
 
                     //アイコン
-                    icon = R.drawable.avd_pause_to_play;
+                    icon = R.drawable.baseline_alarm_on_24;
                     //icon = R.drawable.avd_play_to_pause;
 
                     //メッセージの表示
-                    Toast.makeText(mContext, R.string.click_stop_btn , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, R.string.click_stop_btn, Toast.LENGTH_SHORT).show();
 
                     //テキストカラーの変更
                     colorId = R.color.tx_not_time_arrive;
                     changeTextColorInViewGroup(cl_time, colorId);
 
                     //カウントダウン中の表示を変更
-                    TextView tv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
-                    tv_progressTime.setText(R.string.stopped_timer);
+                    //TextView tv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
+                    //tv_progressTime.setText(R.string.stopped_timer);
+
+                    //通知停止中ビューを表示
+                    stoppedAlarmVisibility = View.VISIBLE;
 
                     //通知を全キャンセル
                     mParentActivity.cancelAllAlarm();
@@ -265,7 +280,7 @@ public class TimeFragment extends Fragment {
                     //再開された場合
 
                     //アイコン
-                    icon = R.drawable.avd_play_to_pause;
+                    icon = R.drawable.baseline_alarm_off_24;
                     //icon = R.drawable.avd_pause_to_play;
 
                     //元に戻す
@@ -277,24 +292,113 @@ public class TimeFragment extends Fragment {
                         mParentActivity.setAlarm(mAlarmStack);
                     }
 
+                    //通知停止中ビューを非表示
+                    stoppedAlarmVisibility = View.INVISIBLE;
+
                     //アラーム再設定OFF
                     mAlarmResetting = false;
                 }
 
                 //アイコンアニメーション開始
                 ib_stop.setBackgroundResource(icon);
-                AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) view.getBackground();
-                rocketAnimation.start();
+                //AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) view.getBackground();
+                //rocketAnimation.start();
 
-                //ib_stop.setBackgroundResource(icon);
+                //通知停止中ビューの表示操作
+                tv_stoppedAlarm.setVisibility(stoppedAlarmVisibility);*/
             }
         });
     }
 
     /*
-     * カウントダウン表示制御
+     * 表示情報の表示制御
+     *   停止状態を現時点から切り返る
      */
-    public void ctrlVisibleTimer(ViewGroup vg , int value) {
+    public void switchAlarmStop(boolean isSetAlarm ) {
+
+        //通知全停止停止ボタン
+        ImageButton ib_stop = mRootLayout.findViewById(R.id.ib_stop);
+
+        //通知停止時メッセージ
+        TextView tv_stoppedAlarm = mRootLayout.findViewById(R.id.tv_stoppedAlarm);
+
+        //親ビュー
+        ViewGroup cl_time = mRootLayout.findViewById(R.id.cl_time);
+
+        //テキストカラー
+        int colorId;
+        //アイコン
+        int icon;
+        //通知停止ビュー表示制御値
+        int stoppedAlarmVisibility;
+
+        //フラグ変更
+        mIsStop = !mIsStop;
+
+        if (mIsStop) {
+            //停止された場合
+
+            //最終時刻まで満了した場合、停止処理はなし
+            if (mTaskRefIdx >= mAlarmStackList.size()) {
+                //リスナーのこの時点で削除
+                ib_stop.setOnClickListener(null);
+                return;
+            }
+
+            //アイコン
+            icon = R.drawable.baseline_alarm_on_24;
+            //icon = R.drawable.avd_play_to_pause;
+
+            //メッセージの表示
+            Toast.makeText(mContext, R.string.click_stop_btn, Toast.LENGTH_SHORT).show();
+
+            //テキストカラーの変更
+            colorId = R.color.tx_not_time_arrive;
+            changeTextColorInViewGroup(cl_time, colorId);
+
+            //カウントダウン中の表示を変更
+            //TextView tv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
+            //tv_progressTime.setText(R.string.stopped_timer);
+
+            //通知停止中ビューを表示
+            stoppedAlarmVisibility = View.VISIBLE;
+
+            //通知を全キャンセル
+            mParentActivity.cancelAllAlarm();
+
+        } else {
+            //再開された場合
+
+            //アイコン
+            icon = R.drawable.baseline_alarm_off_24;
+            //icon = R.drawable.avd_pause_to_play;
+
+            //元に戻す
+            setupDisplayText();
+
+            //停止中にアラーム再設定させていないなら、設定を元に戻す
+            if ( isSetAlarm ) {
+                //通知の再設定
+                mParentActivity.setAlarm(mAlarmStack);
+            }
+
+            //通知停止中ビューを非表示
+            stoppedAlarmVisibility = View.INVISIBLE;
+        }
+
+        //アイコンアニメーション開始
+        ib_stop.setBackgroundResource(icon);
+        //AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) view.getBackground();
+        //rocketAnimation.start();
+
+        //通知停止中ビューの表示操作
+        tv_stoppedAlarm.setVisibility(stoppedAlarmVisibility);
+    }
+
+    /*
+     * 表示情報の表示制御
+     */
+    public void ctrlVisibleDate(ViewGroup vg , int value) {
 
         int preValue = mRootLayout.findViewById(R.id.tv_finalTime).getVisibility();
 
@@ -315,6 +419,11 @@ public class TimeFragment extends Fragment {
         for (int i = 0; i < vg.getChildCount(); i++) {
             //子ビューを取得
             View v = vg.getChildAt(i);
+
+            if( v.getId() == R.id.tv_stoppedAlarm ){
+                //通知停止メッセージビューは対象外
+                continue;
+            }
 
             //テキストビューのみ対象
             if (v instanceof TextView) {
@@ -344,7 +453,7 @@ public class TimeFragment extends Fragment {
         //現在時刻
         Date dateNow = new Date();
 
-        //現在時刻がやることの時間帯に割り込んでいるか
+        //現在時刻がやることの時間帯に未到達
         if (firstIdx == 0 && dateNow.before(dateStart)) {
             //--現在時刻 → 開始時刻 のため、割り込んでいない状態
 
@@ -373,7 +482,7 @@ public class TimeFragment extends Fragment {
         setupDisplayText();
 
         //最終時刻
-        int last = mAlarmStackList.getLastIdx();
+        int last       = mAlarmStackList.getLastIdx();
         Date finalTime = mAlarmStackList.get(last).getEndCalendar().getTime();
 
         //最終時刻までのタイマー
@@ -491,8 +600,10 @@ public class TimeFragment extends Fragment {
                 //アラーム設定
                 mParentActivity.setAlarm(mAlarmStack);
 
-                //アラーム設定フラグON
-                mAlarmResetting = true;
+                //停止中なら、再開状態に戻す（通知は元に戻す必要はないため、false指定）
+                if( mIsStop ){
+                    switchAlarmStop( false );
+                }
             }
         });
 
@@ -552,6 +663,10 @@ public class TimeFragment extends Fragment {
             //次の「やること」なし
             nextTask = noneStr;
 
+            //通知全停止メッセージを非表示
+            TextView tv_stoppedAlarm = mRootLayout.findViewById(R.id.tv_stoppedAlarm);
+            tv_stoppedAlarm.setVisibility(View.INVISIBLE);
+
         } else {
             //-- 「やること」突入
 
@@ -594,7 +709,7 @@ public class TimeFragment extends Fragment {
         changeTextColorInViewGroup(cl_time, colorId);
 
         //表示
-        ctrlVisibleTimer(cl_time, View.VISIBLE);
+        ctrlVisibleDate(cl_time, View.VISIBLE);
     }
 
     /*
@@ -606,6 +721,11 @@ public class TimeFragment extends Fragment {
         for (int i = 0; i < vg.getChildCount(); i++) {
             //子ビューを取得
             View v = vg.getChildAt(i);
+
+            if(v.getId() == R.id.tv_stoppedAlarm ){
+                //通知停止メッセージビューは対象外
+                continue;
+            }
 
             //テキストビューのみ対象
             if (v instanceof TextView) {
@@ -683,7 +803,7 @@ public class TimeFragment extends Fragment {
     private class NextCountDown extends CountDownTimer {
 
         //カウントダウンフォーマット
-        private final TextView tv_time;
+        private final TextView         mtv_progressTime;
         private final SimpleDateFormat mSdf;
 
         /*
@@ -695,7 +815,7 @@ public class TimeFragment extends Fragment {
             super(millisInFuture, 1000);
 
             //表示ビュー
-            tv_time = mRootLayout.findViewById(R.id.tv_progressTime);
+            mtv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
 
             //タイムフォーマットのタイムゾーンをUTCに設定
             mSdf = ResourceManager.getSdfHMS();
@@ -714,25 +834,23 @@ public class TimeFragment extends Fragment {
             mCountDownText = mSdf.format(millisUntilFinished);
 
             //停止中でなければ、残り時間を表示
-            if( !mIsStop ){
-                tv_time.setText( mCountDownText );
-            }
+            //if( !mIsStop ){
+                mtv_progressTime.setText( mCountDownText );
+            //}
         }
 
         @Override
         public void onFinish() {
             // 完了
-            //tv_time.setText(sdfProgressTime.format(0));
+            //mtv_progressTime.setText(sdfProgressTime.format(0));
 
             //-- 次のやることのタイマーを設定
 
             //リファレンスのやることへ進める
             mTaskRefIdx++;
 
-            //停止中でなければ、「やること」の表示を更新
-            if( !mIsStop ){
-                setupDisplayText();
-            }
+            //「やること」の表示を更新
+            setupDisplayText();
 
             //すべて計算したら、終了
             if (mTaskRefIdx >= mAlarmStackList.size()) {
@@ -751,7 +869,7 @@ public class TimeFragment extends Fragment {
     private class FinalCountDown extends CountDownTimer {
 
         //カウントダウンフォーマット
-        private final TextView         tv_time;
+        private final TextView         mtv_finalTime;
         private final SimpleDateFormat mSdf;
 
         /*
@@ -762,7 +880,7 @@ public class TimeFragment extends Fragment {
             super(millisInFuture, 200);
 
             //表示ビュー
-            tv_time = mRootLayout.findViewById(R.id.tv_finalTime);
+            mtv_finalTime = mRootLayout.findViewById(R.id.tv_finalTime);
 
             mSdf = ResourceManager.getSdfHM();
         }
@@ -772,7 +890,7 @@ public class TimeFragment extends Fragment {
         public void onTick(long millisUntilFinished) {
 
             //残り時間を表示
-            tv_time.setText( mSdf.format(millisUntilFinished) );
+            mtv_finalTime.setText( mSdf.format(millisUntilFinished) );
 
             //Log.i("time", "final time=" + ResourceManager.getSdfHMS().format(millisUntilFinished));
         }
@@ -780,7 +898,7 @@ public class TimeFragment extends Fragment {
         @Override
         public void onFinish() {
             //完了
-            tv_time.setText(mSdf.format(0));
+            mtv_finalTime.setText(mSdf.format(0));
         }
     }
 
@@ -797,7 +915,6 @@ public class TimeFragment extends Fragment {
         private boolean isClose  = true;
         private int     mMinHeight;
 
-        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerOpened(@NonNull View drawerView) {
             Log.i("DrawerListener", "onDrawerOpened");
@@ -827,7 +944,6 @@ public class TimeFragment extends Fragment {
             Log.i("DrawerListener", "onDrawerStateChanged newState=" + newState);
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
             Log.i("DrawerListener", "onDrawerSlide");
@@ -876,7 +992,6 @@ public class TimeFragment extends Fragment {
             ViewTreeObserver observer = ll_limitTime.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @RequiresApi(api = Build.VERSION_CODES.M)
                         @Override
                         public void onGlobalLayout() {
 
@@ -907,7 +1022,6 @@ public class TimeFragment extends Fragment {
          * グラフ生成
          *   ※1回目のグラフ生成では、スクロールが発生することを全体にコールすること
          */
-        @RequiresApi(api = Build.VERSION_CODES.M)
         private void drawGragh(boolean isScroll) {
 
             //スクロールする　：上詰めレイアウトを使用
@@ -945,7 +1059,6 @@ public class TimeFragment extends Fragment {
             ViewTreeObserver observer = sv_gragh.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @RequiresApi(api = Build.VERSION_CODES.M)
                         @Override
                         public void onGlobalLayout() {
 
@@ -1025,7 +1138,6 @@ public class TimeFragment extends Fragment {
         /*
          * やることのグラフ設定
          */
-        @RequiresApi(api = Build.VERSION_CODES.M)
         private void setupTaskGragh(LayoutInflater inflater, LinearLayout root, Date dateBaseTime) {
 
             //やること分作成
@@ -1192,16 +1304,23 @@ public class TimeFragment extends Fragment {
         /*
          * グラフにdrawable、高さを設定
          */
-        @RequiresApi(api = Build.VERSION_CODES.M)
         private void designGragh(View view, int taskTime) {
-
-            //表示目的に応じて、drawableリソースを取得
-            @SuppressLint("UseCompatLoadingForDrawables")
-            Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task_for_gragh);
 
             //時間に応じて、色を設定
             int colorId = ResourceManager.getTaskTimeColorId(taskTime);
-            drawable.setTint(mContext.getColor(colorId));
+
+            //drawableリソース
+            Drawable drawable;
+
+            //API対応
+            if (Build.VERSION.SDK_INT >= 23) {
+                drawable = AppCompatResources.getDrawable(mContext, R.drawable.frame_item_task_for_gragh);
+                drawable.setTint(mContext.getColor(colorId));
+
+            } else {
+                drawable = DrawableCompat.wrap( AppCompatResources.getDrawable(mContext, R.drawable.frame_item_task_for_gragh) );
+                DrawableCompat.setTint(drawable, ContextCompat.getColor(mContext, colorId));
+            }
 
             //drawableの設定
             View v_gragh = view.findViewById(R.id.v_gragh);

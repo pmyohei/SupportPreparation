@@ -20,6 +20,6 @@
         android:layout_marginEnd="@dimen/fab_margin_right"
         app:backgroundTint="@color/main"
         app:tint="@color/icon_fab"
-        app:srcCompat="@drawable/ic_action_add" />
+        app:srcCompat="@drawable/baseline_add_24" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

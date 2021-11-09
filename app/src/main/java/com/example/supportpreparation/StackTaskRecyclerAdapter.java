@@ -16,6 +16,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Calendar;
@@ -114,7 +117,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     /*
      *　ViewHolderの生成
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @NonNull
     @Override
     public StackTaskViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
@@ -317,20 +320,28 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
     /*
      * ビューにdrawableを適用
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void applyDrawableResorce(View view, int time) {
 
         //適用対象のビューを取得
         LinearLayout ll = view.findViewById(R.id.ll_taskInfo);
 
-        //表示目的に応じて、drawableリソースを取得
-        @SuppressLint("UseCompatLoadingForDrawables")
-        Drawable drawable = mContext.getDrawable(R.drawable.frame_item_task_for_stack);
-
         //時間に応じて、色を設定
         int colorId = ResourceManager.getTaskTimeColorId(time);;
-        drawable.setTint(mContext.getColor( colorId ));
 
+        //drawableリソース
+        Drawable drawable;
+
+        //API対応
+        if (Build.VERSION.SDK_INT >= 23) {
+            drawable = AppCompatResources.getDrawable(mContext, R.drawable.frame_item_task_for_stack);
+            drawable.setTint(mContext.getColor(colorId));
+
+        } else {
+            drawable = DrawableCompat.wrap( AppCompatResources.getDrawable(mContext, R.drawable.frame_item_task_for_stack) );
+            DrawableCompat.setTint(drawable, ContextCompat.getColor(mContext, colorId));
+        }
+
+        //設定
         ll.setBackground(drawable);
     }
 

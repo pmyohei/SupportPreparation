@@ -49,6 +49,7 @@
     <string name="init_final_timer">00h00m</string>
     <string name="contentDescription_iv_openGragh">グラフオープン</string>
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
+    <string name="stopped_view_message">全通知停止中</string>
     <string name="stopped_nofitication_message">通知停止中</string>
     <string name="click_stop_btn">全ての通知を停止しました。再開すると、通知とカウントダウンを再開します。</string>
 
@@ -56,7 +57,7 @@
     <string name="unit_task_time">min</string>
     <string name="snackbar_delete">削除されました</string>
     <string name="snackbar_undo">元に戻す</string>
-    <string name="no_input">未入力です</string>
+    <string name="no_input">未入力の箇所があります</string>
 
     <!-- 通知 -->
     <string name="notify_task_suffix"> の開始時間です</string>
@@ -79,7 +80,7 @@
 
     <!-- ガイド-グループ画面 -->
     <string name="guide_group_1">この画面では、「やること」をグルーピングすることができます。</string>
-    <string name="guide_group_2">右下の＋アイコンで「グループ」を作成しましょう。</string>
+    <string name="guide_group_2">右下の「＋アイコン」で「グループ」を作成しましょう。</string>
     <string name="guide_group_3">作成したグループに「やること」を追加するには、「やること」をドラッグ＆ドロップしてください。</string>
     <string name="guide_group_4">作成した「グループ」を変更したい場合は、変更したい「グループ」をタップしてください。</string>
     <string name="guide_group_5">不要になった「グループ」は、左スワイプで削除できます。</string>

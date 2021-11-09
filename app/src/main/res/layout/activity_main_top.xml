@@ -29,9 +29,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="12dp"
         android:padding="4dp"
-        android:background="@drawable/ic_help_24"
+        android:background="@drawable/baseline_help_outline_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adView"
         tools:ignore="SpeakableTextPresentCheck" />

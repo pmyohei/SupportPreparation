@@ -6,6 +6,7 @@ import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -49,7 +50,6 @@ import com.example.supportpreparation.GroupTable;
 import com.example.supportpreparation.MainActivity;
 import com.example.supportpreparation.R;
 import com.example.supportpreparation.ResourceManager;
-import com.example.supportpreparation.SelectAreaScrollListener;
 import com.example.supportpreparation.StackTaskRecyclerAdapter;
 import com.example.supportpreparation.StackTaskTable;
 import com.example.supportpreparation.TaskArrayList;
@@ -88,6 +88,7 @@ public class StackManagerFragment extends Fragment {
     private FloatingActionButton mfab_setAlarm;                 //フローティングボタン
     private TextView mtv_limitDate;                             //リミット日のビュー
     private TextView mtv_limitTime;                             //リミット時間のビュー
+    private CreateSetAlarmDialog mAlarmDialog;                  //アラーム設定ダイアログ
     private boolean mIsSelectTask;                              //フラグ-「やること」選択エリア表示中
     private boolean mIsLimit;                                   //フラグ-リミット選択中
     private boolean mIsStackChg;                                //スタックタスク変更有無
@@ -129,6 +130,9 @@ public class StackManagerFragment extends Fragment {
 
         //ガイドクローズ
         mParentActivity.closeGuide();
+
+        //snackbarクローズ
+        mParentActivity.dismissSnackbar();
 
         //Admod非表示
         mParentActivity.setVisibilityAdmod( View.GONE );
@@ -338,7 +342,7 @@ public class StackManagerFragment extends Fragment {
         //mll_stackArea.setOnDragListener(listener);
 
         //レイアウトからリストビューを取得
-        RecyclerView rv_stackArea = (RecyclerView) mRootLayout.findViewById(R.id.rv_stackArea);
+        RecyclerView rv_stackArea = mRootLayout.findViewById(R.id.rv_stackArea);
 
         //レイアウトマネージャの生成・設定（横スクロール）、下寄り表示
         LinearLayoutManager ll_manager = new LinearLayoutManager(mContext);
@@ -392,9 +396,9 @@ public class StackManagerFragment extends Fragment {
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
 
-                //★備考★getAdapterPosition()←非推奨
-                final int fromPos = viewHolder.getAdapterPosition();
-                final int toPos = target.getAdapterPosition();
+                //移動位置取得
+                final int fromPos = viewHolder.getAbsoluteAdapterPosition();
+                final int toPos   = target.getAbsoluteAdapterPosition();
 
                 //リスト入れ替え
                 mStackTable.swapTask(fromPos, toPos);
@@ -414,7 +418,7 @@ public class StackManagerFragment extends Fragment {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
                 //スワイプされたデータ
-                final int adapterPos = viewHolder.getAdapterPosition();
+                final int adapterPos = viewHolder.getAbsoluteAdapterPosition();
                 final TaskTable deletedTask = mStackTaskList.get(adapterPos);
 
                 //スナックバー
@@ -507,8 +511,10 @@ public class StackManagerFragment extends Fragment {
         }
 
         //削除対象があれば、削除
-        for (Integer idx : delList) {
-            mStackTaskList.remove(idx.intValue());
+        //※削除は、削除リストの逆（大きいindex）から行う。先頭から削除を始めると、削除対象のIdxがずれるため
+        for( int j = delList.size() - 1; j >= 0; j-- ){
+            int idx = delList.get(j);
+            mStackTaskList.remove(idx);
         }
     }
 
@@ -764,7 +770,7 @@ public class StackManagerFragment extends Fragment {
         //設定アイコンの取得
         if (!mIsLimit) {
             //スタート指定の場合、初期アイコンを変更
-            fab_switchDirection.setImageResource(R.drawable.ic_switch_direction_limit_32);
+            fab_switchDirection.setImageResource(R.drawable.baseline_switch_direction_limit_24);
         }
 
         fab_switchDirection.setOnClickListener(new View.OnClickListener() {
@@ -815,7 +821,7 @@ public class StackManagerFragment extends Fragment {
                     //アニメーション：切り替えアイコン
                     anim_fab = R.anim.rotation_from_180_to_360;
 
-                    iconResId = R.drawable.ic_switch_direction_start_32;
+                    iconResId = R.drawable.baseline_switch_direction_start_24;
 
                 } else {
                     //--リミット(true) → スタート(false) へ変更
@@ -836,7 +842,7 @@ public class StackManagerFragment extends Fragment {
                     //アニメーション：切り替えアイコン
                     anim_fab = R.anim.rotation_from_180_to_360;
 
-                    iconResId = R.drawable.ic_switch_direction_limit_32;
+                    iconResId = R.drawable.baseline_switch_direction_limit_24;
                 }
 
                 //基準の時間を反転し、積み上げエリアアダプタへ変更通知
@@ -987,7 +993,6 @@ public class StackManagerFragment extends Fragment {
         ViewTreeObserver observer = ll_bottomSheet.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onGlobalLayout() {
 
@@ -1054,14 +1059,18 @@ public class StackManagerFragment extends Fragment {
      */
     private void createSetAlarmDialog(StackTaskTable stack) {
 
+/*        if( (mAlarmDialog != null) && ( mAlarmDialog.is ) ){
+
+        }*/
+
         //FragmentManager生成
         FragmentManager transaction = getParentFragmentManager();
 
         //ダイアログを生成
-        CreateSetAlarmDialog dialog = new CreateSetAlarmDialog(stack);
+        mAlarmDialog = new CreateSetAlarmDialog(stack);
 
         //設定ボタン押下時リスナー
-        dialog.setOnSetBtnClickListener(new View.OnClickListener() {
+        mAlarmDialog.setOnSetBtnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -1082,7 +1091,7 @@ public class StackManagerFragment extends Fragment {
             }
         });
 
-        dialog.show(transaction, "alarm");
+        mAlarmDialog.show(transaction, "alarm");
     }
 
 
@@ -1487,7 +1496,7 @@ public class StackManagerFragment extends Fragment {
                 fab_cancelAlarm.startAnimation(hideAnimation2);
                 fab_setAlarm.startAnimation(hideAnimation3);
 
-                iconId = R.drawable.ic_up_32;
+                iconId = R.drawable.ic_fab_open_32;
 
             } else {
 
@@ -1500,7 +1509,7 @@ public class StackManagerFragment extends Fragment {
                 fab_cancelAlarm.startAnimation(showAnimation2);
                 fab_switchDirection.startAnimation(showAnimation3);
 
-                iconId = R.drawable.ic_down_32;
+                iconId = R.drawable.ic_fab_close_32;
             }
 
             //フラグ切り替え

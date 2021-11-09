@@ -52,7 +52,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     private AsyncTaskTableOperaion.TaskOperationListener
                                         mTaskListener;              //「やること」操作リスナー
 
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -70,6 +69,9 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
         //ガイドクローズ
         mParentActivity.closeGuide();
+
+        //snackbarクローズ
+        mParentActivity.dismissSnackbar();
 
         //Admod非表示
         mParentActivity.setVisibilityAdmod( View.GONE );
@@ -116,7 +118,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     private void createEditTaskDialog(View view) {
 
         //「やること」情報
-        String taskName = ((TextView) view.findViewById(R.id.tv_taskName)).getText().toString();
+        String taskName    = ((TextView) view.findViewById(R.id.tv_taskName)).getText().toString();
         String taskTimeStr = ((TextView) view.findViewById(R.id.tv_taskTime)).getText().toString();
 
         int taskTime = Integer.parseInt(taskTimeStr);
@@ -211,7 +213,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
                         //スワイプされたデータ
-                        final int       adapterPosition = viewHolder.getAdapterPosition();
+                        final int       adapterPosition = viewHolder.getAbsoluteAdapterPosition();
                         final TaskTable deletedTask     = mTaskList.get(adapterPosition);
 
                         //スナックバー
@@ -221,7 +223,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                                     @Override
                                     public void onClick(View view) {
                                         //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
-                                        mTaskList.add(adapterPosition, deletedTask);
+                                        mTaskList.addTask(adapterPosition, deletedTask);
                                         mTaskAdapter.notifyItemInserted(adapterPosition );
                                         rv_task.scrollToPosition(adapterPosition );
                                     }
@@ -281,16 +283,13 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         //-- 生成した「やること」を表示
 
         //戻り値に応じてトースト表示
-        if( code == -1 ){
+        if(code.equals(AsyncTaskTableOperaion.REGISTERED)){
             Toast.makeText(mContext, R.string.toast_data_registered , Toast.LENGTH_SHORT).show();
             return;
         }
 
-        //空データ削除
-        mTaskList.removeEmpty();
-
         //生成された「やること」をリストに追加
-        mTaskList.add( taskTable );
+        mTaskList.addTask( taskTable );
 
         int addIdx = mTaskList.getLastIdx();
 
@@ -320,13 +319,19 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
      *   「やること」の編集
      */
     @Override
-    public void onSuccessEditTask(String preTaskName, int preTaskTime, TaskTable updatedTask) {
+    public void onSuccessEditTask(Integer code, String preTaskName, int preTaskTime, TaskTable updatedTask) {
         //更新されたリストのIndexを取得
         int i = mTaskList.getIdxByTaskInfo(preTaskName, preTaskTime);
-        if( i == -1 ){
+        if( i == TaskArrayList.NO_DATA ){
             //--フェールセーフ
             //見つからなければ、何もしない
             Log.i("failsafe", "onSuccessTaskUpdate couldn't found");
+            return;
+        }
+
+        //戻り値に応じてトースト表示
+        if(code.equals(AsyncTaskTableOperaion.REGISTERED)){
+            Toast.makeText(mContext, R.string.toast_data_registered , Toast.LENGTH_SHORT).show();
             return;
         }
 

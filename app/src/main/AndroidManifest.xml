@@ -12,9 +12,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_appli_icon"
+        android:icon="@mipmap/ic_application_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_appli_icon_round"
+        android:roundIcon="@mipmap/ic_application_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="LockedOrientationActivity">
@@ -36,6 +36,11 @@
         <receiver
             android:name=".AlarmBroadcastReceiver"
             android:process=":remote" />
+
+        <!-- 通知アイコン -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
 
         <!-- AdMob -->
         <meta-data
