@@ -144,6 +144,16 @@ public class TimeFragment extends Fragment {
             return mRootLayout;
         }
 
+        //初めのやることが1日以上先
+        //int firstArrivedDays = getFirstArrivedDays(firstIdx, dateNow);
+        boolean test = getFirstArrivedDays(firstIdx, dateNow);
+        if( test ){
+
+            
+
+            return mRootLayout;
+        }
+
         //カウントダウン停止ボタンの設定
         //※この設定は、カウントダウン可能な場合にのみ行う
         setupStopButton();
@@ -204,6 +214,52 @@ public class TimeFragment extends Fragment {
                     }
                 }
         );
+    }
+
+    /*
+     * 先頭のやることまでの時間が1日以上先かどうか
+     */
+    public boolean getFirstArrivedDays(int firstIdx, Date dateNow) {
+
+        //先頭のやることの開始時間
+        TaskTable firstTask = mAlarmStackList.get(firstIdx);
+        Date dateStart      = firstTask.getStartCalendar().getTime();
+
+        long startMills;
+
+        //現在時刻がやることの時間帯に割り込んでいるか
+        if (firstIdx == 0 && dateNow.before(dateStart)) {
+            //現在時刻 → 開始時刻 のため、割り込んでいない状態
+
+            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
+            startMills = dateStart.getTime();
+
+            //カウントダウンms
+            long countdown = startMills - dateNow.getTime();;
+
+            return ( countdown >= (24 * 60 * 60 * 1000) );
+
+
+/*
+
+
+            //ミリ秒取得
+            Date date = new Date(countdown);
+            Calendar cl = Calendar.getInstance();
+            cl.setTime(date);
+
+            //
+            long mill = cl.get(Calendar.DATE);
+
+*/
+
+
+        } else {
+            //割り込んでいる場合
+            return false;
+        }
+
+        //return 0;
     }
 
     /*
@@ -496,7 +552,7 @@ public class TimeFragment extends Fragment {
 
         //先頭のやることの開始時間
         TaskTable firstTask = mAlarmStackList.get(firstIdx);
-        Date dateStart = firstTask.getStartCalendar().getTime();
+        Date dateStart      = firstTask.getStartCalendar().getTime();
 
         long startMills;
 
