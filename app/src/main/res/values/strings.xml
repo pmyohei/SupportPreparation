@@ -40,8 +40,8 @@
     <string name="toast_data_registered">It is registered.</string>
 
     <!-- タスク画面 -->
-    <string name="task_name_hint">Please enter the task</string>
-    <string name="group_name_hint">Please enter the group name</string>
+    <string name="task_name_hint">Please enter the task(limit 32 characters)</string>
+    <string name="group_name_hint">Please enter the group name(limit 32 characters)</string>
     <string name="dialog_create_btn">Save</string>
 
     <string name="limittime_no_input">\-\-:\-\-</string>
@@ -56,6 +56,7 @@
     <string name="next_none">―</string>
     <string name="init_next_timer">00:00:00</string>
     <string name="init_final_timer">00h00m</string>
+    <string name="over_timer">\ > 24h</string>
     <string name="contentDescription_iv_openGragh">Open gragh</string>
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
     <string name="stopped_view_message">Stopped all notifications.</string>

@@ -54,8 +54,11 @@ import java.util.Date;
 public class TimeFragment extends Fragment {
 
     //定数
-    private final int REF_WAITING = -1;            //積み上げ「やること」進行待ち状態
+    private final int REF_WAITING = -1;                 //積み上げ「やること」進行待ち状態
     private final int CONV_MIN_TO_MSEC = 60000;         //単位変換：min → msec
+                                                        //「99h99m99s」のmills値
+    //private final long COUNT_DOWN_MAX_MILLS = (99L * 24 * 60 * CONV_MIN_TO_MSEC) + (99 * CONV_MIN_TO_MSEC) + (99 * 1000);
+    private final long COUNT_DOWN_MAX_MILLS = 24 * 60 * CONV_MIN_TO_MSEC;
 
     //フィールド変数
     private MainActivity mParentActivity;               //親アクティビティ
@@ -144,12 +147,13 @@ public class TimeFragment extends Fragment {
             return mRootLayout;
         }
 
-        //初めのやることが1日以上先
-        //int firstArrivedDays = getFirstArrivedDays(firstIdx, dateNow);
-        boolean test = getFirstArrivedDays(firstIdx, dateNow);
-        if( test ){
+        //初めのやることが、「99h99m99s」を超過
+        boolean isOver = isOverMaxCountMills(firstIdx, dateNow);
+        if( isOver ){
 
-            
+            //オーバーしている場合は、オーバー用文字列を設定
+            ((TextView)mRootLayout.findViewById(R.id.tv_finalTime)).setText( mContext.getString(R.string.over_timer) );
+            ((TextView)mRootLayout.findViewById(R.id.tv_progressTime)).setText( mContext.getString(R.string.over_timer) );
 
             return mRootLayout;
         }
@@ -217,9 +221,9 @@ public class TimeFragment extends Fragment {
     }
 
     /*
-     * 先頭のやることまでの時間が1日以上先かどうか
+     * 先頭のやることまでの時間が、「99h99m99s」を超過しているか
      */
-    public boolean getFirstArrivedDays(int firstIdx, Date dateNow) {
+    public boolean isOverMaxCountMills(int firstIdx, Date dateNow) {
 
         //先頭のやることの開始時間
         TaskTable firstTask = mAlarmStackList.get(firstIdx);
@@ -237,22 +241,8 @@ public class TimeFragment extends Fragment {
             //カウントダウンms
             long countdown = startMills - dateNow.getTime();;
 
-            return ( countdown >= (24 * 60 * 60 * 1000) );
-
-
-/*
-
-
-            //ミリ秒取得
-            Date date = new Date(countdown);
-            Calendar cl = Calendar.getInstance();
-            cl.setTime(date);
-
-            //
-            long mill = cl.get(Calendar.DATE);
-
-*/
-
+            //「99h99m99s」のmills値より大きいか
+            return ( countdown > COUNT_DOWN_MAX_MILLS );
 
         } else {
             //割り込んでいる場合
@@ -456,8 +446,8 @@ public class TimeFragment extends Fragment {
      */
     public void ctrlVisibleDate(ViewGroup vg , int value) {
 
+        //代表して以下のビューの表示状態を取得
         int preValue = mRootLayout.findViewById(R.id.tv_finalTime).getVisibility();
-
         if( preValue == value ){
             //既に設定された状態なら何もしない
             return;
@@ -945,8 +935,14 @@ public class TimeFragment extends Fragment {
         @Override
         public void onTick(long millisUntilFinished) {
 
-            //残り時間を表示
-            mtv_finalTime.setText( mSdf.format(millisUntilFinished) );
+            if( millisUntilFinished > COUNT_DOWN_MAX_MILLS  ){
+                //残り時間を表示
+                mtv_finalTime.setText( mContext.getString(R.string.over_timer) );
+
+            } else {
+                //残り時間を表示
+                mtv_finalTime.setText( mSdf.format(millisUntilFinished) );
+            }
 
             //Log.i("time", "final time=" + ResourceManager.getSdfHMS().format(millisUntilFinished));
         }
@@ -1306,7 +1302,7 @@ public class TimeFragment extends Fragment {
          */
         private void setupLastTimeLine() {
 
-            //最終時間のビュー
+            //最終時間
             TextView tv_limitTime = mRootLayout.findViewById(R.id.tv_limitTime);
 
             //ベース時間チェック
@@ -1320,7 +1316,8 @@ public class TimeFragment extends Fragment {
 
             //最後のやることの終了時間を設定
             int last = mAlarmStackList.getLastIdx();
-            tv_limitTime.setText( DateFormat.format(ResourceManager.STR_HOUR_MIN, mAlarmStackList.get(last).getEndCalendar()) );
+            Calendar calendar = mAlarmStackList.get(last).getEndCalendar();
+            tv_limitTime.setText( DateFormat.format(ResourceManager.STR_GRAGH_LAST_TIME, calendar) );
         }
 
         /*

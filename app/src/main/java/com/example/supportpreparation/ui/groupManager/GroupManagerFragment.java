@@ -628,10 +628,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
         //アダプタに変更を通知
         mGroupAdapter.notifyItemChanged(i);
 
-        //追加された位置へスクロール
-        RecyclerView rv_group = (RecyclerView) mRootLayout.findViewById(R.id.rv_groupList);
-        rv_group.scrollToPosition(i);
-
         //トーストの生成
         Toast.makeText(mContext, R.string.toast_updated, Toast.LENGTH_SHORT).show();
     }

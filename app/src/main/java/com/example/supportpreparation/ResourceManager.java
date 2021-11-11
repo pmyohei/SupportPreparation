@@ -36,6 +36,7 @@ public class ResourceManager {
 
     public static final String STR_DATE_AND_TIME    = "yyyy/MM/dd HH:mm";
     public static final String STR_DATE             = "yyyy/MM/dd";
+    public static final String STR_GRAGH_LAST_TIME  = "HH:mm (MM/dd)";
     public static final String STR_HOUR_MIN         = "HH:mm";
     public static final String STR_HOUR_MIN_HM      = "HH'h'mm'm'";
     public static final String STR_HOUR_MIN_SEC     = "HH:mm:ss";

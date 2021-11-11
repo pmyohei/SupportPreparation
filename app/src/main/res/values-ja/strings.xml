@@ -30,10 +30,9 @@
     <string name="toast_data_registered">登録済みです</string>
 
     <!-- タスク画面 -->
-    <string name="task_name_hint">やることを入力してください</string>
-    <string name="group_name_hint">グループ名を入力してください</string>
+    <string name="task_name_hint">やることを入力してください（32文字以内）</string>
+    <string name="group_name_hint">グループ名を入力してください（32文字以内）</string>
     <string name="dialog_create_btn">保存</string>
-
 
     <string name="limittime_no_input">\-\-:\-\-</string>
     <string name="limitdate_no_input">\-\-/\-\-</string>
@@ -47,6 +46,7 @@
     <string name="next_none">―</string>
     <string name="init_next_timer">00:00:00</string>
     <string name="init_final_timer">00h00m</string>
+    <string name="over_timer">\ > 24h</string>
     <string name="contentDescription_iv_openGragh">グラフオープン</string>
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
     <string name="stopped_view_message">全通知停止中</string>
