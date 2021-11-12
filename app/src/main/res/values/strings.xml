@@ -26,6 +26,8 @@
     <string name="toast_no_set_time">Please set the time.</string>
     <!-- 本日以降を設定してください -->
     <string name="toast_not_set_after_now">Please set the time after the current time.</string>
+    <!-- 積むことができる「やること」は100までです -->
+    <string name="toast_over_max_stack_num">The upper limit is 100.</string>
     <!-- 更新しました -->
     <string name="toast_updated">Updated</string>
     <!-- 通知を設定しました -->

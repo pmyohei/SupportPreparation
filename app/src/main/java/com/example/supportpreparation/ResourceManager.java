@@ -29,7 +29,7 @@ public class ResourceManager {
     private static final int TASK_TIME_LONG         = 60;
 
     //アラームキャンセル最大数
-    public static final int MAX_ALARM_CANCEL_NUM    = 256;
+    public static final int MAX_STACK_TASK_NUM      = 100;
 
     //文字列
     public static final String STR_NO_INPUT_BASETIME = "--:--";         //!文字列変更時は注意! R.string.limittime_no_inputs

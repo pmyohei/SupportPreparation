@@ -326,7 +326,7 @@ public class StackTaskRecyclerAdapter extends RecyclerView.Adapter<StackTaskRecy
         LinearLayout ll = view.findViewById(R.id.ll_taskInfo);
 
         //時間に応じて、色を設定
-        int colorId = ResourceManager.getTaskTimeColorId(time);;
+        int colorId = ResourceManager.getTaskTimeColorId(time);
 
         //drawableリソース
         Drawable drawable;

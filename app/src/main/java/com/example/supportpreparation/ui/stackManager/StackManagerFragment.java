@@ -75,6 +75,7 @@ public class StackManagerFragment extends Fragment {
     public final static float STACK_BLOCK_RATIO   = 0.4f;       //スタックやることの横サイズ割合
     public final static int SELECT_TASK_AREA_DIV  = 4;          //やること選択エリア-横幅分割数
     public final static int SELECT_GROUP_AREA_DIV = 4;          //やること選択エリア-横幅分割数
+    public final static int NOT_STACK             = -1;         //スタックなし
 
     //フィールド変数
     private MainActivity mParentActivity;                       //親アクティビティ
@@ -488,6 +489,9 @@ public class StackManagerFragment extends Fragment {
      */
     private void syncStackTaskData() {
 
+        //開始終了時間の更新有無
+        boolean needsTimeUpdate = false;
+
         //削除キュー
         List<Integer> delList = new ArrayList<>();
 
@@ -501,10 +505,29 @@ public class StackManagerFragment extends Fragment {
                 //削除済みなら、リストに追加
                 delList.add(i);
 
+                //更新必要
+                needsTimeUpdate = true;
+
             } else {
                 //データ同期（他のフィールドは本フラグメント以外で変更になることはないため、対象外）
-                task.setTaskName(orgTask.getTaskName());
-                task.setTaskTime(orgTask.getTaskTime());
+                String taskName    = task.getTaskName();
+                String orgTaskName = orgTask.getTaskName();
+
+                if( taskName.compareTo( orgTaskName ) != 0 ){
+                    //不一致なら更新
+                    task.setTaskName(orgTask.getTaskName());
+                }
+
+                int taskTime    = task.getTaskTime();
+                int orgTaskTime = orgTask.getTaskTime();
+
+                if( taskTime != orgTaskTime ){
+                    //不一致なら更新
+                    task.setTaskTime(orgTask.getTaskTime());
+
+                    //更新必要
+                    needsTimeUpdate = true;
+                }
             }
 
             i++;
@@ -515,6 +538,11 @@ public class StackManagerFragment extends Fragment {
         for( int j = delList.size() - 1; j >= 0; j-- ){
             int idx = delList.get(j);
             mStackTaskList.remove(idx);
+        }
+
+        if( needsTimeUpdate ){
+            //開始・終了時間の更新が必要なら更新する
+            mStackTable.allUpdateStartEndTime();
         }
     }
 
@@ -1103,33 +1131,34 @@ public class StackManagerFragment extends Fragment {
         @Override
         public void onClick(View view) {
 
-            //スタックタスク変更ON
-            mIsStackChg = true;
-
-            //ドラッグしたビューからデータを取得
-            //View dragView = (View) dragEvent.getLocalState();
-
             //やること積み上げアニメーションの適用Idx
             int animIdx;
 
             //ドロップされたのが「やること」か「グループ」か
+            //※以下のビューを代表として確認
             TextView tv_taskInGroup = view.findViewById(R.id.tv_taskInGroup);
             if (tv_taskInGroup == null) {
                 //「やること」がクリックされた場合
-
                 //「やること」をリストへ追加
                 animIdx = addTaskToStackList(view);
 
             } else {
-                //--「グループ」がクリックされた場合
-
+                //「グループ」がクリックされた場合
                 //グループ内の「やること」をリストへ追加
                 animIdx = addGroupToStackList(view);
-                if (animIdx == -1) {
-                    //何も追加されてなければ、アダプタへの通知はなし
-                    return;
-                }
             }
+
+            if (animIdx == NOT_STACK) {
+                //何も追加されてなければ、アダプタへの通知はなし
+                return;
+            }
+
+            //snackbarクローズ
+            //※UNDOの結果、スタック数上限オーバーを防ぐため
+            mParentActivity.dismissSnackbar();
+
+            //スタックタスク変更ON
+            mIsStackChg = true;
 
             //アダプタへ通知
             mStackAreaAdapter.setInsertAnimationIdx(animIdx);
@@ -1143,18 +1172,21 @@ public class StackManagerFragment extends Fragment {
          */
         private int addTaskToStackList(View dragView) {
 
-            //ドロップされたビューからデータを取得
-            TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
-            //TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
-            //TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
+            //スタック数の上限チェック
+            if( mStackTaskList.size() >= ResourceManager.MAX_STACK_TASK_NUM ){
+                Toast.makeText(mContext, R.string.toast_over_max_stack_num , Toast.LENGTH_SHORT).show();
+                return NOT_STACK;
+            }
 
-            int pid      = Integer.parseInt(tv_pid.getText().toString());
-            //int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
+            //ドロップされたビューからデータを取得
+            TextView tv_pid = dragView.findViewById(R.id.tv_pid);
+
+            //PID
+            int pid = Integer.parseInt(tv_pid.getText().toString());
 
             //スタックにやることを追加
             //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
             TaskTable task = mTaskList.getTaskByPid(pid);
-            //TaskTable task = new TaskTable(pid, tv_taskName.getText().toString(), taskTime);
             mStackTable.addTask( (TaskTable)task.clone() );
 
             //追加アニメーションを適用するIndex を返す
@@ -1172,14 +1204,21 @@ public class StackManagerFragment extends Fragment {
             List<Integer> pids      = TaskTableManager.convertIntArray(taskPidsStr);
             if (pids == null) {
                 //何もないなら、何もせず終了
-                return -1;
+                return NOT_STACK;
+            }
+
+            //グループ内の「やること」数
+            int taskNum = pids.size();
+
+            //スタック数の上限チェック
+            if( (mStackTaskList.size() + taskNum) > ResourceManager.MAX_STACK_TASK_NUM ){
+
+                Toast.makeText(mContext, R.string.toast_over_max_stack_num , Toast.LENGTH_SHORT).show();
+                return NOT_STACK;
             }
 
             //追加アニメーションを適用するIndex
             int animIdx = 0;
-
-            //グループ内の「やること」を積み上げ先のリストに追加する
-            int taskNum = pids.size();
 
             if (mIsLimit) {
                 //グループ内やることを、「逆」から追加
@@ -1220,173 +1259,6 @@ public class StackManagerFragment extends Fragment {
         }
 
     }
-
-
-
-    /*
-     * ドラッグリスナー（ビューがドロップされた時の動作）
-     *　　「やること」を積み上げエリアにドラッグアンドドロップするときに使用
-     */
-/*
-    private class DragListener implements View.OnDragListener {
-        @SuppressLint("NotifyDataSetChanged")
-        @Override
-        public boolean onDrag(View view, DragEvent dragEvent) {
-            switch (dragEvent.getAction()) {
-
-                //ドラッグ開始時
-                case DragEvent.ACTION_DRAG_STARTED: {
-                    //色を選択中に変更
-                    //View dragView = (View) dragEvent.getLocalState();
-                    //dragView.setBackgroundColor(Color.LTGRAY);
-                    //((TextView)dragView).setTextColor(Color.WHITE);
-                    return true;
-                }
-
-                //ドロップ時(ドロップしてドラッグが終了したとき)
-                case DragEvent.ACTION_DROP: {
-
-                    //スタックタスク変更ON
-                    mIsStackChg = true;
-
-                    //ドラッグしたビューからデータを取得
-                    View dragView = (View) dragEvent.getLocalState();
-
-                    //やること積み上げアニメーションの適用Idx
-                    int animIdx;
-
-                    //ドロップされたのが「やること」か「グループ」か
-                    TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
-                    if (tv_taskInGroup == null) {
-                        //「やること」がドロップされた場合
-
-                        //「やること」をリストへ追加
-                        animIdx = addTaskToStackList(dragView);
-
-                    } else {
-                        //--「グループ」がドロップされた場合
-
-                        //グループ内の「やること」をリストへ追加
-                        animIdx = addGroupToStackList(dragView);
-                        if (animIdx == -1) {
-                            //何も追加されてなければ、アダプタへの通知はなし
-                            break;
-                        }
-                    }
-
-                    //アダプタへ通知
-                    mStackAreaAdapter.setInsertAnimationIdx(animIdx);
-                    mStackAreaAdapter.notifyDataSetChanged();
-                    //mStackAreaAdapter.notifyItemInserted(0);
-
-                    break;
-                }
-                //ドラッグ終了時
-                case DragEvent.ACTION_DRAG_ENDED: {
-                    // ドラッグ終了時
-                    //Log.i(getClass().getSimpleName(), "ACTION_DRAG_ENDED");
-                    //Log.i("test", "drap end=" + ((TextView)view).getText());
-
-                    //View dragView = (View) dragEvent.getLocalState();
-                    //dragView.setBackgroundColor(Color.TRANSPARENT);
-
-                    return true;
-                }
-            }
-            return true;
-        }
-
-        */
-/*
-         * 積まれた「やること」リストに「やること」を追加
-         * ★備忘★animを返すのは微妙
-         *//*
-
-        private int addTaskToStackList(View dragView) {
-
-            //ドロップされたビューからデータを取得
-            TextView tv_pid      = dragView.findViewById(R.id.tv_pid);
-            //TextView tv_taskName = dragView.findViewById(R.id.tv_taskName);
-            //TextView tv_taskTime = dragView.findViewById(R.id.tv_taskTime);
-
-            int pid      = Integer.parseInt(tv_pid.getText().toString());
-            //int taskTime = Integer.parseInt(tv_taskTime.getText().toString());
-
-            //スタックにやることを追加
-            //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
-            TaskTable task = mTaskList.getTaskByPid(pid);
-            //TaskTable task = new TaskTable(pid, tv_taskName.getText().toString(), taskTime);
-            mStackTable.addTask( (TaskTable)task.clone() );
-
-            //追加アニメーションを適用するIndex
-            int animIdx = (mIsLimit ? 0 : (mStackTaskList.size() - 1));
-
-            return animIdx;
-        }
-
-        */
-/*
-         * 積まれた「やること」リストに「グループ」を追加
-         *//*
-
-        private int addGroupToStackList(View dragView) {
-
-            //グループ内やることがあるかチェック
-            TextView tv_taskInGroup = dragView.findViewById(R.id.tv_taskInGroup);
-            String   taskPidsStr    = tv_taskInGroup.getText().toString();
-            List<Integer> pids      = TaskTableManager.convertIntArray(taskPidsStr);
-            if (pids == null) {
-                //何もないなら、何もせず終了
-                return -1;
-            }
-
-            //追加アニメーションを適用するIndex
-            int animIdx = 0;
-
-            //グループ内の「やること」を積み上げ先のリストに追加する
-            int taskNum = pids.size();
-
-            if (mIsLimit) {
-                //グループ内やることを、「逆」から追加
-                int i = taskNum - 1;
-                for (; i >= 0; i--) {
-                    Integer pid = pids.get(i);
-                    TaskTable task = mTaskList.getTaskByPid(pid);
-                    if (task != null) {
-                        //リスト追加
-                        //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
-                        mStackTable.addTask( (TaskTable)task.clone() );
-
-                        //積み上げ数を加算
-                        animIdx++;
-                    }
-                }
-
-                //積み上げられた最後のIndexを指定するため、-1して調整
-                animIdx -= 1;
-
-            } else {
-                //適用アニメーションは、初めに追加するIndex
-                animIdx = mStackTaskList.size();
-
-                //グループ内やることを、「頭」から追加
-                for (int i = 0; i < taskNum; i++) {
-                    Integer pid = pids.get(i);
-                    TaskTable task = mTaskList.getTaskByPid(pid);
-                    if (task != null) {
-                        //リスト追加
-                        //※同じものが積まれたとき、開始時間が同じになるのを防ぐため、cloneを追加
-                        mStackTable.addTask( (TaskTable)task.clone() );
-                    }
-                }
-            }
-
-            return animIdx;
-        }
-
-    }
-*/
-
 
     @Override
     public void onPause() {

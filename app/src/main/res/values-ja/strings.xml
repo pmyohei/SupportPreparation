@@ -22,6 +22,7 @@
     <string name="toast_no_stack_task">「やること」を積んでください</string>
     <string name="toast_no_set_time">時間を設定してください</string>
     <string name="toast_not_set_after_now">本日以降を設定してください</string>
+    <string name="toast_over_max_stack_num">積むことができる「やること」は100までです</string>
     <string name="toast_updated">更新しました</string>
     <string name="toast_set_notification">通知を設定しました</string>
     <string name="toast_nothing_notification">設定した通知はありません</string>

@@ -34,7 +34,6 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -510,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         //AlarmManagerの取得
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        for (int i = 0; i < ResourceManager.MAX_ALARM_CANCEL_NUM; i++) {
+        for (int i = 0; i < ResourceManager.MAX_STACK_TASK_NUM; i++) {
             //PendingIntentを取得
             //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
