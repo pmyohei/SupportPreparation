@@ -70,6 +70,8 @@ public class TimeFragment extends Fragment {
     private String mCountDownText;                      //カウントダウン文字列
     private FinalCountDown mFinalCountDown;             //カウントダウン-最終事項
     private NextCountDown mNextCountDown;              //カウントダウン-進行中タスク
+    private NextCountDownAnimation mNextCountDownAnimation;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -148,9 +150,16 @@ public class TimeFragment extends Fragment {
             return mRootLayout;
         }
 
+        //カウントダウン切り替えアニメーション
+        mNextCountDownAnimation = new NextCountDownAnimation();
+
         //初めのやることが、「24h」を超過
         boolean isOver = isOverMaxCountMills(firstIdx, dateNow);
         if (isOver) {
+
+            //表示文字列設定
+            setupDisplayText();
+
             //オーバーしている場合は、オーバー用文字列を設定
             ((TextView) mRootLayout.findViewById(R.id.tv_finalTime)).setText(mContext.getString(R.string.over_timer));
             ((TextView) mRootLayout.findViewById(R.id.tv_progressTime)).setText(mContext.getString(R.string.over_timer));
@@ -167,7 +176,7 @@ public class TimeFragment extends Fragment {
         ctrlVisibleDate(cl_time, View.INVISIBLE);
 
         //カウントダウン開始までの調整タイマーの設定
-        setupStartAdjustTimer(firstIdx, dateNow);
+        setupStartAdjustTimer();
 
         return mRootLayout;
     }
@@ -185,12 +194,12 @@ public class TimeFragment extends Fragment {
         mParentActivity.setIsStop(mIsStop);
 
         //カウントダウン停止
-        if( mFinalCountDown != null ){
+        if (mFinalCountDown != null) {
             mFinalCountDown.cancel();
             mFinalCountDown = null;
         }
 
-        if( mNextCountDown != null ){
+        if (mNextCountDown != null) {
             mNextCountDown.cancel();
             mNextCountDown = null;
         }
@@ -239,12 +248,17 @@ public class TimeFragment extends Fragment {
 
         //先頭のやることの開始時間
         TaskTable firstTask = mAlarmStackList.get(firstIdx);
-        Date dateStart      = firstTask.getStartCalendar().getTime();
+        Date dateStart = firstTask.getStartCalendar().getTime();
 
         long startMills;
 
         //現在時刻がやることの時間帯に割り込んでいるか
-        if (firstIdx == 0 && dateNow.before(dateStart)) {
+        if (mAlarmStack.isInterruptTask()) {
+
+            //割り込んでいる場合
+            return false;
+
+        } else {
             //現在時刻 → 開始時刻 のため、割り込んでいない状態
 
             //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
@@ -254,11 +268,7 @@ public class TimeFragment extends Fragment {
             long countdown = startMills - dateNow.getTime();
 
             //「24h」のmills値より大きいか
-            return ( countdown > COUNT_DOWN_MAX_MILLS );
-
-        } else {
-            //割り込んでいる場合
-            return false;
+            return (countdown > COUNT_DOWN_MAX_MILLS);
         }
     }
 
@@ -285,7 +295,7 @@ public class TimeFragment extends Fragment {
             public void onClick(View view) {
 
                 //停止ボタン押下処理
-                switchAlarmStop( true );
+                switchAlarmStop(true);
             }
         });
     }
@@ -294,7 +304,7 @@ public class TimeFragment extends Fragment {
      * 表示情報の表示制御
      *   停止状態を現時点から切り返る
      */
-    public void switchAlarmStop(boolean isSetAlarm ) {
+    public void switchAlarmStop(boolean isSetAlarm) {
 
         //通知全停止停止ボタン
         ImageButton ib_stop = mRootLayout.findViewById(R.id.ib_stop);
@@ -351,7 +361,7 @@ public class TimeFragment extends Fragment {
             setupDisplayText();
 
             //停止中にアラーム再設定させていないなら、設定を元に戻す
-            if ( isSetAlarm ) {
+            if (isSetAlarm) {
                 //通知の再設定
                 mParentActivity.setAlarm(mAlarmStack);
             }
@@ -370,11 +380,11 @@ public class TimeFragment extends Fragment {
     /*
      * 表示情報の表示制御
      */
-    public void ctrlVisibleDate(ViewGroup vg , int value) {
+    public void ctrlVisibleDate(ViewGroup vg, int value) {
 
         //代表して以下のビューの表示状態を取得
         int preValue = mRootLayout.findViewById(R.id.tv_finalTime).getVisibility();
-        if( preValue == value ){
+        if (preValue == value) {
             //既に設定された状態なら何もしない
             return;
         }
@@ -382,7 +392,7 @@ public class TimeFragment extends Fragment {
         Animation animation = null;
 
         //非表示からの表示なら、アニメーションあり
-        if( value == View.VISIBLE ) {
+        if (value == View.VISIBLE) {
             //適用アニメーション
             animation = AnimationUtils.loadAnimation(mContext, R.anim.show_countdown);
         }
@@ -392,7 +402,7 @@ public class TimeFragment extends Fragment {
             //子ビューを取得
             View v = vg.getChildAt(i);
 
-            if( v.getId() == R.id.tv_stoppedAlarm ){
+            if (v.getId() == R.id.tv_stoppedAlarm) {
                 //通知停止メッセージビューは対象外
                 continue;
             }
@@ -401,7 +411,7 @@ public class TimeFragment extends Fragment {
             if (v instanceof TextView) {
                 v.setVisibility(value);
 
-                if( animation != null ){
+                if (animation != null) {
                     //アニメーション開始
                     v.startAnimation(animation);
                 }
@@ -414,41 +424,11 @@ public class TimeFragment extends Fragment {
      */
     public void setupDisplayCountDown() {
 
-        int firstIdx = mAlarmStack.getFirstArriveIdx();
-
-        //先頭のやることの開始時間
-        TaskTable firstTask = mAlarmStackList.get(firstIdx);
-        Date dateStart = firstTask.getStartCalendar().getTime();
-
-        long startMills;
-
-        //現在時刻
-        Date dateNow = new Date();
-
-        //現在時刻がやることの時間帯に未到達
-        if (firstIdx == 0 && dateNow.before(dateStart)) {
-            //--現在時刻 → 開始時刻 のため、割り込んでいない状態
-
-            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
-            startMills = dateStart.getTime();
-
-            mTaskRefIdx = REF_WAITING;
-
-        } else {
-            //--割り込んでいる場合
-
-            //「終了時刻」ー「現在時刻」（現在から終了時刻までの時間）がカウントダウン時間
-            Date dateEnd = firstTask.getEndCalendar().getTime();
-            startMills = dateEnd.getTime();
-
-            mTaskRefIdx = firstIdx;
-        }
-
         //カウントダウンms
-        long countdown = startMills - dateNow.getTime();
+        long countdown = calcCoundDownMills();
 
         //進行中タイマー
-        setNextCountDown(countdown, true);
+        setNextCountDown(countdown);
 
         //「やること」表示処理（進行中／次）
         setupDisplayText();
@@ -464,38 +444,13 @@ public class TimeFragment extends Fragment {
     /*
      * カウントダウン開始までの調整タイマ―の設定
      */
-    public void setupStartAdjustTimer(int firstIdx, Date dateNow) {
-
-        //先頭のやることの開始時間
-        TaskTable firstTask = mAlarmStackList.get(firstIdx);
-        Date dateStart      = firstTask.getStartCalendar().getTime();
-
-        long startMills;
-
-        //現在時刻がやることの時間帯に割り込んでいるか
-        if (firstIdx == 0 && dateNow.before(dateStart)) {
-            //--現在時刻 → 開始時刻 のため、割り込んでいない状態
-
-            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
-            startMills = dateStart.getTime();
-
-            mTaskRefIdx = REF_WAITING;
-
-        } else {
-            //--割り込んでいる場合
-
-            //「終了時刻」ー「現在時刻」（現在から終了時刻までの時間）がカウントダウン時間
-            Date dateEnd = firstTask.getEndCalendar().getTime();
-            startMills = dateEnd.getTime();
-
-            mTaskRefIdx = firstIdx;
-        }
+    public void setupStartAdjustTimer() {
 
         //カウントダウンms
-        long countdown = startMills - dateNow.getTime();
+        long countdown = calcCoundDownMills();
 
         //ミリ秒取得
-        Date date = new Date(countdown);
+        Date date   = new Date(countdown);
         Calendar cl = Calendar.getInstance();
         cl.setTime(date);
 
@@ -508,6 +463,46 @@ public class TimeFragment extends Fragment {
         //ミリ秒経過を監視するカウントダウンを生成
         StartAdjustCountDown countDown = new StartAdjustCountDown(mill);
         countDown.start();
+    }
+
+    /*
+     * カウントダウン時間の計算
+     */
+    public long calcCoundDownMills() {
+
+        //現在時刻
+        Date dateNow = new Date();
+
+        //先頭タスク
+        int firstIdx = mAlarmStack.getFirstArriveIdx();
+
+        //先頭のやることの開始時間
+        TaskTable firstTask = mAlarmStackList.get(firstIdx);
+
+        long startMills;
+
+        //現在時刻がやることの時間帯に到達しているか
+        if (mAlarmStack.isInterruptTask()) {
+            //割り込んでいる
+
+            //「終了時刻」ー「現在時刻」（現在から終了時刻までの時間）がカウントダウン時間
+            Date dateEnd = firstTask.getEndCalendar().getTime();
+            startMills = dateEnd.getTime();
+
+            mTaskRefIdx = firstIdx;
+
+        } else {
+            //割り込んでいない
+
+            //「開始時刻」ー「現在時刻」（現在から開始時刻までの時間）がカウントダウン時間
+            Date dateStart = firstTask.getStartCalendar().getTime();
+            startMills = dateStart.getTime();
+
+            mTaskRefIdx = REF_WAITING;
+        }
+
+        //カウントダウンms
+        return startMills - dateNow.getTime();
     }
 
     /*
@@ -554,7 +549,7 @@ public class TimeFragment extends Fragment {
 
         if (mAlarmStack.getStackTaskList().size() == 0) {
             //メッセージを表示
-            Toast.makeText(mContext, R.string.toast_not_setup_notification , Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.toast_not_setup_notification, Toast.LENGTH_SHORT).show();
 
             return;
         }
@@ -577,8 +572,8 @@ public class TimeFragment extends Fragment {
                 mParentActivity.setAlarm(mAlarmStack);
 
                 //停止中なら、再開状態に戻す（通知は元に戻す必要はないため、false指定）
-                if( mIsStop ){
-                    switchAlarmStop( false );
+                if (mIsStop) {
+                    switchAlarmStop(false);
                 }
             }
         });
@@ -669,14 +664,14 @@ public class TimeFragment extends Fragment {
 
         //「やること」（進行中／次）の表示設定
         TextView tv_progressTask = cl_time.findViewById(R.id.tv_plainProgressTask);
-        TextView tv_nextTask     = cl_time.findViewById(R.id.tv_nextTask);
+        TextView tv_nextTask = cl_time.findViewById(R.id.tv_nextTask);
         TextView tv_progressTime = cl_time.findViewById(R.id.tv_progressTime);
 
         tv_progressTask.setText(progressTask);
         tv_nextTask.setText(nextTask);
         tv_progressTime.setText(mCountDownText);
 
-        if( mIsStop ){
+        if (mIsStop) {
             //停止中なら色は設定なし
             colorId = R.color.tx_not_time_arrive;
         }
@@ -698,7 +693,7 @@ public class TimeFragment extends Fragment {
             //子ビューを取得
             View v = vg.getChildAt(i);
 
-            if(v.getId() == R.id.tv_stoppedAlarm ){
+            if (v.getId() == R.id.tv_stoppedAlarm) {
                 //通知停止メッセージビューは対象外
                 continue;
             }
@@ -714,12 +709,13 @@ public class TimeFragment extends Fragment {
     /*
      * タイマーセット(直近のやることまでのタイマー)
      */
-    public void setNextCountDown(long count, boolean isFirst) {
+    public void setNextCountDown(long count) {
 
-        int interval = ( (Build.VERSION.SDK_INT >= 26) ? 1000 : 200 );
+        //※API25以下は、CountDownの最後のonTickがこないため、細かくインターバルを設定
+        int interval = ((Build.VERSION.SDK_INT >= 26) ? NextCountDown.INTERVAL_API_26 : NextCountDown.INTERVAL_API_25);
 
         //カウントダウンインスタンスを生成し、タイマー開始
-        mNextCountDown = new NextCountDown(count, interval, isFirst);
+        mNextCountDown = new NextCountDown(count, interval);
         mNextCountDown.start();
 
         Log.i("time", "next now time=" + ResourceManager.getSdfHMS().format(count));
@@ -780,22 +776,24 @@ public class TimeFragment extends Fragment {
      */
     private class NextCountDown extends CountDownTimer {
 
-        //カウントダウンフォーマット
-        private final TextView         mtv_progressTime;
+        //定数
+        private final String        STR_TIME_ZERO   = mContext.getString(R.string.init_next_timer);
+        private final static int    INTERVAL_API_26 = 1000;
+        private final static int    INTERVAL_API_25 = 200;
+        private final int           TICK_COUNT      = INTERVAL_API_26 /INTERVAL_API_25;
+
+        //フィールド変数
+        private final TextView mtv_progressTime;
         private final SimpleDateFormat mSdf;
-        private final boolean          mIsFirst;
-        private int                    mSkipCount = 0;
+        private int mSkipCount = 0;
 
         /*
          * コンストラクタ
          */
-        public NextCountDown(long millisInFuture, int interval, boolean isFirst) {
+        public NextCountDown(long millisInFuture, int interval) {
 
             //指定間隔でカウントダウン
             super(millisInFuture, interval);
-
-            //カウントダウン初回フラグ
-            mIsFirst = isFirst;
 
             Log.i("countDOWN", "millisInFuture=" + millisInFuture);
 
@@ -810,47 +808,47 @@ public class TimeFragment extends Fragment {
         @Override
         public void onTick(long millisUntilFinished) {
 
-            if( Build.VERSION.SDK_INT <= 25 ){
-
-                if( mIsFirst ){
-                    //カウントダウン設定初の場合、初めの通知から表示
-                    mSkipCount++;
-                    if( mSkipCount > 1 ){
-                        if( mSkipCount >= 5 ){
-                            mSkipCount = 0;
-                        }
-                        return;
+            if (Build.VERSION.SDK_INT <= 25) {
+                //初めの通知から表示していく
+                mSkipCount++;
+                if (mSkipCount > 1) {
+                    if (mSkipCount >= TICK_COUNT) {
+                        mSkipCount = 0;
                     }
-
-                } else {
-                    //カウントダウン設定初ではない場合、最後尾の通知から表示
-                    mSkipCount++;
-                    if( mSkipCount < 5 ){
-                        return;
-                    }
-                    mSkipCount = 0;
+                    return;
                 }
+
+                //カウントダウン文字列は保持
+                mCountDownText = mSdf.format(millisUntilFinished);
+
+                if (mCountDownText.compareTo(STR_TIME_ZERO) == 0) {
+                    //カウントダウン切り替わり時の文字列設定
+                    setStartCountDownText();
+
+                    //次のやることのカウントダウンを設定
+                    setNextTaskTimer();
+
+                } else if ( mNextCountDownAnimation.isAnimationEnd() ) {
+                    //アニメーションを終えていれば、残り時間を表示
+                    mtv_progressTime.setText(mCountDownText);
+                }
+
+            } else {
+
+                //カウントダウン文字列は保持
+                mCountDownText = mSdf.format(millisUntilFinished);
+
+                //停止中でなければ、残り時間を表示
+                mtv_progressTime.setText(mCountDownText);
             }
-
-            //カウントダウン文字列は保持
-            mCountDownText = mSdf.format(millisUntilFinished);
-
-            //停止中でなければ、残り時間を表示
-            mtv_progressTime.setText( mCountDownText );
 
             Log.i("countDOWN", "onTick mCountDownText=" + mCountDownText);
-
-            if( Build.VERSION.SDK_INT <= 25 ){
-                if( mCountDownText.compareTo( mContext.getString(R.string.init_next_timer) ) == 0 ){
-                    setNextTaskTimer();
-                }
-            }
         }
 
         @Override
         public void onFinish() {
 
-            if( Build.VERSION.SDK_INT <= 25 ){
+            if (Build.VERSION.SDK_INT <= 25) {
                 //API25以下は、OnTickで0秒を観測した時点で終了処理を走らせる
                 return;
             }
@@ -859,6 +857,9 @@ public class TimeFragment extends Fragment {
             setNextTaskTimer();
         }
 
+        /*
+         * 次のやることカウントダウンの設定
+         */
         private void setNextTaskTimer() {
 
             Log.i("countDOWN", "onFinish1");
@@ -876,7 +877,59 @@ public class TimeFragment extends Fragment {
 
             //タイマーを再設定
             int taskTime = mAlarmStackList.get(mTaskRefIdx).getTaskTime();
-            setNextCountDown((long) taskTime * CONV_MIN_TO_MSEC, false);
+            setNextCountDown((long) taskTime * CONV_MIN_TO_MSEC);
+        }
+
+        /*
+         * カウントダウン切り替わり時の文字列設定
+         */
+        private void setStartCountDownText() {
+
+            //カウントダウンに設定する文字列
+            //次のやることがあるなら、固定文字列を設定
+            mCountDownText = ( (mTaskRefIdx == mAlarmStackList.getLastIdx()) ? STR_TIME_ZERO : mContext.getString(R.string.switch_timer) );
+
+            mtv_progressTime.setText(mCountDownText);
+
+            //次のやることがあるなら、アニメーションを設定
+            if( mTaskRefIdx < mAlarmStackList.getLastIdx() ){
+                //アニメーション
+                Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.disappear);
+                //アニメーション開始
+                mtv_progressTime.startAnimation(animation);
+
+                //アニメーションリスナー
+                animation.setAnimationListener(mNextCountDownAnimation);
+            }
+        }
+    }
+
+    /*
+     * カウントダウン切り替わり時のアニメーション
+     */
+    private class NextCountDownAnimation implements Animation.AnimationListener {
+
+        private boolean mIsAnimationEnd;
+
+        public NextCountDownAnimation(){
+            mIsAnimationEnd = true;
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            mIsAnimationEnd = true;
+        }
+        @Override
+        public void onAnimationStart(Animation animation) {
+            mIsAnimationEnd = false;
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+        }
+
+        public boolean isAnimationEnd() {
+            return mIsAnimationEnd;
         }
     }
 

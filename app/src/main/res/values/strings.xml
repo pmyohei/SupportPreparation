@@ -55,6 +55,7 @@
     <string name="heading_remaining_time">Limit</string>
     <string name="heading_next">Next</string>
     <string name="waiting">Waiting…</string>
+    <string name="switch_timer">Next timer start</string>
     <string name="next_none">―</string>
     <string name="init_next_timer">00:00:00</string>
     <string name="init_final_timer">00h00m</string>

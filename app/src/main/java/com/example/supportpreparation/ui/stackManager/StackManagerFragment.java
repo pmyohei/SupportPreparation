@@ -1282,7 +1282,7 @@ public class StackManagerFragment extends Fragment {
             int position = parent.getChildAdapterPosition(view);
             if (position == state.getItemCount() - 1) {
                 //最後の要素の右に、FAB分の空間を設定
-                FloatingActionButton fab_parent = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_parent);
+                FloatingActionButton fab_parent = mRootLayout.findViewById(R.id.fab_parent);
                 outRect.right = fab_parent.getWidth();
             }
         }
@@ -1340,9 +1340,9 @@ public class StackManagerFragment extends Fragment {
 
             isShow = false;
 
-            fab_switchDirection = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_switchDirection);
-            fab_cancelAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_refAlarm);
-            fab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
+            fab_switchDirection = mRootLayout.findViewById(R.id.fab_switchDirection);
+            fab_cancelAlarm     = mRootLayout.findViewById(R.id.fab_refAlarm);
+            fab_setAlarm        = mRootLayout.findViewById(R.id.fab_setAlarm);
 
             showAnimation1 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_1);
             showAnimation2 = AnimationUtils.loadAnimation(mContext, R.anim.show_child_fab_2);
