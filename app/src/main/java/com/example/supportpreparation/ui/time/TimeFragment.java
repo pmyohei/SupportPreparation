@@ -44,6 +44,8 @@ import com.example.supportpreparation.TaskTable;
 import com.google.android.gms.ads.AdView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.w3c.dom.Text;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -535,9 +537,6 @@ public class TimeFragment extends Fragment {
             public void onClick(View view) {
                 //ダイアログの生成
                 createSetAlarmDialog();
-
-                //アラームをすべて削除
-                mParentActivity.cancelAllAlarm();
             }
         });
     }
@@ -613,7 +612,7 @@ public class TimeFragment extends Fragment {
 
         //固定文字列の取得
         String waitingStr = mContext.getString(R.string.waiting);
-        String noneStr = mContext.getString(R.string.next_none);
+        String noneStr    = mContext.getString(R.string.next_none);
 
         //カラーID
         int colorId = R.color.tx_not_time_arrive;
@@ -777,15 +776,15 @@ public class TimeFragment extends Fragment {
     private class NextCountDown extends CountDownTimer {
 
         //定数
-        private final String        STR_TIME_ZERO   = mContext.getString(R.string.init_next_timer);
         private final static int    INTERVAL_API_26 = 1000;
-        private final static int    INTERVAL_API_25 = 200;
+        private final static int    INTERVAL_API_25 = 100;
         private final int           TICK_COUNT      = INTERVAL_API_26 /INTERVAL_API_25;
 
         //フィールド変数
-        private final TextView mtv_progressTime;
-        private final SimpleDateFormat mSdf;
-        private int mSkipCount = 0;
+        private final TextView          mtv_progressTime;
+        private final SimpleDateFormat  mSdf;
+        private final SimpleDateFormat  mSdf_final;
+        private int                     mSkipCount = 0;
 
         /*
          * コンストラクタ
@@ -801,7 +800,8 @@ public class TimeFragment extends Fragment {
             mtv_progressTime = mRootLayout.findViewById(R.id.tv_progressTime);
 
             //タイムフォーマットのタイムゾーンをUTCに設定
-            mSdf = ResourceManager.getSdfHMS();
+            mSdf       = ResourceManager.getSdfHMS();
+            mSdf_final = ResourceManager.getSdfHM();
         }
 
         //指定間隔でコールされる
@@ -821,12 +821,20 @@ public class TimeFragment extends Fragment {
                 //カウントダウン文字列は保持
                 mCountDownText = mSdf.format(millisUntilFinished);
 
-                if (mCountDownText.compareTo(STR_TIME_ZERO) == 0) {
+                if (mCountDownText.compareTo( mSdf.format(0) ) == 0) {
+
                     //カウントダウン切り替わり時の文字列設定
                     setStartCountDownText();
 
                     //次のやることのカウントダウンを設定
                     setNextTaskTimer();
+
+                    //最後のやることが終了したとき
+                    if( mTaskRefIdx == mAlarmStackList.size() ){
+                        //最終リミット側もこのタイミングで0にする
+                        mFinalCountDown.cancel();
+                        ((TextView)mRootLayout.findViewById(R.id.tv_finalTime)).setText( mSdf_final.format(0) );
+                    }
 
                 } else if ( mNextCountDownAnimation.isAnimationEnd() ) {
                     //アニメーションを終えていれば、残り時間を表示
@@ -849,7 +857,27 @@ public class TimeFragment extends Fragment {
         public void onFinish() {
 
             if (Build.VERSION.SDK_INT <= 25) {
-                //API25以下は、OnTickで0秒を観測した時点で終了処理を走らせる
+                //API25以下は、OnTickで0秒を観測した時点で終了処理を走らせるが、
+                //最後の通知がタイミング的に来ない場合があるため、来ていなければこちらで終了処理を行う。
+                if( mNextCountDownAnimation.isAnimationEnd() ){
+
+                    //最後のやることではない場合
+                    if( mTaskRefIdx < mAlarmStackList.getLastIdx() ){
+                        //カウントダウン切り替わり時の文字列設定
+                        setStartCountDownText();
+                    }
+
+                    //次のやることのカウントダウンを設定
+                    setNextTaskTimer();
+                }
+
+                //最後のやることが終了したとき
+                if( mTaskRefIdx == mAlarmStackList.size() ){
+                    //最終リミット側もこのタイミングで0にする
+                    mFinalCountDown.cancel();
+                    ((TextView)mRootLayout.findViewById(R.id.tv_finalTime)).setText( mSdf_final.format(0) );
+                }
+
                 return;
             }
 
@@ -887,7 +915,7 @@ public class TimeFragment extends Fragment {
 
             //カウントダウンに設定する文字列
             //次のやることがあるなら、固定文字列を設定
-            mCountDownText = ( (mTaskRefIdx == mAlarmStackList.getLastIdx()) ? STR_TIME_ZERO : mContext.getString(R.string.switch_timer) );
+            mCountDownText = ( (mTaskRefIdx == mAlarmStackList.getLastIdx()) ? mSdf.format(0) : mContext.getString(R.string.switch_timer) );
 
             mtv_progressTime.setText(mCountDownText);
 

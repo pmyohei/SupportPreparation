@@ -455,12 +455,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                 continue;
             }
 
-            //アラーム設定時間
-            long millis = task.getStartCalendar().getTimeInMillis();
-
             //Receiver側へのデータ
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
             intent.putExtra(ResourceManager.NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
+
+            Log.i("setAlarm", "message=" + task.getTaskName() + suffixStr);
+
+            //アラーム設定時間
+            long millis = task.getStartCalendar().getTimeInMillis();
 
             //アラームの設定
             PendingIntent pending
@@ -470,13 +472,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             //リクエストコードを更新
             requestCode++;
         }
-
-
+        
         //最終時刻のアラーム設定
         //アラーム設定あり、かつ、現在時刻の方が前の時間
         if (stackTable.isOnAlarm()) {
 
             String message = getString(R.string.notify_final_name);
+
+            Log.i("setAlarm", "message=" + message);
 
             //Receiver側へのデータ
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);

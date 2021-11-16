@@ -23,7 +23,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("test", "Received");
+        Log.i("onReceive", "Received");
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -33,7 +33,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
             String title = context.getString(R.string.app_name);
             String message = intent.getExtras().getString(ResourceManager.NOTIFY_SEND_KEY);
 
-            Log.i("test", "Received message=" + message);
+            Log.i("onReceive", "Received message=" + message);
 
             //サウンド
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -79,6 +79,8 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
             //通知
             notificationManager.notify(R.string.app_name, builder.build());
+
+            Log.i("onReceive", "finish");
         }
     }
 }
