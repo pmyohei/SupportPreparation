@@ -173,20 +173,24 @@ public class TimeFragment extends Fragment {
         //※この設定は、カウントダウン可能な場合にのみ行う
         setupStopButton();
 
+        //カウントダウン開始までの調整タイマーの設定
+        boolean isAdjust = setupStartAdjustTimer();
+        if( !isAdjust ){
+            return mRootLayout;
+        }
+
         //カウントダウン表示制御
         ConstraintLayout cl_time = mRootLayout.findViewById(R.id.cl_time);
         ctrlVisibleDate(cl_time, View.INVISIBLE);
 
-        //カウントダウン開始までの調整タイマーの設定
-        setupStartAdjustTimer();
-
         return mRootLayout;
     }
-/*
+
     @Override
     public void onPause() {
         super.onPause();
-    }*/
+        Log.i("onPause", "onPause");
+    }
 
     @Override
     public void onDestroyView() {
@@ -205,6 +209,8 @@ public class TimeFragment extends Fragment {
             mNextCountDown.cancel();
             mNextCountDown = null;
         }
+
+        Log.i("onDestroyView", "onDestroyView");
     }
 
     /*
@@ -446,10 +452,18 @@ public class TimeFragment extends Fragment {
     /*
      * カウントダウン開始までの調整タイマ―の設定
      */
-    public void setupStartAdjustTimer() {
+    public boolean setupStartAdjustTimer() {
 
         //カウントダウンms
         long countdown = calcCoundDownMills();
+
+        Log.i("setupStartAdjustTimer", "countdown=" + countdown);
+
+        final long SEC_MLLS = 1000;
+        if( countdown < SEC_MLLS ){
+            //残り時間が1s未満なら、何もしない
+            return false;
+        }
 
         //ミリ秒取得
         Date date   = new Date(countdown);
@@ -458,13 +472,14 @@ public class TimeFragment extends Fragment {
 
         long mill = cl.get(Calendar.MILLISECOND);
 
-        Log.i("setupStartAdjustTimer", "countdown=" + countdown);
         Log.i("setupStartAdjustTimer", "mill     =" + mill);
         Log.i("setupStartAdjustTimer", "diff     =" + (countdown - mill));
 
         //ミリ秒経過を監視するカウントダウンを生成
         StartAdjustCountDown countDown = new StartAdjustCountDown(mill);
         countDown.start();
+
+        return true;
     }
 
     /*
@@ -711,7 +726,7 @@ public class TimeFragment extends Fragment {
     public void setNextCountDown(long count) {
 
         //※API25以下は、CountDownの最後のonTickがこないため、細かくインターバルを設定
-        int interval = ((Build.VERSION.SDK_INT >= 26) ? NextCountDown.INTERVAL_API_26 : NextCountDown.INTERVAL_API_25);
+        int interval = ((Build.VERSION.SDK_INT <= 25) ? NextCountDown.INTERVAL_API_25 : NextCountDown.INTERVAL_API_26);
 
         //カウントダウンインスタンスを生成し、タイマー開始
         mNextCountDown = new NextCountDown(count, interval);
