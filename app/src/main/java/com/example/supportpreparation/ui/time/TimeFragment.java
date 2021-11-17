@@ -460,8 +460,8 @@ public class TimeFragment extends Fragment {
         Log.i("setupStartAdjustTimer", "countdown=" + countdown);
 
         final long SEC_MLLS = 1000;
-        if( countdown < SEC_MLLS ){
-            //残り時間が1s未満なら、何もしない
+        if( countdown <= SEC_MLLS ){
+            //残り時間が1s以下なら、何もしない
             return false;
         }
 
