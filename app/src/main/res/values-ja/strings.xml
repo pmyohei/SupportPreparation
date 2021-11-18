@@ -55,6 +55,7 @@
     <string name="stopped_nofitication_message">通知停止中</string>
     <string name="click_stop_btn">全ての通知を停止しました。</string>
 
+
     <!-- 共通 -->
     <string name="unit_task_time">min</string>
     <string name="snackbar_delete">削除されました</string>
