@@ -64,7 +64,7 @@
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
     <string name="stopped_view_message">Stopped all notifications.</string>
     <string name="stopped_nofitication_message">Notification stopped</string>
-    <string name="click_stop_btn">All notifications have been stopped. When resumed, notifications and countdown will resume.</string>
+    <string name="click_stop_btn">All notifications have been stopped.</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>

@@ -53,7 +53,7 @@
     <string name="stopped_timer">\-\-:\-\-:\-\-</string>
     <string name="stopped_view_message">全通知停止中</string>
     <string name="stopped_nofitication_message">通知停止中</string>
-    <string name="click_stop_btn">全ての通知を停止しました。再開すると、通知とカウントダウンを再開します。</string>
+    <string name="click_stop_btn">全ての通知を停止しました。</string>
 
     <!-- 共通 -->
     <string name="unit_task_time">min</string>
