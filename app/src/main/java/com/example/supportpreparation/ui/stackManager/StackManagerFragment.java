@@ -6,7 +6,6 @@ import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -16,7 +15,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
@@ -36,7 +34,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -96,8 +93,9 @@ public class StackManagerFragment extends Fragment {
     private boolean mIsStop;                                    //カウントダウン停止フラグ
 
     //BottomSheetBehavior と連動するpadding
-    private int mBasicPadding;
-    private int mExpandedBSHeight;
+    private int     mMinBottomPadding;                          //スライドを閉じた時、最低限必要なBottomPadding
+    private int     mAdjustOffset;                              //スライド時のオフセット基準値
+    private boolean mIsSetBottomSheet;                          //ボトムシートのレイアウト設定をしたかどうか
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -122,12 +120,15 @@ public class StackManagerFragment extends Fragment {
         mStackTaskList = mStackTable.getStackTaskList();
 
         //ビューを保持
-        mtv_limitTime = (TextView) mRootLayout.findViewById(R.id.tv_limitTime);
-        mtv_limitDate = (TextView) mRootLayout.findViewById(R.id.tv_limitDate);
-        mfab_setAlarm = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_setAlarm);
+        mtv_limitTime = mRootLayout.findViewById(R.id.tv_limitTime);
+        mtv_limitDate = mRootLayout.findViewById(R.id.tv_limitDate);
+        mfab_setAlarm = mRootLayout.findViewById(R.id.fab_setAlarm);
 
         //スタックタスク未変更
         mIsStackChg = false;
+
+        //ボトムシートレイアウト未設定
+        mIsSetBottomSheet = false;
 
         //ガイドクローズ
         mParentActivity.closeGuide();
@@ -158,9 +159,6 @@ public class StackManagerFragment extends Fragment {
         setupFabSwitchDirection();
         setupFabSetAlarm();
         setupFabStackTaskClear();
-
-        //BottomSheetの設定
-        setupBottomSheet();
 
         return mRootLayout;
     }
@@ -635,6 +633,9 @@ public class StackManagerFragment extends Fragment {
                 //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
                 rv_task.addItemDecoration(new SelectAreaItemDecoration());
 
+                //BottomSheetの設定
+                setupBottomSheet( R.id.rv_taskList );
+
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_task.getViewTreeObserver().removeOnPreDrawListener(this);
 
@@ -695,6 +696,9 @@ public class StackManagerFragment extends Fragment {
 
                 //FAB 分と重ならないように、最後のアイテムの右に空白を入れる
                 rv_group.addItemDecoration(new SelectAreaItemDecoration());
+
+                //BottomSheetの設定
+                setupBottomSheet( R.id.rv_groupList );
 
                 //本リスナーを削除（何度も処理する必要はないため）
                 rv_group.getViewTreeObserver().removeOnPreDrawListener(this);
@@ -1006,7 +1010,12 @@ public class StackManagerFragment extends Fragment {
     /*
      * BottomSheetの設定
      */
-    private void setupBottomSheet() {
+    private void setupBottomSheet( int recyclerViewID ) {
+
+        if( mIsSetBottomSheet ){
+            //設定済みなら不要
+            return;
+        }
 
         //BottomSheetBehavior と連動するpadding
         LinearLayout ll_manageStack = mRootLayout.findViewById(R.id.ll_manageStack);
@@ -1031,24 +1040,26 @@ public class StackManagerFragment extends Fragment {
                         View ll_peek = ll_bottomSheet.findViewById(R.id.ll_peek);
                         int peekHeight = ll_peek.getHeight();
 
-                        //初期PaddingBottom
-                        mBasicPadding = ll_manageStack.getPaddingBottom() + peekHeight;
+                        //最低限必要なPaddingBottom
+                        mMinBottomPadding = ll_manageStack.getPaddingBottom() + peekHeight + mParentActivity.getBottomNavigationViewHeight();
 
-                        //BottomSheetの高さ
-                        mExpandedBSHeight = ll_bottomSheet.getHeight();
+                        //スライド調整基準値
+                        mAdjustOffset = ll_bottomSheet.findViewById(recyclerViewID).getHeight();
 
                         //Padding設定
                         ll_manageStack.setPadding(
                                 ll_manageStack.getPaddingLeft(),
                                 ll_manageStack.getPaddingTop(),
                                 ll_manageStack.getPaddingRight(),
-                                mBasicPadding + mExpandedBSHeight
+                                ll_manageStack.getPaddingBottom() + ll_bottomSheet.getHeight()
                         );
 
                         //元々のpadding分（下部ナビゲーション分設定済み）を加味した分をPeekHeightとする
                         peekHeight += behavior.getPeekHeight();
-
                         behavior.setPeekHeight(peekHeight);
+
+                        //設定完了
+                        mIsSetBottomSheet = true;
                     }
                 }
         );
@@ -1061,22 +1072,19 @@ public class StackManagerFragment extends Fragment {
 
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                //case BottomSheetBehavior.STATE_DRAGGING:
             }
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
 
-                //Log.i("test", "slideOffset=" + slideOffset);
-
-                //padding調整値
-                int offset = (int) (mExpandedBSHeight * slideOffset);
+                //padding調整値（最低限必要なpadding値に加算する値を算出）
+                int offset = (int) (mAdjustOffset * slideOffset);
 
                 ll_manageStack.setPadding(
                         ll_manageStack.getPaddingLeft(),
                         ll_manageStack.getPaddingTop(),
                         ll_manageStack.getPaddingRight(),
-                        (int) (mBasicPadding + offset)
+                        mMinBottomPadding + offset
                 );
             }
         });

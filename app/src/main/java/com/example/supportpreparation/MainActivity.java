@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
 
         //スプラッシュ用アニメーション開始
-        if( Build.VERSION.SDK_INT >= 23 ){
+        if (Build.VERSION.SDK_INT >= 23) {
             startSplashAnimation();
         } else {
             startSplashAnimation_less_23();
@@ -186,11 +186,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.splash_less_23);
 
         //API23以上用のビューは非表示
-        findViewById(R.id.iv_splash).setVisibility( View.GONE );
+        findViewById(R.id.iv_splash).setVisibility(View.GONE);
 
         //API23未満用のビューを表示
         ImageView iv_splash_less_23 = findViewById(R.id.iv_splash_less_23);
-        iv_splash_less_23.setVisibility( View.VISIBLE );
+        iv_splash_less_23.setVisibility(View.VISIBLE);
 
         //アニメーション開始
         iv_splash_less_23.startAnimation(animation);
@@ -208,9 +208,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             }
 
             @Override
-            public void onAnimationStart(Animation animation) { }
+            public void onAnimationStart(Animation animation) {
+            }
+
             @Override
-            public void onAnimationRepeat(Animation animation) { }
+            public void onAnimationRepeat(Animation animation) {
+            }
         });
     }
 
@@ -472,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             //リクエストコードを更新
             requestCode++;
         }
-        
+
         //最終時刻のアラーム設定
         //アラーム設定あり、かつ、現在時刻の方が前の時間
         if (stackTable.isOnAlarm()) {
@@ -636,14 +639,21 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      */
     public void dismissSnackbar() {
 
-        if( mSnackbar == null ){
+        if (mSnackbar == null) {
             return;
         }
 
-        if( mSnackbar.isShown() ){
+        if (mSnackbar.isShown()) {
             //表示中なら非表示に
             mSnackbar.dismiss();
         }
+    }
+
+    /*
+     * BottomNavigationViewの高さを取得
+     */
+    public int getBottomNavigationViewHeight() {
+        return findViewById(R.id.bnv_nav).getHeight();
     }
 
     //-- Gettert Settert --------------------
