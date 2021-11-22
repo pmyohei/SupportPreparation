@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ui.time.TimeFragment">
+    tools:context="com.stacktime.supportpreparation.ui.time.TimeFragment">
 
     <include
         layout="@layout/manage_stack" />

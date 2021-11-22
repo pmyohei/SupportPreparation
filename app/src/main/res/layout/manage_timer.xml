@@ -13,7 +13,7 @@
         android:id="@+id/cl_time"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.time.TimeFragment">
+        tools:context="com.stacktime.supportpreparation.ui.time.TimeFragment">
 
         <View
             android:id="@+id/v_border"

@@ -8,7 +8,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:background="@color/bg_common"
-    tools:context=".ui.taskManager.TaskManagerFragment">
+    tools:context="com.stacktime.supportpreparation.ui.taskManager.TaskManagerFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_taskList"

@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/item_navi_stack"
-        android:name="com.example.supportpreparation.ui.stackManager.StackManagerFragment"
+        android:name="com.stacktime.supportpreparation.ui.stackManager.StackManagerFragment"
         android:label="@string/title_stack"
         tools:layout="@layout/fragment_stack_manager" />
 
     <fragment
         android:id="@+id/item_navi_task"
-        android:name="com.example.supportpreparation.ui.taskManager.TaskManagerFragment"
+        android:name="com.stacktime.supportpreparation.ui.taskManager.TaskManagerFragment"
         android:label="@string/title_task"
         tools:layout="@layout/fragment_task_manager" />
 
     <fragment
         android:id="@+id/item_navi_group"
-        android:name="com.example.supportpreparation.ui.groupManager.GroupManagerFragment"
+        android:name="com.stacktime.supportpreparation.ui.groupManager.GroupManagerFragment"
         android:label="@string/title_group"
         tools:layout="@layout/fragment_group_manager" />
 
     <fragment
         android:id="@+id/item_navi_time"
-        android:name="com.example.supportpreparation.ui.time.TimeFragment"
+        android:name="com.stacktime.supportpreparation.ui.time.TimeFragment"
         android:label="@string/title_time"
         tools:layout="@layout/fragment_time_manager" />
 

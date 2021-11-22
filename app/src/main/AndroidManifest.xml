@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.supportpreparation">
+    package="com.stacktime.supportpreparation">
 
     <!-- アラーム設定 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -20,7 +20,7 @@
         tools:ignore="LockedOrientationActivity">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.stacktime.supportpreparation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
@@ -34,7 +34,7 @@
 
         <!-- アラーム受信設定 -->
         <receiver
-            android:name=".AlarmBroadcastReceiver"
+            android:name="com.stacktime.supportpreparation.AlarmBroadcastReceiver"
             android:process=":remote" />
 
         <!-- 通知アイコン -->
