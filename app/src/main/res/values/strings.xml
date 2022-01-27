@@ -8,8 +8,8 @@
     <string name="dialog_close">Close</string>
 
     <!-- スタック画面 -->
-    <string name="label_now"> Now </string>
-    <string name="label_finish"> Fin </string>
+    <string name="label_now"> now </string>
+    <string name="label_finish">done</string>
     <string name="dialog_notify_set">Set Notification</string>
     <string name="dialog_notify_all_on">All ON</string>
     <string name="dialog_notify_all_off">All OFF</string>
