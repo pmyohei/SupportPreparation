@@ -155,12 +155,10 @@
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/menu_bottom_navigation.xml" value="0.2765625" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/mipmap-anydpi-v26/ic_appli_icon.xml" value="0.34270833333333334" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/mipmap-anydpi-v26/ic_appli_icon_round.xml" value="0.34270833333333334" />
+        <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/mipmap-anydpi-v26/ic_appli_time.xml" value="0.17777777777777778" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.34270833333333334" />
         <entry key="..\:/Users/t.yohei/AndroidStudioProjects/SupportPreparation/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.34270833333333334" />
         <entry key="..\:/Users/t.yohei/AppData/Local/Android/Sdk/platforms/android-30/data/res/drawable/ic_lock_idle_alarm.xml" value="0.2713541666666667" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable-v21/avd_stack_128.xml" value="0.21875" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable-v22/avd_stack_128.xml" value="0.21875" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable-v24/avd_stack_128.xml" value="0.17083333333333334" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/anim_selector_stack.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/anim_selector_task.xml" value="0.340625" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/drawable/avd_stack_128.xml" value="0.27447916666666666" />
@@ -211,13 +209,12 @@
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/list_set_manage.xml" value="0.2869791666666667" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_list_group.xml" value="0.15096251266464034" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_list_task.xml" value="0.28229166666666666" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack.xml" value="0.2" />
+        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack.xml" value="0.2598958333333333" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_stack_task.xml" value="0.2" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/manage_timer.xml" value="0.18795289855072464" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group.xml" value="0.21240942028985507" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_group_for_select.xml" value="0.12395833333333334" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/outer_task_long.xml" value="0.21240942028985507" />
-        <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/select_area_for_stack.xml" value="0.23958333333333334" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/layout/stack_task.xml" value="0.264" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/bottom_nav_menu.xml" value="0.278125" />
         <entry key="..\:/Users/takahashi_yhi/AndroidStudioProjects/SupportPreparation/app/src/main/res/menu/menu_bottom_navigation.xml" value="0.2552083333333333" />
