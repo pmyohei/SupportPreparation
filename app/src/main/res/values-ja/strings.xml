@@ -98,10 +98,11 @@
     <string name="admod_app_id">ca-app-pub-8046295810838892~8236388212</string>
 
     <!-- リリース時とテスト時で切り替える -->
+    <!-- テスト用
     <string name="admod_unit_id">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- リリース用
-    <string name="admod_id">ca-app-pub-8046295810838892/4349114093</string>
     -->
+    <!-- リリース用 -->
+    <string name="admod_unit_id">ca-app-pub-8046295810838892/4349114093</string>
 
     <!-- Fab詳細説明 -->
     <string name="fab_content_switch_direction">ベース時間の方向反転</string>

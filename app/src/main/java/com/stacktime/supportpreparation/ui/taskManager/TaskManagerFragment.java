@@ -45,9 +45,9 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     private MainActivity                mParentActivity;            //親アクティビティ
     private View                        mRootLayout;                //本フラグメントに設定しているレイアウト
     private Context                     mContext;                   //コンテキスト（親アクティビティ）
-    private AppDatabase mDB;                        //DB
-    private TaskArrayList<TaskTable> mTaskList;                  //「やること」リスト
-    private TaskRecyclerAdapter mTaskAdapter;               //「やること」表示アダプタ
+    private AppDatabase                 mDB;                        //DB
+    private TaskArrayList<TaskTable>    mTaskList;                  //「やること」リスト
+    private TaskRecyclerAdapter         mTaskAdapter;               //「やること」表示アダプタ
     private AsyncTaskTableOperaion.TaskOperationListener
                                         mTaskListener;              //「やること」操作リスナー
 
@@ -84,7 +84,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
         setupTaskList();
 
         //「やること」追加Fab
-        FloatingActionButton fab = (FloatingActionButton) mRootLayout.findViewById(R.id.fab_addTask);
+        FloatingActionButton fab = mRootLayout.findViewById(R.id.fab_addTask);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,7 +142,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
     public void setupTaskList() {
 
         //レイアウトからリストビューを取得
-        RecyclerView rv_task  = (RecyclerView) mRootLayout.findViewById(R.id.rv_taskList);
+        RecyclerView rv_task = mRootLayout.findViewById(R.id.rv_taskList);
         //グリッド表示の設定
         rv_task.setLayoutManager(new GridLayoutManager(mContext, TASK_COLUMN));
 
@@ -180,7 +180,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
             }
         });
 
-
         //ドラッグアンドドロップ、スワイプの設定
         ItemTouchHelper helper = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback( ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
@@ -189,21 +188,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                     public boolean onMove(@NonNull RecyclerView            recyclerView,
                                           @NonNull RecyclerView.ViewHolder dragged,
                                           @NonNull RecyclerView.ViewHolder target) {
-                        //並び替えは要検討
-/*
-                        //！getAdapterPosition()←非推奨
-                        final int fromPos = dragged.getAdapterPosition();
-                        final int toPos   = target.getAdapterPosition();
-
-                        Log.i("test", "onMove " + fromPos + " " + toPos);
-
-                        //リスト入れ替え
-                        swap( mTaskList, fromPos, toPos);
-
-                        //アイテム移動を通知
-                        mTaskAdapter.notifyItemMoved(fromPos, toPos);
-*/
-
                         return true;
                     }
 
@@ -223,8 +207,15 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                                     public void onClick(View view) {
                                         //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
                                         mTaskList.addTask(adapterPosition, deletedTask);
-                                        mTaskAdapter.notifyItemInserted(adapterPosition );
-                                        rv_task.scrollToPosition(adapterPosition );
+
+                                        //アダプタに変更を通知
+                                        if( mTaskList.size() == 1 ){
+                                            //空のデータがあるため、1件目の場合は変更通知
+                                            mTaskAdapter.notifyItemChanged(0);
+                                        } else {
+                                            mTaskAdapter.notifyItemInserted(adapterPosition);
+                                            rv_task.scrollToPosition(adapterPosition );
+                                        }
                                     }
                                 },
                                 //para2:スナックバー消失時の動作
@@ -246,6 +237,10 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
                         //リストから削除し、アダプターへ通知
                         mTaskList.remove(adapterPosition);
                         mTaskAdapter.notifyItemRemoved(adapterPosition);
+
+                        //０件なら、空のデータをリストに入れておく
+                        //※選択エリアのサイズを確保するため
+                        mTaskList.addEmpty();
                     }
                 }
         );
@@ -310,7 +305,7 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
 
         //０件なら、空のデータをリストに入れておく
         //※選択エリアのサイズを確保するため
-        mTaskList.addEmpty();
+        //mTaskList.addEmpty();
     }
 
     /* -------------------

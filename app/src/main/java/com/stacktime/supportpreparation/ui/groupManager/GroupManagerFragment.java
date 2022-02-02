@@ -57,10 +57,10 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     private View                            mRootLayout;                    //本フラグメントに設定しているレイアウト
     private Fragment                        mFragment;                      //本フラグメント
     private Context                         mContext;                       //コンテキスト（親アクティビティ）
-    private AppDatabase mDB;                            //DB
-    private TaskArrayList<TaskTable> mTaskList;                      //「やること」リスト
-    private GroupArrayList<GroupTable> mGroupList;                     //「グループ」リスト
-    private GroupRecyclerAdapter mGroupAdapter;                  //「グループ」表示アダプタ
+    private AppDatabase                     mDB;                            //DB
+    private TaskArrayList<TaskTable>        mTaskList;                      //「やること」リスト
+    private GroupArrayList<GroupTable>      mGroupList;                     //「グループ」リスト
+    private GroupRecyclerAdapter            mGroupAdapter;                  //「グループ」表示アダプタ
     private FloatingActionButton            mFab;                           //フローティングボタン
     private AsyncGroupTableOperaion.GroupOperationListener
                                             mGroupDBListener;               //「グループ」DB操作リスナー
@@ -297,14 +297,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                 public boolean onMove(@NonNull RecyclerView            recyclerView,
                                       @NonNull RecyclerView.ViewHolder viewHolder,
                                       @NonNull RecyclerView.ViewHolder target) {
-                            /*
-                            //！getAdapterPosition()←非推奨
-                            final int fromPos = viewHolder.getAdapterPosition();
-                            final int toPos   = target.getAdapterPosition();
-                            //アイテム移動を通知
-                            mGroupAdapter.notifyItemMoved(fromPos, toPos);
-                            Log.i("test", "onMove " + fromPos + " " + toPos);
-                            */
                     return true;
                 }
 
@@ -324,13 +316,25 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
                                     //UNDOが選択された場合、削除されたアイテムを元の位置に戻す
                                     mGroupList.addGroup(adapterPosition, deletedGroup);
-                                    mGroupAdapter.notifyItemInserted(adapterPosition );
 
-                                    //追加前の最後のデータに変更通知を送る
-                                    //※空白スペースを削除するため。
-                                    mGroupAdapter.notifyItemChanged( mGroupList.getLastIdx() - 1);
+                                    //アダプタに変更を通知
+                                    if( mGroupList.size() == 1 ){
+                                        //空のデータがあるため、1件目の場合は変更通知
+                                        mGroupAdapter.notifyItemChanged(0);
+                                    } else {
+                                        //挿入通知
+                                        mGroupAdapter.notifyItemInserted(adapterPosition);
 
-                                    rv_group.scrollToPosition(adapterPosition );
+                                        //元に戻したのが最後の要素なら
+                                        if( adapterPosition == mGroupList.getLastIdx() ){
+                                            //追加前の最後のデータに変更通知を送る
+                                            //※空白スペース(があれば)削除するため。
+                                            mGroupAdapter.notifyItemChanged( mGroupList.getLastIdx() - 1);
+                                        }
+
+                                        //UNDO対象にスクロール
+                                        rv_group.scrollToPosition(adapterPosition );
+                                    }
                                 }
                             },
                             //para2:スナックバー消失時の動作
@@ -352,6 +356,14 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
                     //リストから削除し、アダプターへ通知
                     mGroupList.remove(adapterPosition);
                     mGroupAdapter.notifyItemRemoved(adapterPosition);
+
+                    if( mGroupList.size() == 0 ){
+                        //０件なら、空のデータをリストに入れておく
+                        //※選択エリアのサイズを確保するため
+                        mGroupList.addEmpty();
+
+                        return;
+                    }
 
                     //削除後の最後のデータに変更通知を送る。
                     //※後ろに空白スペースを入れるため。
@@ -599,7 +611,7 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
 
         //０件なら、空のデータをリストに入れておく
         //※選択エリアのサイズを確保するため
-        mGroupList.addEmpty();
+        //mGroupList.addEmpty();
     }
 
     @Override
