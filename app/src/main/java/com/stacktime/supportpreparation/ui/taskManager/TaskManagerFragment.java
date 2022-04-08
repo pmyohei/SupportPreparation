@@ -267,10 +267,6 @@ public class TaskManagerFragment extends Fragment implements AsyncTaskTableOpera
      * インターフェース：「やること」
      *   「やること」の表示
      */
-    @Override
-    public void onSuccessTaskRead(TaskArrayList<TaskTable> taskList) {
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onSuccessTaskCreate(Integer code, TaskTable taskTable) {

@@ -13,7 +13,6 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
     //DB操作種別
     public enum DB_OPERATION {
         CREATE,         //生成
-        READ,           //参照
         UPDATE,         //更新
         DELETE,         //削除
         ADD_TASK,       //やることを追加
@@ -32,20 +31,9 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
     private String                      mGroupName;
     private String                      mNewTaskPidsStr;
     private GroupTable                  mNewGroupTable;
-    private GroupArrayList<GroupTable>  mGroupList  = new GroupArrayList<>();
     private int                         mAddTaskPid;
     private int                         mDeleteTaskPos;
     private GroupOperationListener      mListener;
-
-    /*
-     * コンストラクタ
-     *   表示
-     */
-    public AsyncGroupTableOperaion(AppDatabase db, GroupOperationListener listener, DB_OPERATION operation){
-        mDB = db;
-        mListener = listener;
-        mOperation = operation;
-    }
 
     /*
      * コンストラクタ
@@ -110,10 +98,6 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
             //登録
             ret = createGroup(groupTableDao);
 
-        } else if(mOperation == DB_OPERATION.READ ){
-            //表示
-            readGroup(groupTableDao);
-
         } else if(mOperation == DB_OPERATION.UPDATE ){
             //編集
             ret = editGroupName(groupTableDao);
@@ -152,54 +136,6 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
 
         //正常終了
         return NORMAL;
-    }
-
-    /*
-     * 「やることグループ」の読み込み
-     */
-    private void readGroup(GroupTableDao dao ){
-
-        TaskTableDao taskTableDao = mDB.taskTableDao();
-
-        //DBから、保存済みのグループリストを取得
-        List<GroupTable> groupList = dao.getAll();
-
-        //-- 各グループの「選択済みやること」をリスト化する
-        //グループ分ループ
-        for( GroupTable groupInfo: groupList){
-
-            //グループに紐づいた「やること」pidを取得
-            String tasksStr = groupInfo.getTaskPidsStr();
-            List<Integer> pids = TaskTableManager.convertIntArray(tasksStr);
-
-            Log.i("test", "readGroup groupName=" + groupInfo.getGroupName() + " tasksStr=" + tasksStr);
-
-            //グループに紐づいた「やること」
-            TaskArrayList<TaskTable> tasks = new TaskArrayList<>();
-
-            //やることがあれば
-            if( pids != null ) {
-                //pid数分
-                for( Integer pid: pids ){
-                    //pidに対応する「やること」を取得し、リストに追加
-                    TaskTable task = taskTableDao.getRecord(pid);
-                    if( task != null ){
-                        //--フェールセーフ
-                        //該当する「やること」あり
-                        Log.i("failsafe", "group task is null. pid=" + pid);
-
-                        //グループ内「やること」リストに追加
-                        tasks.add(task);
-                    }
-                }
-            }
-
-            //GroupTable内のリストに保持
-            groupInfo.setTaskInGroupList(tasks);
-
-            //グループリスト用クラスのインスタンスに格納
-            mGroupList.add( groupInfo );
-        }
     }
 
     /*
@@ -277,11 +213,7 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
         //リスナーを実装していれば、処理に対応する後処理を行う
         if (mListener != null) {
 
-            if( mOperation == DB_OPERATION.READ ){
-                //処理終了：読み込み
-                mListener.onSuccessReadGroup(mGroupList);
-
-            } else if( mOperation == DB_OPERATION.CREATE ){
+            if( mOperation == DB_OPERATION.CREATE ){
                 //処理終了：新規作成
                 mListener.onSuccessCreateGroup(code, mNewGroupTable);
 
@@ -305,31 +237,21 @@ public class AsyncGroupTableOperaion extends AsyncTask<Void, Void, Integer> {
      * 処理結果通知用のインターフェース
      */
     public interface GroupOperationListener {
-
-        /*
-         * 取得完了時
-         */
-        void onSuccessReadGroup(GroupArrayList<GroupTable> groupList);
-
         /*
          * 新規生成完了時
          */
         void onSuccessCreateGroup(Integer code, GroupTable group );
-
         /*
          * 削除完了時
          */
         void onSuccessDeleteGroup(String task);
-
         /*
          * 更新完了時
          */
         void onSuccessEditGroup(Integer code, String preTask, String groupName);
-
         /*
          * やること追加／削除完了時
          */
         void onSuccessUpdateTask(int groupPid, String taskPidsStr);
-
     }
 }

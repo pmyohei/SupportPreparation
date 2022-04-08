@@ -1,5 +1,7 @@
 package com.stacktime.supportpreparation;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+import static android.app.PendingIntent.FLAG_NO_CREATE;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 
 import android.annotation.SuppressLint;
@@ -57,7 +59,8 @@ import java.util.List;
  * メインとなるActivity
  *   本Activityの上にフラグメントを生成
  */
-public class MainActivity extends AppCompatActivity implements AsyncGroupTableOperaion.GroupOperationListener,
+public class MainActivity extends AppCompatActivity implements  AsyncAllReadOperaion.AsyncAllReadOperaionListener,
+                                                                AsyncGroupTableOperaion.GroupOperationListener,
                                                                 AsyncTaskTableOperaion.TaskOperationListener,
                                                                 AsyncStackTaskTableOperaion.StackTaskOperationListener {
 
@@ -93,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private List<List<Integer>> mGuideList;                 //操作案内レイアウトIDリスト(画面毎のすべてのID)
     private AdSize mAdSize;                                 //AdViewのサイズ
     private FRAGMENT_KIND mPreFrgKind;                      //前回のガイド要求フラグメント種別
-    private boolean mSplashEnd;                             //スプラッシュアニメーション終了フラグ
     private boolean mReadData;                              //DB読み込みフラグ
     private boolean mIsStop;                                //カウントダウン停止フラグ
     private Snackbar mSnackbar;                             //スナックバー
@@ -102,22 +104,26 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        //setContentView(R.layout.activity_splash);
+        //setContentView(R.layout.activity_main);
 
         //ダークモード非対応
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
 
+        //非同期スレッドにて、読み込み開始
+        //-- レイアウト設定は、DBread完了後に行う --//
+        mDB = AppDatabaseSingleton.getInstance(this);
+        new AsyncAllReadOperaion(mDB, this).execute();
+
         //スプラッシュ用アニメーション開始
-        if (Build.VERSION.SDK_INT >= 23) {
+/*        if (Build.VERSION.SDK_INT >= 23) {
             startSplashAnimation();
         } else {
             startSplashAnimation_less_23();
-        }
+        }*/
 
         //起動時の選択エリアは「やること」
         mIsSelectTask = true;
-        //アニメーション終了OFF
-        mSplashEnd = false;
         //DB読み込み終了OFF
         mReadData = false;
 
@@ -131,19 +137,14 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
         SharedPreferences spData = getSharedPreferences(SHARED_DATA_NAME, MODE_PRIVATE);
         mIsStop = spData.getBoolean(SHARED_KEY_COUNTDOWN_STOP, false);
 
-        //AdMod初期化
+        //AdMob初期化
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
 
-        //DB操作インスタンスを取得
-        mDB = AppDatabaseSingleton.getInstance(this);
-        //非同期スレッドにて、読み込み開始
-        new AsyncTaskTableOperaion(mDB, this, AsyncTaskTableOperaion.DB_OPERATION.READ).execute();
 
-        Log.i("test", "main onSuccessTaskRead");
     }
 
     @Override
@@ -154,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     /*
      * スプラッシュアニメーション開始
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+/*    @RequiresApi(api = Build.VERSION_CODES.M)
     private void startSplashAnimation() {
 
         //アイコンアニメーション
@@ -176,12 +177,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                 }
             }
         });
-    }
+    }*/
 
     /*
      * スプラッシュアニメーション開始
      */
-    private void startSplashAnimation_less_23() {
+/*    private void startSplashAnimation_less_23() {
 
         //アニメーション
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.splash_less_23);
@@ -211,12 +212,11 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             @Override
             public void onAnimationStart(Animation animation) {
             }
-
             @Override
             public void onAnimationRepeat(Animation animation) {
             }
         });
-    }
+    }*/
 
     /*
      * レイアウト設定
@@ -224,10 +224,10 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     private void setupMainLayout() {
 
         //スプラッシュレイアウトを削除
-        View cl_splash = findViewById(R.id.cl_splash);
+/*        View cl_splash = findViewById(R.id.cl_splash);
         View v_parent = cl_splash.getRootView();
         ((ViewGroup) v_parent).removeView(cl_splash);
-
+*/
         //メインのレイアウト設定
         setContentView(R.layout.activity_main);
 
@@ -247,10 +247,8 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         //広告のロード
         loadAdmod();
-
         //各画面の操作案内のレイアウトIDを保持
         holdGuideList();
-
         //ヘルプボタンの設定
         setupHelp();
     }
@@ -275,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                     layoutList.add(R.layout.guide_stack_page_4);
                     layoutList.add(R.layout.guide_stack_page_5);
                     layoutList.add(R.layout.guide_stack_page_6);
-
                     break;
 
                 case TASK:
@@ -283,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                     layoutList.add(R.layout.guide_task_page_2);
                     layoutList.add(R.layout.guide_task_page_3);
                     layoutList.add(R.layout.guide_task_page_4);
-
                     break;
 
                 case GROUP:
@@ -293,14 +289,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
                     layoutList.add(R.layout.guide_group_page_4);
                     layoutList.add(R.layout.guide_group_page_5);
                     layoutList.add(R.layout.guide_group_page_6);
-
                     break;
 
                 case TIME:
                     layoutList.add(R.layout.guide_time_page_1);
                     layoutList.add(R.layout.guide_time_page_2);
                     layoutList.add(R.layout.guide_time_page_3);
-
                     break;
             }
 
@@ -455,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
             //現在時刻を過ぎているアラームなら、設定せず次へ
             if (dateNow.after(task.getStartCalendar().getTime())) {
-                Log.i("skip", "skip check task=" + task.getTaskName());
+                //Log.i("skip", "skip check task=" + task.getTaskName());
                 continue;
             }
 
@@ -463,14 +457,15 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
             intent.putExtra(ResourceManager.NOTIFY_SEND_KEY, task.getTaskName() + suffixStr);
 
-            Log.i("setAlarm", "message=" + task.getTaskName() + suffixStr);
+            //Log.i("setAlarm", "message=" + task.getTaskName() + suffixStr);
 
             //アラーム設定時間
             long millis = task.getStartCalendar().getTimeInMillis();
 
             //アラームの設定
+            int flag = (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ? FLAG_IMMUTABLE : 0 );
             PendingIntent pending
-                    = PendingIntent.getBroadcast(this, requestCode, intent, 0);
+                    = PendingIntent.getBroadcast(this, requestCode, intent, flag);
             am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
 
             //リクエストコードを更新
@@ -491,9 +486,12 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
             long millis = calender.getTimeInMillis();
 
+            //フラグ
+            int flag = (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ? FLAG_IMMUTABLE : 0 );
+
             //アラームの設定
             PendingIntent pending
-                    = PendingIntent.getBroadcast(this, requestCode, intent, 0);
+                    = PendingIntent.getBroadcast(this, requestCode, intent, flag);
             am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
 
             //リクエストコードを更新
@@ -518,9 +516,21 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
 
         for (int i = 0; i < ResourceManager.MAX_STACK_TASK_NUM; i++) {
             //PendingIntentを取得
-            //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
             Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i, intent, PendingIntent.FLAG_NO_CREATE);
+            PendingIntent pendingIntent;
+
+            Log.i("test", "Build.VERSION.SDK_INT=" + Build.VERSION.SDK_INT);
+            if( Build.VERSION.SDK_INT > Build.VERSION_CODES.R ){
+
+                Log.i("test", "aa Build.VERSION.SDK_INT=" + Build.VERSION.SDK_INT);
+
+                //API30を超える場合
+                pendingIntent = PendingIntent.getBroadcast(this, i, intent, FLAG_IMMUTABLE);
+            } else {
+                //※「FLAG_NO_CREATE」を指定することで、新規のPendingIntent（アラーム未生成）の場合は、nullを取得する
+                pendingIntent = PendingIntent.getBroadcast(this, i, intent, FLAG_NO_CREATE);
+            }
+
             if (pendingIntent == null) {
                 //未生成ならキャンセル処理終了
                 Log.i("test", "cancelAllAlarm= + i");
@@ -732,24 +742,35 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      *  インターフェース
      *  -------------------------------------------------
      */
-
-    /* --------------------------------------
-     * 「やること」
-     */
-
     @Override
-    public void onSuccessTaskRead(TaskArrayList<TaskTable> taskList) {
+    public void onRead(TaskArrayList<TaskTable> taskList,
+                       GroupArrayList<GroupTable> groupList,
+                       StackTaskTable stack,
+                       StackTaskTable alarmStack ) {
+
         //「やること」リストを保持
         mTaskList = taskList;
-
         //０件なら、空のデータをリストに入れておく
         //※選択エリアのサイズを確保するため
         mTaskList.addEmpty();
 
-        //「やることセット」
-        new AsyncGroupTableOperaion(mDB, this, AsyncGroupTableOperaion.DB_OPERATION.READ).execute();
+        //DBから取得したデータを保持
+        mGroupList = groupList;
+        //０件なら、空のデータをリストに入れておく
+        //※選択エリアのサイズを確保するため
+        mGroupList.addEmpty();
+
+        //DBからデータを取れれば
+        mStackTable = stack;
+        mAlarmStack = alarmStack;
+
+        //スプラッシュアニメーションが終了していれば、レイアウト設定
+        setupMainLayout();
     }
 
+    /* --------------------------------------
+     * 「やること」
+     */
     @Override
     public void onSuccessTaskCreate(Integer code, TaskTable taskTable) {
         //do nothing
@@ -767,20 +788,6 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
      * 「やることグループ」
      */
     @Override
-    public void onSuccessReadGroup(GroupArrayList<GroupTable> groupList) {
-
-        //DBから取得したデータを保持
-        mGroupList = groupList;
-
-        //０件なら、空のデータをリストに入れておく
-        //※選択エリアのサイズを確保するため
-        mGroupList.addEmpty();
-
-        //「積み上げやること」の読み込み
-        new AsyncStackTaskTableOperaion(mDB, this, AsyncStackTaskTableOperaion.DB_OPERATION.READ).execute();
-    }
-
-    @Override
     public void onSuccessCreateGroup(Integer code, GroupTable group) {
     }
     @Override
@@ -793,31 +800,9 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void onSuccessUpdateTask(int groupPid, String taskPidsStr){
     }
 
-
     /* --------------------------------------
      * 「積み上げやること」
      */
-    @Override
-    public void onSuccessStackRead( Integer code, StackTaskTable stack, StackTaskTable alarmStack ) {
-
-        //DBからデータを取れれば
-        if( code == AsyncStackTaskTableOperaion.READ_NORMAL ){
-
-            mStackTable = stack;
-            mAlarmStack = alarmStack;
-
-            Log.i("test", "onSuccessStackRead");
-        }
-
-        //フラグON
-        mReadData = true;
-
-        //スプラッシュアニメーションが終了していれば、レイアウト設定
-        if( mSplashEnd ){
-            setupMainLayout();
-        }
-    }
-
     @Override
     public void onSuccessStackCreate() {
         //do nothing
@@ -826,5 +811,4 @@ public class MainActivity extends AppCompatActivity implements AsyncGroupTableOp
     public void onSuccessStackDelete() {
         //do nothing
     }
-
 }
