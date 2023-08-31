@@ -5,6 +5,8 @@
 
     <!-- アラーム設定 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- アラーム設定(API31から必要) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <!-- Admodのために追加 -->
     <uses-permission android:name="android.permission.INTERNET"/>

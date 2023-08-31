@@ -12,7 +12,6 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     //DB操作種別
     public enum DB_OPERATION {
         CREATE,         //生成
-        READ,           //参照
         UPDATE,         //更新
         DELETE;         //削除
     }
@@ -30,18 +29,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
     private String                          mNewTaskName;
     private int                             mNewTaskTime;
     private TaskTable                       mTaskTable;
-    private final TaskArrayList<TaskTable>  mTaskList = new TaskArrayList<>();
     private TaskOperationListener           mListener;
-
-    /*
-     * コンストラクタ
-     *   表示
-     */
-    public AsyncTaskTableOperaion(AppDatabase db, TaskOperationListener listener, DB_OPERATION operation){
-        mDB         = db;
-        mListener   = listener;
-        mOperation  = operation;
-    }
 
     /*
      * コンストラクタ
@@ -92,10 +80,6 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
             //登録
             ret = createTaskData(taskTableDao);
 
-        } else if(mOperation == DB_OPERATION.READ ){
-            //表示
-            readTaskData(taskTableDao);
-
         } else if(mOperation == DB_OPERATION.UPDATE ){
             //編集
             ret = updateTaskData(taskTableDao);
@@ -132,20 +116,6 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
 
         //正常終了
         return NORMAL;
-    }
-
-    /*
-     * 「やること」の表示処理
-     */
-    private void readTaskData(TaskTableDao dao ){
-
-        //DBから、保存済みのタスクリストを取得
-        List<TaskTable> taskList = dao.getAll();
-
-        //やることリスト用クラスのインスタンスに格納
-        for( TaskTable task: taskList ){
-            mTaskList.add(task);
-        }
     }
 
     /*
@@ -190,11 +160,7 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
         //リスナーを実装していれば、成功後の処理を行う
         if (mListener != null) {
 
-            if( mOperation == DB_OPERATION.READ ){
-                //処理終了：読み込み
-                mListener.onSuccessTaskRead(mTaskList);
-
-            } else if( mOperation == DB_OPERATION.CREATE ){
+            if(  mOperation == DB_OPERATION.CREATE ){
                 //処理終了：新規作成
                 mListener.onSuccessTaskCreate(code, mTaskTable);
 
@@ -214,26 +180,17 @@ public class AsyncTaskTableOperaion extends AsyncTask<Void, Void, Integer> {
      * 処理結果通知用のインターフェース
      */
     public interface TaskOperationListener {
-
-        /*
-         * 取得完了時
-         */
-        void onSuccessTaskRead(TaskArrayList<TaskTable> taskList);
-
         /*
          * 新規生成完了時
          */
         void onSuccessTaskCreate(Integer code, TaskTable taskTable );
-
         /*
          * 削除完了時
          */
         void onSuccessTaskDelete(String task, int taskTime);
-
         /*
          * 更新完了時
          */
         void onSuccessEditTask(Integer code, String preTask, int preTaskTime, TaskTable updatedtask);
-
     }
 }

@@ -557,10 +557,6 @@ public class GroupManagerFragment extends Fragment implements AsyncGroupTableOpe
     /* --------------------------------------
      * 「グループ」
      */
-    @Override
-    public void onSuccessReadGroup(GroupArrayList<GroupTable> groupList) {
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onSuccessCreateGroup(Integer code, GroupTable group) {
