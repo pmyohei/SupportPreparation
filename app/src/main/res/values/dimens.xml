@@ -36,4 +36,7 @@
     <!-- ソース上で決定されるサイズには、この値を暫定として設定 -->
     <dimen name="_variable_size">100dp</dimen>
 
+    <!-- 広告 -->
+    <dimen name="ad_margin_top">32dp</dimen>
+
 </resources>

@@ -410,8 +410,8 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
     public void setAlarm(StackTaskTable stackTable) {
 
         //AlarmManagerの取得
-        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        if (am == null) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (alarmManager == null) {
             //メッセージを表示
             Toast.makeText(this, R.string.toast_error_occurred, Toast.LENGTH_SHORT).show();
             return;
@@ -466,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
             int flag = (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ? FLAG_IMMUTABLE : 0 );
             PendingIntent pending
                     = PendingIntent.getBroadcast(this, requestCode, intent, flag);
-            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
 
             //リクエストコードを更新
             requestCode++;
@@ -492,7 +492,7 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
             //アラームの設定
             PendingIntent pending
                     = PendingIntent.getBroadcast(this, requestCode, intent, flag);
-            am.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, millis, pending);
 
             //リクエストコードを更新
             requestCode++;
@@ -558,6 +558,18 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
      */
     public void setVisibilityAdmod(int value) {
 
+        //--------------------
+        // 広告無効化
+        //--------------------
+        // ！常時非表示　2023/11/27
+        boolean disableAd = true;
+        if( disableAd ){
+//           return;
+        }
+
+        //--------------------
+        // 広告表示制御
+        //--------------------
         AdView adView = findViewById(R.id.adView);
         if (adView == null) {
             //起動時、未読み込み時のガード
@@ -568,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
     }
 
     /*
-     * Admodの表示／非表示
+     * HelpUIの表示／非表示
      */
     public void setVisibilityHelpBtn(int value) {
 

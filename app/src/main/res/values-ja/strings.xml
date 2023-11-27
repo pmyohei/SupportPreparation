@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Stack Time</string>
-    <string name="title_stack">Stack</string>
-    <string name="title_task">Task</string>
-    <string name="title_group">Group</string>
-    <string name="title_time">Time</string>
+    <string name="title_stack">積み上げ</string>
+    <string name="title_task">タスク</string>
+    <string name="title_group">グループ</string>
+    <string name="title_time">タイム</string>
 
     <string name="dialog_close">閉じる</string>
 
@@ -67,32 +67,32 @@
     <string name="notify_final_name">すべてのやることが終了しました</string>
 
     <!-- ガイド-スタック画面 -->
-    <string name="guide_stack_1">この画面では、「やること」を積み上げて時間を管理することができます。</string>
-    <string name="guide_stack_2_1">画面の下に表示されている「やること」をタップして、やることを積み上げていきましょう。</string>
-    <string name="guide_stack_2_2">※「やること」がない場合は、右タブの「Task画面」で作成できます。</string>
+    <string name="guide_stack_1">この画面では、「タスク」を積み上げて時間を管理することができます。</string>
+    <string name="guide_stack_2_1">画面下の白いエリアに並んだ「タスク（色付き四角形）」をタップして、タスクを積み上げていきましょう。</string>
+    <string name="guide_stack_2_2">※「タスク」がない場合は、「タスク画面」（右隣のページ）で作成できます。</string>
     <string name="guide_stack_3">リミットの日時は、「\-\-:\-\-」「日付」をタップして設定できます。</string>
-    <string name="guide_stack_4">設定後は、以下のアイコンを押して通知の設定をしましょう。</string>
-    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。カウントは、一番右タブの「Time画面」で確認することができます。</string>
-    <string name="guide_stack_6">「やりたい」ことを積み上げて、時間を管理しましょう！</string>
+    <string name="guide_stack_4">設定後は、右下の赤いボタンを押した後、通知アイコンを押して通知の設定をしましょう。</string>
+    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。カウントは、一番右タブの「タイム画面」で確認することができます。</string>
+    <string name="guide_stack_6">この画面の説明は以上です。\nタスクを積み上げて、時間を管理しましょう！</string>
 
     <!-- ガイド-タスク画面 -->
-    <string name="guide_task_1">この画面では、「やること」を作成することができます。</string>
-    <string name="guide_task_2">右下の「＋アイコン」で「やること」を作成しましょう。</string>
-    <string name="guide_task_3">作成した「やること」を変更したい場合は、変更したい「やること」をタップしてください。</string>
-    <string name="guide_task_4">不要になった「やること」は、左スワイプで削除できます。</string>
+    <string name="guide_task_1">この画面では、「タスク」を作成することができます。</string>
+    <string name="guide_task_2">右下の「＋アイコン」で「タスク」を作成しましょう。</string>
+    <string name="guide_task_3">作成した「タスク」を変更したい場合は、変更したい「タスク」をタップしてください。</string>
+    <string name="guide_task_4">不要になった「タスク」は、左スワイプで削除できます。</string>
 
     <!-- ガイド-グループ画面 -->
-    <string name="guide_group_1">この画面では、「やること」をグルーピングすることができます。</string>
+    <string name="guide_group_1">この画面では、「タスク」をグルーピングすることができます。</string>
     <string name="guide_group_2">右下の「＋アイコン」で「グループ」を作成しましょう。</string>
-    <string name="guide_group_3">作成したグループに「やること」を追加するには、「やること」をドラッグ＆ドロップしてください。</string>
+    <string name="guide_group_3">作成したグループに「タスク」を追加するには、「タスク」をドラッグ＆ドロップしてください。</string>
     <string name="guide_group_4">作成した「グループ」を変更したい場合は、変更したい「グループ」をタップしてください。</string>
     <string name="guide_group_5">不要になった「グループ」は、左スワイプで削除できます。</string>
-    <string name="guide_group_6">グループ内の「やること」を削除したい場合も、左スワイプでそのグループから削除できます。</string>
+    <string name="guide_group_6">グループ内の「タスク」を削除したい場合も、左スワイプでそのグループから削除できます。</string>
 
     <!-- ガイド-タイマ画面 -->
-    <string name="guide_time_1">この画面では、積み上げたやることの時間を確認できます。</string>
+    <string name="guide_time_1">この画面では、積み上げたタスクの時間を確認できます。</string>
     <string name="guide_time_2">設定中の通知は、右下のアイコンから変更することができます。</string>
-    <string name="guide_time_3">やることの順番や削除をしたい場合は、一番左タブの「Stack画面」からもう一度設定してください。</string>
+    <string name="guide_time_3">タスクの順番や削除をしたい場合は、「積み上げ画面」（左端のページ）からもう一度設定してください。</string>
 
     <!-- Admod -->
     <string name="admod_app_id">ca-app-pub-8046295810838892~8236388212</string>

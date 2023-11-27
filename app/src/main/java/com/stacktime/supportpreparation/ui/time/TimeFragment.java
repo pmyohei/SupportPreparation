@@ -234,6 +234,8 @@ public class TimeFragment extends Fragment {
 
                         //AdViewの高さ
                         int Height = adView.getHeight();
+                        //AdViewのトップマージン
+//                        float topMargin = getActivity().getResources().getDimensionPixelSize(R.dimen.ad_margin_top);
 
                         //レイアウトパラメータ
                         ViewGroup.LayoutParams lp = v_border.getLayoutParams();
