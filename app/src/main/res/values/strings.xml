@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Stack Time</string>
-    <string name="title_stack">Stack</string>
+    <string name="title_stack">Schedule</string>
     <string name="title_task">Task</string>
     <string name="title_group">Group</string>
     <string name="title_time">Time</string>
@@ -93,6 +93,7 @@
     <string name="guide_stack_5">When you set the notification, the time will start counting. You can check the count on the \"Time screen\" on the far right.</string>
     <!-- 「やりたい」ことを積み上げて、時間を管理しましょう！ -->
     <string name="guide_stack_6">Stack up your tasks and manage your time!</string>
+    <string name="guide_stack_6_licenses"><u>Licenses</u></string>
 
     <!-- ガイド-タスク画面 -->
     <!-- この画面では、「やること」を作成することができます。 -->
@@ -123,8 +124,8 @@
     <string name="guide_time_1">On this screen, you can see the time of the stacked tasks.</string>
     <!-- 設定中の通知は、右下のアイコンから変更することができます。 -->
     <string name="guide_time_2">You can change the set notification from the icon at the bottom right.</string>
-    <!-- やることの順番や削除をしたい場合は、一番左タブの「Stack画面」からもう一度設定してください。 -->
-    <string name="guide_time_3">To delete a task or change the order of tasks, set again from the \"Stack screen\" on the far left.</string>
+    <!-- やることの順番や削除をしたい場合は、一番左タブの「Schedule画面」からもう一度設定してください。 -->
+    <string name="guide_time_3">To delete a task or change the order of tasks, set again from the \"Schedule screen\" on the far left.</string>
 
     <!-- Admod -->
     <string name="admod_app_id">ca-app-pub-8046295810838892~8236388212</string>

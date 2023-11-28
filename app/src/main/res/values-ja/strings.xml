@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Stack Time</string>
-    <string name="title_stack">積み上げ</string>
+    <string name="title_stack">スケジュール</string>
     <string name="title_task">タスク</string>
     <string name="title_group">グループ</string>
     <string name="title_time">タイム</string>
@@ -67,13 +67,14 @@
     <string name="notify_final_name">すべてのやることが終了しました</string>
 
     <!-- ガイド-スタック画面 -->
-    <string name="guide_stack_1">この画面では、「タスク」を積み上げて時間を管理することができます。</string>
+    <string name="guide_stack_1">この画面では、「タスク」を積み上げてタイムスケジュールを作成することができます。</string>
     <string name="guide_stack_2_1">画面下の白いエリアに並んだ「タスク（色付き四角形）」をタップして、タスクを積み上げていきましょう。</string>
     <string name="guide_stack_2_2">※「タスク」がない場合は、「タスク画面」（右隣のページ）で作成できます。</string>
-    <string name="guide_stack_3">リミットの日時は、「\-\-:\-\-」「日付」をタップして設定できます。</string>
+    <string name="guide_stack_3">リミットの日時は、「\-\-:\-\-」「yyyy/mm/dd(日付)」をタップして設定できます。</string>
     <string name="guide_stack_4">設定後は、右下の赤いボタンを押した後、通知アイコンを押して通知の設定をしましょう。</string>
-    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。カウントは、一番右タブの「タイム画面」で確認することができます。</string>
+    <string name="guide_stack_5">通知の設定をすると時間のカウントが始まります。カウントは、右端ページの「タイム画面」で確認することができます。</string>
     <string name="guide_stack_6">この画面の説明は以上です。\nタスクを積み上げて、時間を管理しましょう！</string>
+    <string name="guide_stack_6_licenses"><u>ライセンスはこちら</u></string>
 
     <!-- ガイド-タスク画面 -->
     <string name="guide_task_1">この画面では、「タスク」を作成することができます。</string>
@@ -92,7 +93,7 @@
     <!-- ガイド-タイマ画面 -->
     <string name="guide_time_1">この画面では、積み上げたタスクの時間を確認できます。</string>
     <string name="guide_time_2">設定中の通知は、右下のアイコンから変更することができます。</string>
-    <string name="guide_time_3">タスクの順番や削除をしたい場合は、「積み上げ画面」（左端のページ）からもう一度設定してください。</string>
+    <string name="guide_time_3">タスクの順番や削除をしたい場合は、「スケジュール画面」（左端のページ）からもう一度設定してください。</string>
 
     <!-- Admod -->
     <string name="admod_app_id">ca-app-pub-8046295810838892~8236388212</string>

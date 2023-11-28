@@ -27,6 +27,14 @@
                 android:text="@string/guide_stack_6"
                 android:textSize="@dimen/tx_size_guide" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/guide_stack_6_licenses"
+                android:textSize="@dimen/tx_size_guide"
+                android:onClick="onLicensesClicked" />
+
         </LinearLayout>
 
     </ScrollView>

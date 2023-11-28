@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.stacktime.supportpreparation.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -104,8 +105,6 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_splash);
-        //setContentView(R.layout.activity_main);
 
         //ダークモード非対応
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
@@ -114,13 +113,6 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
         //-- レイアウト設定は、DBread完了後に行う --//
         mDB = AppDatabaseSingleton.getInstance(this);
         new AsyncAllReadOperaion(mDB, this).execute();
-
-        //スプラッシュ用アニメーション開始
-/*        if (Build.VERSION.SDK_INT >= 23) {
-            startSplashAnimation();
-        } else {
-            startSplashAnimation_less_23();
-        }*/
 
         //起動時の選択エリアは「やること」
         mIsSelectTask = true;
@@ -143,8 +135,6 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-
-
     }
 
     @Override
@@ -153,81 +143,17 @@ public class MainActivity extends AppCompatActivity implements  AsyncAllReadOper
     }
 
     /*
-     * スプラッシュアニメーション開始
+     * licenses押下時処理
      */
-/*    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void startSplashAnimation() {
-
-        //アイコンアニメーション
-        ImageView iv_splash = findViewById(R.id.iv_splash);
-        iv_splash.setBackgroundResource(R.drawable.avd_splash);
-        AnimatedVectorDrawable rocketAnimation = (AnimatedVectorDrawable) iv_splash.getBackground();
-        rocketAnimation.start();
-
-        rocketAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
-            @Override
-            public void onAnimationEnd(Drawable drawable) {
-                super.onAnimationEnd(drawable);
-
-                mSplashEnd = true;
-
-                //DBの読み取りが完了していれば、レイアウト設定
-                if (mReadData) {
-                    setupMainLayout();
-                }
-            }
-        });
-    }*/
-
-    /*
-     * スプラッシュアニメーション開始
-     */
-/*    private void startSplashAnimation_less_23() {
-
-        //アニメーション
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.splash_less_23);
-
-        //API23以上用のビューは非表示
-        findViewById(R.id.iv_splash).setVisibility(View.GONE);
-
-        //API23未満用のビューを表示
-        ImageView iv_splash_less_23 = findViewById(R.id.iv_splash_less_23);
-        iv_splash_less_23.setVisibility(View.VISIBLE);
-
-        //アニメーション開始
-        iv_splash_less_23.startAnimation(animation);
-
-        //アニメーションリスナー
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mSplashEnd = true;
-
-                //DBの読み取りが完了していれば、レイアウト設定
-                if (mReadData) {
-                    setupMainLayout();
-                }
-            }
-
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-    }*/
+    public void onLicensesClicked(View view) {
+        Intent intent = new Intent(this, OssLicensesMenuActivity.class);
+        startActivity(intent);
+    }
 
     /*
      * レイアウト設定
      */
     private void setupMainLayout() {
-
-        //スプラッシュレイアウトを削除
-/*        View cl_splash = findViewById(R.id.cl_splash);
-        View v_parent = cl_splash.getRootView();
-        ((ViewGroup) v_parent).removeView(cl_splash);
-*/
         //メインのレイアウト設定
         setContentView(R.layout.activity_main);
 
