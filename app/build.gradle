@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.stacktime.supportpreparation"
         minSdk 21
-        targetSdk 33
-        versionCode 6       // !2023/11/27 ライセンス対応
-        versionName "5.1"
+        targetSdk 34
+        versionCode 7       // !2024/08/28 API34対応
+        versionName "5.2"
         multiDexEnabled true //対策：Cannot fit requested classes in a single dex file
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
